@@ -1,0 +1,77 @@
+{
+  "description": "Retrieval evaluation for the MEX-AI engineering learning corpus. Expected articles are exact section headings.",
+  "version": "1",
+  "cases": [
+    {
+      "case_id": "LR01",
+      "query": "what unit is the brake channel and is it pressure",
+      "expected_articles": ["2. Channels (as observed in the cached files)"],
+      "category": "definition_en",
+      "answerable": true
+    },
+    {
+      "case_id": "LR02",
+      "query": "apa satuan channel rem dan apakah itu tekanan rem",
+      "expected_articles": ["2. Channels (as observed in the cached files)"],
+      "category": "definition_id",
+      "answerable": true
+    },
+    {
+      "case_id": "LR03",
+      "query": "how is braking distance related to entering speed",
+      "expected_articles": ["2. Braking"],
+      "category": "theory_en",
+      "answerable": true
+    },
+    {
+      "case_id": "LR04",
+      "query": "bagaimana jarak pengereman berhubungan dengan kecepatan masuk",
+      "expected_articles": ["2. Braking"],
+      "category": "theory_id",
+      "answerable": true
+    },
+    {
+      "case_id": "LR05",
+      "query": "what does throttle percentage mean",
+      "expected_articles": ["3. Throttle"],
+      "category": "theory_en",
+      "answerable": true
+    },
+    {
+      "case_id": "LR06",
+      "query": "can downforce or drag coefficient be inferred from speed",
+      "expected_articles": ["5. Drag and aero limits"],
+      "category": "theory_en",
+      "answerable": true
+    },
+    {
+      "case_id": "LR07",
+      "query": "how should a missing channel value be handled",
+      "expected_articles": ["4. Interpretation rules"],
+      "category": "theory_en",
+      "answerable": true
+    },
+    {
+      "case_id": "LR08",
+      "query": "bagaimana menangani nilai channel yang hilang",
+      "expected_articles": ["4. Interpretation rules"],
+      "category": "theory_id",
+      "answerable": true
+    },
+    {
+      "case_id": "LR09",
+      "query": "large cross-lap position uncertainty between laps",
+      "expected_articles": ["4. Interpretation rules"],
+      "category": "paraphrase",
+      "answerable": true
+    },
+    {
+      "case_id": "LR10",
+      "query": "berapa tekanan rem maksimum dalam bar",
+      "expected_articles": [],
+      "category": "no_answer_id",
+      "answerable": false,
+      "reason": "Brake pressure in bar is not in the dataset; the system should abstain."
+    }
+  ]
+}

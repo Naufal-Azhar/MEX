@@ -1,6 +1,6 @@
 # Rule Validation Log
 
-Generated: 2026-11-21T04:38:54.806820+00:00
+Generated: 2026-11-21T06:28:43.890239+00:00
 
 Automated source check only. Rules remain `reviewed` and are **not** human-approved. The system therefore reports them as demo-only.
 

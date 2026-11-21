@@ -8,20 +8,31 @@
 
 | Check | Command | Result |
 |---|---|---|
-| Baseline + new regression | `.venv\Scripts\python.exe -m pytest -q` | **112 passed**, exit 0 |
+| Baseline + new regression | `.venv\Scripts\python.exe -m pytest -q` | **138 passed**, exit 0 |
 | Baseline legacy suite | same suite, original 66 cases | all passed, no expected values changed |
-| Telemetry feature tests | `pytest tests/test_telemetry.py` | **18 passed** |
-| Rule/evidence-gate tests | `pytest tests/test_analysis_rules.py` | **15 passed** |
-| Retrieval/ask/UI-adjacent tests | `pytest tests/test_learning_ask.py` | **13 passed** |
-| Streamlit module smoke | Streamlit `AppTest` on all three modules | no exception |
-| Streamlit analysis interaction | AppTest click "Analisis lap" | no exception; 3 result tables |
-| Streamlit tutor interaction | AppTest submit theory question | no exception; deterministic fallback warning shown |
+| Telemetry feature tests | `pytest tests/test_telemetry.py` | all passed |
+| Independent gold checks | `pytest tests/test_telemetry_gold.py` | **9 passed** |
+| Rule/evidence-gate tests | `pytest tests/test_analysis_rules.py` | all passed |
+| LTCS rule audit | `pytest tests/test_rule_audit.py` | **2 passed** |
+| Retrieval/ask tests | `pytest tests/test_learning_ask.py` | all passed |
+| Security hardening | `pytest tests/test_security_hardening.py` | **5 passed** |
+| Retrieval evaluation | `python scripts/evaluate_learning_retrieval.py` | 10 cases, report written |
+| Streamlit screenshots | headless Chrome via CDP | 4 screenshots in `research/screenshots/` |
 
 ## 2. Fixture and features
 
 Session: 2025 Abu Dhabi Grand Prix, Qualifying.
-Laps: VER lap 14 (82.295 s) and NOR lap 16 (82.408 s).
-Source: TracingInsights, Apache-2.0; hashes in `datasets/telemetry/manifest.json`.
+Seven cached laps:
+
+| Lap | Category | Compound | Context |
+|---|---|---|---|
+| VER-Q-14 | clean_fast | SOFT | Q3 |
+| NOR-Q-16 | clean_fast | SOFT | Q3 |
+| PIA-Q-16 | clean_fast | SOFT | Q3 |
+| LEC-Q-17 | clean_fast | SOFT | Q3 |
+| HAM-Q-2 | clean_medium | MEDIUM | Q1 |
+| TSU-Q-16 | deleted | SOFT | Q3; steward-deleted, data gate withheld |
+| GAS-Q-4 | invalid_distance | SOFT | Q1; non-monotonic distance, validation rejects |
 
 | Measurement | VER | NOR |
 |---|---|---|
@@ -58,7 +69,7 @@ Artifacts: `datasets/telemetry/analysis/ver14_vs_nor16.json`, `.png`, `learning_
 - `engineering_interpretation_status`: INSUFFICIENT_DATA by design.
 - All 8 telemetry rules remain `draft`; no rule was promoted to `reviewed` or `active`.
 
-## 4. Retrieval pilot
+## 4. Retrieval pilot and evaluation
 
 Corpus: `data_dictionary.md` and `engineering_fundamentals.md`.
 
@@ -68,7 +79,19 @@ Corpus: `data_dictionary.md` and `engineering_fundamentals.md`.
 | Section-aware (`##`) chunks | 5 / 6 |
 | Section-aware + table-row chunks + intent score policy | **6 / 6** |
 
-The brake-unit query now retrieves the `2. Channels` table row instead of the `2. Braking` prose section. Table rows are marked `table_row`; they are damped for how/why/should questions and boosted when the query asks for a channel definition. This is a deterministic prototype policy on a two-document corpus, not a general retrieval benchmark. No claim of retrieval quality on a larger corpus is made.
+The brake-unit query now retrieves the `2. Channels` table row instead of the `2. Braking` prose section. Table rows are marked `table_row`; they are damped for how/why/should questions and boosted when the query asks for a channel definition. This is a deterministic prototype policy on a two-document corpus, not a general retrieval benchmark.
+
+Ten-case evaluation (`scripts/evaluate_learning_retrieval.py`, including bilingual and no-answer cases):
+
+| Metric | Result |
+|---|---:|
+| Answerable cases | 9 |
+| Hit@1 | 0.8889 |
+| Hit@3 | 1.0 |
+| MRR | 0.9259 |
+| No-answer abstention (score < 0.20) | 0.0 |
+
+Known failures: `LR08` (Indonesian “menangani nilai channel yang hilang”) ranks `2. Braking` first, with the expected `4. Interpretation rules` at rank 3. `LR10` (brake pressure in bar) retrieves a channel caveat instead of abstaining; score-threshold abstention is not reliable without semantic checking. Full per-case results: `research/learning_retrieval_report.md`.
 
 ## 4.1 LLM integrity hardening (tested with a fake provider)
 
@@ -77,6 +100,23 @@ The brake-unit query now retrieves the `2. Channels` table row instead of the `2
 - Evidence is wrapped in `<evidence>` delimiters and explicitly labelled untrusted data in the system prompt.
 - Added tests: fabricated `999 km/h` facts are ignored, fake rule findings are ignored, uncited theory is rejected, and the prompt isolates evidence.
 - These tests use a fake provider. A real LLM provider is still **not configured or tested**.
+
+## 4.2 Independent gold checks
+
+`tests/test_telemetry_gold.py` contains 9 checks with expected values computed directly from the raw JSON using NumPy, not from the production feature functions. Covered: max speed, brake-onset count and first onset for six laps, segment elapsed time, constant-acceleration rate, and throttle-onset pattern. All pass.
+
+## 4.3 LTCS 2 kg rule audit
+
+Article C4.6 page 60 conditions the 2 kg increase on “any LTCS or TTCS for which a Heat Hazard has not been declared”. The rule now requires `heat_hazard_declared == false`. `TC18` still produces 2 kg and remains VIOLATED at 797.5 kg. A new test confirms that an LTCS with a session heat hazard returns `UNKNOWN` rather than silently assuming 2 kg. Details: `research/rule_audit_ltcs.md`.
+
+## 4.4 Security hardening
+
+- TF-IDF index now writes and verifies a SHA-256 sidecar before `joblib.load`; a missing or mismatched checksum forces a rebuild.
+- CORS is an explicit allowlist (`CORS_ORIGINS`), not `*`.
+- Request bodies over `MAX_REQUEST_BYTES` (default 1,000,000) return HTTP 413.
+- API string/list fields have explicit max lengths.
+- `qdrant/qdrant` pinned to `v1.20.2`.
+- GitHub Actions workflow added at `.github/workflows/tests.yml`; it has **not been executed** because there is no remote CI run yet.
 
 ## 5. Not run
 
@@ -88,12 +128,13 @@ The brake-unit query now retrieves the `2. Channels` table row instead of the `2
 | Real-provider citation/semantic audit | **not run** | Fake-provider tests validate schema and citation rejection only |
 | Human expert review | **not run** | No reviewer available; no approval was fabricated |
 | Educational pre/post evaluation | **not run** | No participants; no learning gain is claimed |
-| Docker/Compose verification | **not run** | Docker daemon is not running |
+| Docker/Compose verification | **partial** | `docker compose config` parses; build/run not tested because the daemon is not running |
+| CI workflow execution | **not run** | Workflow added; no GitHub remote/CI run exists |
 | Real-data ingestion via provider API | **not run** | F1 livetiming requires account authentication; OpenF1 unreachable |
 
 ## 6. Threats to validity
 
-- One session and two laps only; no statistical generalization.
+- One session and seven laps only; no statistical generalization.
 - Self-selected lap pair from a qualifying session; conditions are not controlled.
 - Distance is provider-derived; cross-lap alignment is approximate.
 - Brake is an indicator, not pressure.

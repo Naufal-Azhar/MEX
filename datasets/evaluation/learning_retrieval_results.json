@@ -1,0 +1,257 @@
+{
+  "generated_at": "2026-11-21T06:26:23.980361+00:00",
+  "corpus": "data_dictionary.md + engineering_fundamentals.md",
+  "retrieval_backend": "tfidf",
+  "aggregate": {
+    "cases": 10,
+    "answerable_cases": 9,
+    "no_answer_cases": 1,
+    "hit_at_1": 0.8889,
+    "hit_at_3": 1.0,
+    "mrr": 0.9259,
+    "no_answer_abstention": 0.0,
+    "no_answer_threshold": 0.2
+  },
+  "by_category": {
+    "definition_en": {
+      "cases": 1,
+      "hit_at_1": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "definition_id": {
+      "cases": 1,
+      "hit_at_1": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "paraphrase": {
+      "cases": 1,
+      "hit_at_1": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "theory_en": {
+      "cases": 4,
+      "hit_at_1": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "theory_id": {
+      "cases": 2,
+      "hit_at_1": 0.5,
+      "hit_at_3": 1.0,
+      "mrr": 0.6667
+    }
+  },
+  "cases": [
+    {
+      "case_id": "LR01",
+      "query": "what unit is the brake channel and is it pressure",
+      "category": "definition_en",
+      "answerable": true,
+      "expected_articles": [
+        "2. Channels (as observed in the cached files)"
+      ],
+      "top_articles": [
+        "2. Channels (as observed in the cached files)",
+        "2. Braking",
+        "3. Sampling and quality observations (2026-11-21)",
+        "3. Sampling and quality observations (2026-11-21)",
+        "4. Interpretation rules"
+      ],
+      "hit_at_1": true,
+      "hit_at_3": true,
+      "reciprocal_rank": 1.0,
+      "top_score": 0.246185,
+      "abstained": false
+    },
+    {
+      "case_id": "LR02",
+      "query": "apa satuan channel rem dan apakah itu tekanan rem",
+      "category": "definition_id",
+      "answerable": true,
+      "expected_articles": [
+        "2. Channels (as observed in the cached files)"
+      ],
+      "top_articles": [
+        "2. Channels (as observed in the cached files)",
+        "3. Sampling and quality observations (2026-11-21)",
+        "3. Sampling and quality observations (2026-11-21)",
+        "4. Interpretation rules",
+        "2. Braking"
+      ],
+      "hit_at_1": true,
+      "hit_at_3": true,
+      "reciprocal_rank": 1.0,
+      "top_score": 0.499472,
+      "abstained": false
+    },
+    {
+      "case_id": "LR03",
+      "query": "how is braking distance related to entering speed",
+      "category": "theory_en",
+      "answerable": true,
+      "expected_articles": [
+        "2. Braking"
+      ],
+      "top_articles": [
+        "2. Braking",
+        "5. Provenance caveats",
+        "1. Speed, distance and time",
+        "5. Drag and aero limits",
+        "4. Interpretation rules"
+      ],
+      "hit_at_1": true,
+      "hit_at_3": true,
+      "reciprocal_rank": 1.0,
+      "top_score": 0.203361,
+      "abstained": false
+    },
+    {
+      "case_id": "LR04",
+      "query": "bagaimana jarak pengereman berhubungan dengan kecepatan masuk",
+      "category": "theory_id",
+      "answerable": true,
+      "expected_articles": [
+        "2. Braking"
+      ],
+      "top_articles": [
+        "2. Braking",
+        "1. Speed, distance and time",
+        "6. What telemetry can and cannot support",
+        "4. Interpretation rules",
+        "5. Provenance caveats"
+      ],
+      "hit_at_1": true,
+      "hit_at_3": true,
+      "reciprocal_rank": 1.0,
+      "top_score": 0.198124,
+      "abstained": false
+    },
+    {
+      "case_id": "LR05",
+      "query": "what does throttle percentage mean",
+      "category": "theory_en",
+      "answerable": true,
+      "expected_articles": [
+        "3. Throttle"
+      ],
+      "top_articles": [
+        "3. Throttle",
+        "5. Drag and aero limits",
+        "4. Interpretation rules",
+        "2. Channels (as observed in the cached files)",
+        "6. What telemetry can and cannot support"
+      ],
+      "hit_at_1": true,
+      "hit_at_3": true,
+      "reciprocal_rank": 1.0,
+      "top_score": 0.128245,
+      "abstained": false
+    },
+    {
+      "case_id": "LR06",
+      "query": "can downforce or drag coefficient be inferred from speed",
+      "category": "theory_en",
+      "answerable": true,
+      "expected_articles": [
+        "5. Drag and aero limits"
+      ],
+      "top_articles": [
+        "5. Drag and aero limits",
+        "6. What telemetry can and cannot support",
+        "2. Braking",
+        "4. Grip, load transfer and tyres",
+        "4. Interpretation rules"
+      ],
+      "hit_at_1": true,
+      "hit_at_3": true,
+      "reciprocal_rank": 1.0,
+      "top_score": 0.212541,
+      "abstained": false
+    },
+    {
+      "case_id": "LR07",
+      "query": "how should a missing channel value be handled",
+      "category": "theory_en",
+      "answerable": true,
+      "expected_articles": [
+        "4. Interpretation rules"
+      ],
+      "top_articles": [
+        "4. Interpretation rules",
+        "6. What telemetry can and cannot support",
+        "2. Braking",
+        "2. Channels (as observed in the cached files)",
+        "1. Files"
+      ],
+      "hit_at_1": true,
+      "hit_at_3": true,
+      "reciprocal_rank": 1.0,
+      "top_score": 0.140152,
+      "abstained": false
+    },
+    {
+      "case_id": "LR08",
+      "query": "bagaimana menangani nilai channel yang hilang",
+      "category": "theory_id",
+      "answerable": true,
+      "expected_articles": [
+        "4. Interpretation rules"
+      ],
+      "top_articles": [
+        "2. Braking",
+        "2. Channels (as observed in the cached files)",
+        "4. Interpretation rules",
+        "6. What telemetry can and cannot support",
+        "1. Files"
+      ],
+      "hit_at_1": false,
+      "hit_at_3": true,
+      "reciprocal_rank": 0.333333,
+      "top_score": 0.062534,
+      "abstained": false
+    },
+    {
+      "case_id": "LR09",
+      "query": "large cross-lap position uncertainty between laps",
+      "category": "paraphrase",
+      "answerable": true,
+      "expected_articles": [
+        "4. Interpretation rules"
+      ],
+      "top_articles": [
+        "4. Interpretation rules",
+        "2. Channels (as observed in the cached files)",
+        "5. Provenance caveats",
+        "3. Sampling and quality observations (2026-11-21)",
+        "1. Files"
+      ],
+      "hit_at_1": true,
+      "hit_at_3": true,
+      "reciprocal_rank": 1.0,
+      "top_score": 0.115911,
+      "abstained": false
+    },
+    {
+      "case_id": "LR10",
+      "query": "berapa tekanan rem maksimum dalam bar",
+      "category": "no_answer_id",
+      "answerable": false,
+      "expected_articles": [],
+      "top_articles": [
+        "2. Channels (as observed in the cached files)",
+        "3. Sampling and quality observations (2026-11-21)",
+        "3. Sampling and quality observations (2026-11-21)",
+        "4. Interpretation rules",
+        "2. Braking"
+      ],
+      "hit_at_1": false,
+      "hit_at_3": false,
+      "reciprocal_rank": 0.0,
+      "top_score": 0.27839,
+      "abstained": false
+    }
+  ]
+}

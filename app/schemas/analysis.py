@@ -79,11 +79,11 @@ class TelemetryAnalysisReport(BaseModel):
 class TelemetryAnalyzeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    lap_a_id: str
-    lap_b_id: str
+    lap_a_id: str = Field(min_length=1, max_length=100)
+    lap_b_id: str = Field(min_length=1, max_length=100)
     segment_start_m: float | None = None
     segment_end_m: float | None = None
-    question: str | None = None
+    question: str | None = Field(default=None, max_length=2000)
     level: Literal["beginner", "engineering"] = "beginner"
 
     @model_validator(mode="after")

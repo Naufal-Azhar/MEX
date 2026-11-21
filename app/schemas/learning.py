@@ -57,8 +57,8 @@ class GroundedAnswer(BaseModel):
 class AskRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    question: str
+    question: str = Field(min_length=1, max_length=2000)
     level: Literal["beginner", "engineering"] = "beginner"
-    lap_a_id: str | None = None
-    lap_b_id: str | None = None
+    lap_a_id: str | None = Field(default=None, max_length=100)
+    lap_b_id: str | None = Field(default=None, max_length=100)
     top_k: int = Field(default=3, ge=1, le=10)

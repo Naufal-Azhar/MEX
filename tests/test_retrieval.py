@@ -4,7 +4,7 @@ import pytest
 from app.config import PROCESSED_DIR
 from app.document_processing.chunker import Chunk, chunks_from_processed_dir
 from app.rag.retriever import Retriever
-from app.rag.vector_store import NumpyVectorStore, QdrantVectorStore
+from app.rag.vector_store import NumpyVectorStore, QdrantVectorStore, TfidfVectorStore
 
 TARGET_ARTICLES = {"C2.3.1", "C2.3.3", "C2.3.5", "C4.1", "C4.2"}
 
@@ -27,6 +27,16 @@ def test_wheelbase_query_retrieves_c233(retriever):
     assert hits
     assert hits[0].article == "C2.3.3"
     assert hits[0].page == 11
+
+
+def test_tfidf_index_checksum_detects_tampering(retriever, tmp_path):
+    path = tmp_path / "index.joblib"
+    retriever.store.save(path)
+    assert path.with_name(path.name + ".sha256").exists()
+    TfidfVectorStore.load(path)
+    path.write_bytes(path.read_bytes() + b"tampered")
+    with pytest.raises(ValueError):
+        TfidfVectorStore.load(path)
 
 
 def test_retrieval_returns_metadata_and_positive_scores(retriever):

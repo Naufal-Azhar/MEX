@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
@@ -26,13 +28,49 @@ app = FastAPI(
     ),
 )
 
+def _cors_origins() -> list[str]:
+    raw = os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:8501,http://127.0.0.1:8501,http://localhost:3000,http://127.0.0.1:3000",
+    )
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins(),
     allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
+
+MAX_REQUEST_BYTES = int(os.getenv("MAX_REQUEST_BYTES", "1000000"))
+
+
+@app.middleware("http")
+async def limit_request_size(request: Request, call_next):
+    header = request.headers.get("content-length")
+    if header:
+        try:
+            size = int(header)
+        except ValueError:
+            size = 0
+        if size > MAX_REQUEST_BYTES:
+            return JSONResponse(
+                status_code=413,
+                content={
+                    "status": "ERROR",
+                    "diagnostics": [
+                        {
+                            "code": "REQUEST_TOO_LARGE",
+                            "message": f"Request body exceeds {MAX_REQUEST_BYTES} bytes.",
+                            "details": {},
+                        }
+                    ],
+                    "detail": "Request body terlalu besar.",
+                },
+            )
+    return await call_next(request)
 
 app.include_router(router)
 

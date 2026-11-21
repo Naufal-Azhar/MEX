@@ -207,6 +207,27 @@ Hasil yang benar-benar dieksekusi:
 - Pilot retrieval 6 query → **6/6 rank-1** (sebelumnya 5/6). Query brake kini mengambil baris tabel `2. Channels`.
 - Tidak ada provider LLM nyata yang diuji; status RAG generatif tetap **BLOCKED**.
 
+## 2.8 P0/P1 tanpa LLM (21 November 2026)
+
+**P0:**
+
+- Fixture diperluas menjadi 7 lap dalam sesi 2025 Abu Dhabi Qualifying: 4 clean fast (VER/NOR/PIA/LEC), 1 medium (HAM), 1 deleted (TSU), 1 invalid-distance (GAS). Manifest menyimpan kategori, compound, `deleted`, dan `accurate`.
+- Data gate menahan observasi jika lap deleted; lap invalid-distance ditolak oleh validasi. Ini diuji.
+- Gold checks independen (`tests/test_telemetry_gold.py`): 9 test, nilai dihitung langsung dari JSON dengan NumPy.
+- Evaluasi retrieval 10 kasus: hit@1 **0.8889**, hit@3 **1.0**, MRR **0.9259**; no-answer abstention **0.0** (keterbatasan threshold, dicatat).
+- Audit LTCS C4.6: rule sekarang mensyaratkan `heat_hazard_declared == false`; TC18 tetap 2 kg, kombinasi LTCS + session heat menjadi `UNKNOWN` (`research/rule_audit_ltcs.md`).
+- Hardening: checksum SHA-256 untuk indeks TF-IDF, CORS allowlist, batas body 1 MB, max length field API, qdrant pin `v1.20.2`.
+
+**P1:**
+
+- UI: label lap menampilkan compound/kategori/deleted/accurate; panduan “Cara membaca hasil”; dukungan `?module=`.
+- Screenshot aktual via Chrome DevTools Protocol: `research/screenshots/race_analysis.png`, `race_analysis_results.png`, `engineering_tutor.png`, `regulation_lab.png`.
+- CI workflow `.github/workflows/tests.yml` ditambahkan, **belum dieksekusi** karena belum ada remote.
+- `docker compose config` berhasil mem-parse; build/run belum diuji karena daemon mati.
+- Dokumen: `security_audit.md`, `learning_retrieval_report.md`, `rule_audit_ltcs.md`; acceptance diperbarui.
+
+Hasil: `pytest` penuh **138 passed**, exit 0. LLM tetap **BLOCKED**.
+
 
 
 

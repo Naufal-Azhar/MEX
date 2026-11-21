@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -77,11 +78,20 @@ class TfidfVectorStore:
             },
             path,
         )
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        path.with_name(path.name + ".sha256").write_text(digest + "\n", encoding="utf-8")
 
     @classmethod
     def load(cls, path: Path) -> "TfidfVectorStore":
         import joblib
 
+        checksum_path = path.with_name(path.name + ".sha256")
+        if not checksum_path.exists():
+            raise ValueError("TF-IDF index checksum is missing; rebuild the index.")
+        expected = checksum_path.read_text(encoding="utf-8").strip()
+        actual = hashlib.sha256(path.read_bytes()).hexdigest()
+        if expected != actual:
+            raise ValueError("TF-IDF index checksum mismatch; rebuild the index.")
         payload = joblib.load(path)
         chunks = [Chunk(**item) for item in payload["chunks"]]
         return cls(payload["backend"], chunks, payload["matrix"], payload["metadata"])

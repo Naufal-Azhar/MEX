@@ -47,6 +47,10 @@ class TelemetryAnalysisService:
                 "lap_number": lap.identity.lap_number,
                 "session": lap.identity.session,
                 "lap_time_s": lap.identity.lap_time_s,
+                "compound": lap.identity.compound,
+                "deleted": lap.identity.deleted,
+                "accurate": lap.identity.accurate,
+                "category": lap.identity.category,
             }
             for lap in self.laps.values()
         ]

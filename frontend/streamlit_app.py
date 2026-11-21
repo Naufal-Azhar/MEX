@@ -520,6 +520,21 @@ def render_telemetry_report(report: dict, learning: TelemetryLearningService) ->
     )
 
 
+def _lap_label(lap: dict) -> str:
+    flags = []
+    if lap.get("deleted"):
+        flags.append("deleted")
+    if lap.get("accurate") is False:
+        flags.append("not accurate")
+    if lap.get("category"):
+        flags.append(lap["category"])
+    suffix = " · " + " · ".join(flags) if flags else ""
+    return (
+        f"{lap['driver']} lap {lap['lap_number']} — {lap['lap_time_s']:.3f}s"
+        f" · {lap.get('compound') or '-'}{suffix}"
+    )
+
+
 def render_race_analysis(learning: TelemetryLearningService, mode: str, api_url: str) -> None:
     st.markdown('<div class="workbench-eyebrow">MEX-AI / RACE ANALYSIS</div>', unsafe_allow_html=True)
     st.markdown('<h1 class="workbench-title">Race Analysis<span style="color:#7f8792">.</span></h1>', unsafe_allow_html=True)
@@ -529,6 +544,14 @@ def render_race_analysis(learning: TelemetryLearningService, mode: str, api_url:
         unsafe_allow_html=True,
     )
     st.warning("Fixture publik 2025 Abu Dhabi Qualifying. Hasil bersifat deskriptif, bukan penilaian pembalap.")
+    with st.expander("Cara membaca hasil"):
+        st.markdown(
+            "- **Fakta terukur**: angka dari telemetry, dengan satuan dan status.\n"
+            "- **Temuan aturan**: status rule prototype, bukan verdict performa.\n"
+            "- **Data gate**: jika data tidak layak, observasi ditahan.\n"
+            "- **Interpretasi**: faktor alternatif, bukan diagnosis kausal.\n"
+            "- **Gap** pada grafik adalah interval yang tidak diinterpolasi."
+        )
 
     try:
         if mode == "FastAPI":
@@ -541,10 +564,7 @@ def render_race_analysis(learning: TelemetryLearningService, mode: str, api_url:
         st.error(f"Gagal memuat daftar lap: {exc}")
         return
 
-    labels = {
-        lap["lap_id"]: f"{lap['driver']} lap {lap['lap_number']} — {lap['lap_time_s']:.3f}s"
-        for lap in laps
-    }
+    labels = {lap["lap_id"]: _lap_label(lap) for lap in laps}
     options = list(labels)
     col_a, col_b = st.columns(2)
     with col_a:
@@ -671,7 +691,7 @@ def render_engineering_tutor(ask_service: AskService, learning: TelemetryLearnin
     lap_a = lap_b = None
     if use_laps:
         laps = learning.telemetry.available_laps()
-        labels = {lap["lap_id"]: f"{lap['driver']} lap {lap['lap_number']}" for lap in laps}
+        labels = {lap["lap_id"]: _lap_label(lap) for lap in laps}
         col_a, col_b = st.columns(2)
         lap_a = col_a.selectbox("Lap A", list(labels), format_func=lambda item: labels[item])
         lap_b = col_b.selectbox("Lap B", list(labels), index=1, format_func=lambda item: labels[item])
@@ -708,7 +728,15 @@ def main() -> None:
     with st.sidebar:
         st.markdown('<div class="workbench-eyebrow">MEX-AI / WORKSPACE</div>', unsafe_allow_html=True)
         st.header("Kontrol sistem")
-        module = st.radio("Modul", ["Race Analysis", "Engineering Tutor", "Regulation Lab"], index=2)
+        module_options = ["Race Analysis", "Engineering Tutor", "Regulation Lab"]
+        requested_module = st.query_params.get("module", "Regulation Lab")
+        if requested_module not in module_options:
+            requested_module = "Regulation Lab"
+        module = st.radio(
+            "Modul",
+            module_options,
+            index=module_options.index(requested_module),
+        )
         st.caption(f"{kb.regulation} · Issue {kb.regulation_issue}")
         mode = st.radio("Backend", ["In-process", "FastAPI"], index=1 if default_api_mode else 0)
         api_url = st.text_input("API URL", value=default_api_url, disabled=mode == "In-process")

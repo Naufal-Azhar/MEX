@@ -73,16 +73,37 @@ def service() -> TelemetryAnalysisService:
     return TelemetryAnalysisService.from_manifest(MANIFEST)
 
 
-def test_manifest_loads_two_real_laps(service: TelemetryAnalysisService) -> None:
+def test_manifest_loads_multiple_real_laps(service: TelemetryAnalysisService) -> None:
     laps = service.available_laps()
-    assert len(laps) == 2
-    assert {lap["lap_id"] for lap in laps} == {"VER-Q-14", "NOR-Q-16"}
+    assert len(laps) == 7
+    assert {lap["lap_id"] for lap in laps} == {
+        "VER-Q-14",
+        "NOR-Q-16",
+        "PIA-Q-16",
+        "LEC-Q-17",
+        "HAM-Q-2",
+        "GAS-Q-4",
+        "TSU-Q-16",
+    }
 
 
-def test_real_laps_pass_validation(service: TelemetryAnalysisService) -> None:
+def test_manifest_lap_categories(service: TelemetryAnalysisService) -> None:
+    by_id = {lap["lap_id"]: lap for lap in service.available_laps()}
+    assert by_id["HAM-Q-2"]["compound"] == "MEDIUM"
+    assert by_id["TSU-Q-16"]["deleted"] is True
+    assert by_id["GAS-Q-4"]["accurate"] is False
+    assert by_id["GAS-Q-4"]["category"] == "invalid_distance"
+    assert by_id["PIA-Q-16"]["category"] == "clean_fast"
+
+
+def test_real_laps_pass_validation_or_are_known_invalid(service: TelemetryAnalysisService) -> None:
     for lap in service.laps.values():
         report = validate_lap(lap)
-        assert report.ok, report.errors
+        if lap.identity.category == "invalid_distance":
+            assert not report.ok
+            assert any("distance" in error for error in report.errors)
+        else:
+            assert report.ok, report.errors
 
 
 def test_real_lap_sample_counts(service: TelemetryAnalysisService) -> None:

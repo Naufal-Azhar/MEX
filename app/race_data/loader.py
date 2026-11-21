@@ -117,6 +117,9 @@ def load_manifest_laps(manifest_path: Path | str) -> dict[str, LapTelemetry]:
             lap_time_s=float(item["lap_time_s"]),
             compound=item.get("compound"),
             phase=item.get("qualifying_phase"),
+            deleted=bool(item.get("deleted", False)),
+            accurate=item.get("accurate"),
+            category=item.get("category"),
         )
         provenance = LapProvenance(
             provider=manifest["provider"],

@@ -21,7 +21,9 @@ Source: `FIA 2026 Formula One Regulations — Section C [Technical]`, **Issue 21
 | **Engineering Tutor** | Implemented with deterministic fallback | `POST /v1/ask`; Streamlit module |
 | **Regulation Lab** | Preserved baseline | Existing `/v1/check`, `/v1/search`, Streamlit tabs |
 
-Telemetry fixture: 2025 Abu Dhabi Qualifying, VER lap 14 and NOR lap 16, from **TracingInsights** (Apache-2.0, public repository). Hashes and caveats: `datasets/telemetry/manifest.json`. Evaluation: `research/learning_evaluation.md`; acceptance status: `research/mvp_acceptance.md`.
+Telemetry fixture: 2025 Abu Dhabi Qualifying, **7 cached laps** (clean fast, medium, deleted, invalid-distance) from **TracingInsights** (Apache-2.0, public repository). Hashes and caveats: `datasets/telemetry/manifest.json`. Evaluation: `research/learning_evaluation.md`; retrieval: `research/learning_retrieval_report.md`; acceptance: `research/mvp_acceptance.md`.
+
+Screenshots of the running app: `research/screenshots/race_analysis.png`, `race_analysis_results.png`, `engineering_tutor.png`, `regulation_lab.png`.
 
 > **Generation status:** no LLM provider is configured. `/v1/ask` returns structured deterministic answers from measured facts and retrieved quotes, with citation validation. This is **not** generative RAG yet.
 >
@@ -197,7 +199,7 @@ Known limitation: the TF-IDF vocabulary is dominated by Section C, so some metho
 
 Current state:
 
-- **112 tests pass** (66 legacy + 18 telemetry + 15 analysis + 13 retrieval/ask).
+- **138 tests pass** (66 legacy + 72 new).
 - Decision suite: **18/18** internal outcomes, all external statuses correct, F1 (VIOLATED) = 1.0.
 - Citation verification rate: **1.0**; trace consistency: **1.0**; explanation completeness: **1.0**.
 - Retrieval (MiniLM + Qdrant, k=5): hit rate **0.9**, MRR **0.9**, precision@5 **0.18** (one C4.2/C10.1 confusion).

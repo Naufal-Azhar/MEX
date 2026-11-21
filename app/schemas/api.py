@@ -19,10 +19,10 @@ def _non_empty(value: str) -> str:
 class CheckRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    goal_id: str = Field(min_length=1)
-    document_issue: str | None = None
-    facts: list[FactInput] = Field(default_factory=list)
-    question: str | None = None
+    goal_id: str = Field(min_length=1, max_length=100)
+    document_issue: str | None = Field(default=None, max_length=20)
+    facts: list[FactInput] = Field(default_factory=list, max_length=64)
+    question: str | None = Field(default=None, max_length=4000)
 
     @field_validator("goal_id")
     @classmethod
@@ -33,10 +33,10 @@ class CheckRequest(BaseModel):
 class LegacyCheckRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    goal: str = Field(min_length=1)
-    document_issue: str | None = None
-    facts: list[FactInput] = Field(default_factory=list)
-    question: str | None = None
+    goal: str = Field(min_length=1, max_length=100)
+    document_issue: str | None = Field(default=None, max_length=20)
+    facts: list[FactInput] = Field(default_factory=list, max_length=64)
+    question: str | None = Field(default=None, max_length=4000)
 
     @field_validator("goal")
     @classmethod
@@ -47,16 +47,16 @@ class LegacyCheckRequest(BaseModel):
 class CheckAllRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    facts: list[FactInput] = Field(default_factory=list)
+    facts: list[FactInput] = Field(default_factory=list, max_length=64)
 
 
 class SearchRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    query: str = Field(min_length=1)
+    query: str = Field(min_length=1, max_length=2000)
     top_k: int = Field(default=5, ge=1, le=50)
-    document_id: str | None = None
-    article: str | None = None
+    document_id: str | None = Field(default=None, max_length=300)
+    article: str | None = Field(default=None, max_length=300)
     include_methodology: bool = False
 
     @field_validator("query")
@@ -68,7 +68,7 @@ class SearchRequest(BaseModel):
 class ExtractRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    text: str = Field(min_length=1)
+    text: str = Field(min_length=1, max_length=20000)
     use_llm: bool = False
     confirm: bool = False
 

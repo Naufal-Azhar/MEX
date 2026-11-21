@@ -364,7 +364,18 @@
           "description": "The 2 kg increase applies to an LTCS."
         }
       ],
-      "conditions": [],
+      "conditions": [
+        {
+          "left": {
+            "fact": "heat_hazard_declared"
+          },
+          "operator": "==",
+          "right": {
+            "const": false
+          },
+          "description": "C4.6.c applies to an LTCS for which a Heat Hazard has not been declared."
+        }
+      ],
       "conclusion": {
         "goal": "heat_hazard_mass_increase",
         "kind": "value",

@@ -22,6 +22,9 @@ class LapIdentity(BaseModel):
     lap_time_s: float
     compound: str | None = None
     phase: str | None = None
+    deleted: bool = False
+    accurate: bool | None = None
+    category: str | None = None
 
 
 class LapProvenance(BaseModel):

@@ -33,6 +33,12 @@ def evaluate_data_gate(pair: LapPairAnalysis) -> GateResult:
     else:
         notes.append(f"overlap coverage {coverage:.3f}")
 
+    for lap in (pair.lap_a, pair.lap_b):
+        if lap.deleted:
+            missing.append(f"{lap.lap_id}: lap was deleted by the stewards")
+        if lap.accurate is False:
+            notes.append(f"{lap.lap_id}: provider marked the lap as not accurate")
+
     for lap_id, provenance in pair.provenance.items():
         if not provenance.provider or not provenance.telemetry_sha256:
             missing.append(f"{lap_id}: provenance is incomplete")

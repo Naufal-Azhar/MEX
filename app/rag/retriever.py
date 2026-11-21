@@ -64,8 +64,11 @@ class Retriever:
 
         if is_tfidf:
             if TFIDF_INDEX_PATH.exists() and not force:
-                store = TfidfVectorStore.load(TFIDF_INDEX_PATH)
-                return cls(store, store.backend, notes=store.backend.notes)
+                try:
+                    store = TfidfVectorStore.load(TFIDF_INDEX_PATH)
+                    return cls(store, store.backend, notes=store.backend.notes)
+                except (OSError, ValueError):
+                    pass
             chunks = chunks_from_processed_dir(processed_dir, max_chars=settings.chunk_size)
             store = TfidfVectorStore.build(chunks, embedder)
             store.save(TFIDF_INDEX_PATH)

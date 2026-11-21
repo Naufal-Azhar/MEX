@@ -163,6 +163,12 @@ class TelemetryLearningService:
         data_gate = evaluate_data_gate(pair)
         knowledge_gate, evidence = evaluate_knowledge_gate(fired_pairs, self.corpus_paths)
 
+        if not data_gate.passed:
+            for finding in findings:
+                if finding.status is AnalysisStatus.OBSERVED:
+                    finding.status = AnalysisStatus.INSUFFICIENT_DATA
+                    finding.notes.append("Withheld: data gate did not pass.")
+
         withheld = any(
             finding.goal == "withhold_supported_engineering_interpretation"
             and finding.status is AnalysisStatus.INSUFFICIENT_DATA

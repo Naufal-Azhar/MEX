@@ -33,9 +33,53 @@ DEFINITION_TERMS = (
     "what does",
     "format",
     "represent",
+    "satuan",
+    "apa",
 )
-EXPLANATION_TERMS = ("how", "why", "should", "handle", "interpret", "explain", "mean", "compare", "difference")
+EXPLANATION_TERMS = (
+    "how",
+    "why",
+    "should",
+    "handle",
+    "interpret",
+    "explain",
+    "mean",
+    "compare",
+    "difference",
+    "bagaimana",
+    "mengapa",
+    "menangani",
+)
 CHANNEL_TERMS = ("brake", "throttle", "speed", "gear", "drs", "distance", "rpm", "time", "acc_x", "acc_y", "acc_z")
+QUERY_EXPANSIONS = {
+    "rem": "brake",
+    "pengereman": "braking",
+    "satuan": "unit",
+    "kecepatan": "speed",
+    "jarak": "distance",
+    "ban": "tyre",
+    "hilang": "missing",
+    "nilai": "value",
+    "tekanan": "pressure",
+    "beban": "load",
+    "sesi": "session",
+    "massa": "mass",
+    "bahan bakar": "fuel",
+    "udara": "air",
+    "ketidakpastian": "uncertainty",
+    "posisi": "position",
+    "antara": "between",
+    "masuk": "entering",
+    "menangani": "handle",
+    "bagaimana": "how",
+    "mengapa": "why",
+}
+
+
+def _expand_query(query: str) -> str:
+    text = query.lower()
+    extras = [english for indonesian, english in QUERY_EXPANSIONS.items() if indonesian in text]
+    return f"{query} {' '.join(extras)}".strip() if extras else query
 
 
 def _score_multiplier(query: str, chunk: Chunk) -> float:
@@ -43,7 +87,7 @@ def _score_multiplier(query: str, chunk: Chunk) -> float:
         return 1.0
     text = query.lower()
     if any(term in text for term in EXPLANATION_TERMS):
-        return 0.45
+        return 0.3
     if any(term in text for term in DEFINITION_TERMS):
         chunk_text = chunk.text.lower()
         if any(term in text and term in chunk_text for term in CHANNEL_TERMS):
@@ -75,9 +119,10 @@ class LearningCorpusIndex:
     def search(self, query: str, top_k: int = 3) -> list[RetrievalHit]:
         if not query.strip():
             raise ValueError("query must not be empty")
-        hits = self.store.search(query, top_k=max(top_k * 4, top_k))
+        expanded = _expand_query(query)
+        hits = self.store.search(expanded, top_k=max(top_k * 4, top_k))
         adjusted = sorted(
-            ((hit.score * _score_multiplier(query, hit.chunk), hit) for hit in hits),
+            ((hit.score * _score_multiplier(expanded, hit.chunk), hit) for hit in hits),
             key=lambda item: item[0],
             reverse=True,
         )[:top_k]

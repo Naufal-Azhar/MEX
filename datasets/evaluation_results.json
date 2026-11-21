@@ -41,7 +41,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 39.49
+        "latency_ms": 35.64
       },
       {
         "case_id": "TC02",
@@ -80,7 +80,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.31
+        "latency_ms": 0.19
       },
       {
         "case_id": "TC04",
@@ -158,7 +158,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.35
+        "latency_ms": 0.39
       },
       {
         "case_id": "TC06",
@@ -197,7 +197,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.11
+        "latency_ms": 0.08
       },
       {
         "case_id": "TC08",
@@ -236,7 +236,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.12
+        "latency_ms": 0.08
       },
       {
         "case_id": "TC09",
@@ -275,7 +275,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.53
+        "latency_ms": 0.31
       },
       {
         "case_id": "TC10",
@@ -314,7 +314,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.3
+        "latency_ms": 0.25
       },
       {
         "case_id": "TC11",
@@ -357,7 +357,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.1
+        "latency_ms": 0.09
       },
       {
         "case_id": "TC13",
@@ -400,7 +400,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.38
+        "latency_ms": 0.31
       },
       {
         "case_id": "TC15",
@@ -439,7 +439,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.12
+        "latency_ms": 0.11
       },
       {
         "case_id": "TC16",
@@ -478,7 +478,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.32
+        "latency_ms": 0.49
       },
       {
         "case_id": "TC03",
@@ -517,7 +517,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.09
+        "latency_ms": 0.08
       },
       {
         "case_id": "TC07",
@@ -556,7 +556,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.08
+        "latency_ms": 0.1
       },
       {
         "case_id": "TC12",
@@ -599,7 +599,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.1
+        "latency_ms": 0.11
       },
       {
         "case_id": "TC14",
@@ -646,7 +646,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.6
+        "latency_ms": 0.47
       },
       {
         "case_id": "TC17",
@@ -685,7 +685,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.37
+        "latency_ms": 0.36
       },
       {
         "case_id": "TC18",
@@ -724,7 +724,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.31
+        "latency_ms": 0.6
       }
     ],
     "aggregate": {
@@ -769,8 +769,8 @@
       "missing_fact_recall": 1.0,
       "explanation_completeness": 1.0,
       "trace_consistency": 1.0,
-      "latency_ms_mean": 2.45,
-      "latency_ms_p95": 39.49,
+      "latency_ms_mean": 2.23,
+      "latency_ms_p95": 35.64,
       "failure_rate": 0.0,
       "case_count": 18
     },
@@ -817,8 +817,8 @@
         "missing_fact_recall": 1.0,
         "explanation_completeness": 1.0,
         "trace_consistency": 1.0,
-        "latency_ms_mean": 3.54,
-        "latency_ms_p95": 39.49,
+        "latency_ms_mean": 3.2,
+        "latency_ms_p95": 35.64,
         "failure_rate": 0.0,
         "case_count": 12
       },
@@ -864,7 +864,7 @@
         "missing_fact_recall": 1.0,
         "explanation_completeness": 1.0,
         "trace_consistency": 1.0,
-        "latency_ms_mean": 0.26,
+        "latency_ms_mean": 0.29,
         "latency_ms_p95": 0.6,
         "failure_rate": 0.0,
         "case_count": 6
@@ -912,7 +912,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 39.65
+        "latency_ms": 98.93
       },
       {
         "case_id": "RT02",
@@ -953,7 +953,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 22.32
+        "latency_ms": 28.52
       },
       {
         "case_id": "RT03",
@@ -994,7 +994,7 @@
           "recall_at_k": 0.0,
           "reciprocal_rank": 0.0
         },
-        "latency_ms": 19.85
+        "latency_ms": 28.05
       },
       {
         "case_id": "RT04",
@@ -1035,7 +1035,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 18.14
+        "latency_ms": 27.71
       },
       {
         "case_id": "RT05",
@@ -1076,7 +1076,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 19.32
+        "latency_ms": 28.87
       },
       {
         "case_id": "RT06",
@@ -1117,7 +1117,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 19.38
+        "latency_ms": 27.43
       },
       {
         "case_id": "RT07",
@@ -1158,7 +1158,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 21.89
+        "latency_ms": 31.57
       },
       {
         "case_id": "RT08",
@@ -1199,7 +1199,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 17.12
+        "latency_ms": 22.59
       },
       {
         "case_id": "RT09",
@@ -1240,7 +1240,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 206.96
+        "latency_ms": 223.33
       },
       {
         "case_id": "RT10",
@@ -1281,7 +1281,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 23.5
+        "latency_ms": 18.89
       }
     ],
     "aggregate": {
@@ -1291,8 +1291,8 @@
       "precision_at_k": 0.18,
       "recall_at_k": 0.9,
       "mrr": 0.9,
-      "latency_ms_mean": 40.81,
-      "latency_ms_p95": 206.96,
+      "latency_ms_mean": 53.59,
+      "latency_ms_p95": 223.33,
       "index": {
         "backend": "sentence_transformers",
         "model": "sentence-transformers/all-MiniLM-L6-v2",

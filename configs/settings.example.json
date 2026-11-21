@@ -18,7 +18,9 @@
   "api": {
     "host": "127.0.0.1",
     "port": 8000,
-    "log_level": "INFO"
+    "log_level": "INFO",
+    "cors_origins": "http://localhost:8501,http://127.0.0.1:8501",
+    "max_request_bytes": 1000000
   },
   "inference": {
     "max_depth": 25,

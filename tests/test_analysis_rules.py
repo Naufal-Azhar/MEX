@@ -89,6 +89,25 @@ def test_data_gate_rejects_missing_channel(learning: TelemetryLearningService) -
     assert any("missing channels" in item for item in gate.missing)
 
 
+def test_deleted_lap_withholds_observations(learning: TelemetryLearningService) -> None:
+    report = learning.analyze("VER-Q-14", "TSU-Q-16")
+    assert not report.data_gate.passed
+    assert any("deleted" in item for item in report.data_gate.missing)
+    assert all(finding.status is not AnalysisStatus.OBSERVED for finding in report.findings)
+
+
+def test_invalid_distance_lap_is_rejected(learning: TelemetryLearningService) -> None:
+    from app.race_data.validation import LapValidationError
+
+    with pytest.raises(LapValidationError):
+        learning.analyze("VER-Q-14", "GAS-Q-4")
+
+
+def test_medium_compound_lap_is_available(learning: TelemetryLearningService) -> None:
+    report = learning.analyze("VER-Q-14", "HAM-Q-2")
+    assert report.lap_b.compound == "MEDIUM"
+
+
 def test_knowledge_gate_rejects_missing_quote() -> None:
     kb = KnowledgeBase.from_file(TELEMETRY_RULES_PATH, include_draft=True)
     rule = kb.all_rules()[0]
@@ -115,11 +134,19 @@ def test_api_races_and_laps(client: TestClient) -> None:
     assert races.status_code == 200
     payload = races.json()
     assert payload[0]["session_id"] == "2025-abu-dhabi-qualifying"
-    assert payload[0]["lap_count"] == 2
+    assert payload[0]["lap_count"] == 7
 
     laps = client.get("/v1/races/2025-abu-dhabi-qualifying/laps")
     assert laps.status_code == 200
-    assert {item["lap_id"] for item in laps.json()} == {"VER-Q-14", "NOR-Q-16"}
+    assert {item["lap_id"] for item in laps.json()} == {
+        "VER-Q-14",
+        "NOR-Q-16",
+        "PIA-Q-16",
+        "LEC-Q-17",
+        "HAM-Q-2",
+        "GAS-Q-4",
+        "TSU-Q-16",
+    }
 
     missing = client.get("/v1/races/unknown/laps")
     assert missing.status_code == 404

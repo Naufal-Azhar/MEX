@@ -172,6 +172,45 @@ def test_llm_theory_without_claim_citation_is_rejected(corpus: LearningCorpusInd
     assert answer.generation_provenance["claims_without_citation"] == 1
 
 
+def test_llm_accepts_multiple_citation_ids(corpus: LearningCorpusIndex) -> None:
+    hits = corpus.search("braking distance", top_k=2)
+    provider = FakeProvider(
+        {
+            "observed_facts": [],
+            "rule_based_findings": [],
+            "potential_explanations": [],
+            "theory": ["braking distance grows with speed [E1, E2]"],
+            "citation_refs": ["E1", "E2"],
+            "missing_data": [],
+            "limitations": [],
+            "suggested_learning_questions": [],
+        }
+    )
+    answer = build_llm_answer(provider, "why brake earlier?", "beginner", QuestionType.THEORY, hits, None)
+    assert answer.generation_status is GenerationStatus.GENERATED
+    assert answer.generation_provenance["dropped_uncited_claims"] == 0
+
+
+def test_llm_drops_only_uncited_claims(corpus: LearningCorpusIndex) -> None:
+    hits = corpus.search("braking distance", top_k=2)
+    provider = FakeProvider(
+        {
+            "observed_facts": [],
+            "rule_based_findings": [],
+            "potential_explanations": [],
+            "theory": ["braking distance grows with speed [E1]", "an uncited claim"],
+            "citation_refs": ["E1"],
+            "missing_data": [],
+            "limitations": [],
+            "suggested_learning_questions": [],
+        }
+    )
+    answer = build_llm_answer(provider, "why brake earlier?", "beginner", QuestionType.THEORY, hits, None)
+    assert answer.generation_status is GenerationStatus.GENERATED
+    assert answer.theory == ["braking distance grows with speed [E1]"]
+    assert answer.generation_provenance["dropped_uncited_claims"] == 1
+
+
 def test_prompt_isolates_untrusted_evidence(corpus: LearningCorpusIndex) -> None:
     from app.rag.grounded_answer import _prompt
 

@@ -8,7 +8,7 @@
 
 | Check | Command | Result |
 |---|---|---|
-| Baseline + new regression | `.venv\Scripts\python.exe -m pytest -q` | **138 passed**, exit 0 |
+| Baseline + new regression | `.venv\Scripts\python.exe -m pytest -q` | **140 passed**, exit 0 |
 | Baseline legacy suite | same suite, original 66 cases | all passed, no expected values changed |
 | Telemetry feature tests | `pytest tests/test_telemetry.py` | all passed |
 | Independent gold checks | `pytest tests/test_telemetry_gold.py` | **9 passed** |
@@ -118,14 +118,29 @@ Article C4.6 page 60 conditions the 2 kg increase on “any LTCS or TTCS for whi
 - `qdrant/qdrant` pinned to `v1.20.2`.
 - GitHub Actions workflow added at `.github/workflows/tests.yml`; it has **not been executed** because there is no remote CI run yet.
 
+## 4.5 Real LLM smoke test
+
+Provider: Google AI Studio, model `gemini-3.1-flash-lite`, key stored only in `.env`.
+
+| Test | Result |
+|---|---|
+| Theory: braking distance vs entering speed | `generated`; citation `[E1]`; quadratic relationship stated |
+| Telemetry: VER-Q-14 vs NOR-Q-16 braking | `generated`; 13 server facts; 6 findings; 3 citations |
+| HTTP `/v1/ask`: throttle percentage | `generated`; theory `[E1, E3]`; `facts_source=server` |
+| No-answer: brake pressure in bar | `unsupported`; missing data/limitations, no fabricated number |
+
+Fixes required during integration: bounded retry for 429/5xx, multi-ID citation parsing `[E1, E3]`, dropping only uncited theory items, and test isolation (`LLM_PROVIDER=none`, empty key in `tests/conftest.py`).
+
+This is a smoke test, not the full A/B/C comparison. Semantic citation entailment remains unaudited.
+
 ## 5. Not run
 
 | Required experiment | Status | Reason |
 |---|---|---|
-| LLM-only baseline (A) | **not run** | No LLM provider configured |
-| RAG+LLM baseline (B) | **not run** | No LLM provider configured |
-| RAG+LLM+rules (C) | **not run** | No LLM provider configured |
-| Real-provider citation/semantic audit | **not run** | Fake-provider tests validate schema and citation rejection only |
+| LLM-only baseline (A) | **not run** | Provider exists, but the A/B/C experiment harness is not implemented |
+| RAG+LLM baseline (B) | **not run** | Same; only C-style `/v1/ask` smoke was run |
+| RAG+LLM+rules (C) | **not run** | Same; smoke test is not a comparative run |
+| Real-provider citation/semantic audit | **smoke only** | Generative smoke test passes; semantic entailment is not audited |
 | Human expert review | **not run** | No reviewer available; no approval was fabricated |
 | Educational pre/post evaluation | **not run** | No participants; no learning gain is claimed |
 | Docker/Compose verification | **partial** | `docker compose config` parses; build/run not tested because the daemon is not running |

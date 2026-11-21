@@ -68,8 +68,14 @@ def _server_findings(analysis: TelemetryAnalysisReport | None) -> list[str]:
 
 
 def _claims_without_citation(items: list[str], accepted_ids: list[str]) -> list[str]:
-    markers = {f"[E{ref_id.lstrip('E')}]" for ref_id in accepted_ids}
-    return [item for item in items if not any(marker in item for marker in markers)]
+    accepted = {ref_id.lstrip("E") for ref_id in accepted_ids}
+    missing: list[str] = []
+    for item in items:
+        found = set(re.findall(r"E\d+", item))
+        found = {token.lstrip("E") for token in found}
+        if not (found & accepted):
+            missing.append(item)
+    return missing
 
 
 def deterministic_content(
@@ -272,7 +278,7 @@ def build_llm_answer(
 
     theory = strings("theory")
     missing_claim_citations = _claims_without_citation(theory, accepted)
-    if missing_claim_citations:
+    if missing_claim_citations and len(missing_claim_citations) == len(theory):
         return build_deterministic_answer(
             question,
             level,
@@ -288,6 +294,7 @@ def build_llm_answer(
                 "claims_without_citation": len(missing_claim_citations),
             },
         )
+    theory = [item for item in theory if item not in missing_claim_citations]
 
     return GroundedAnswer(
         question=question,
@@ -310,6 +317,7 @@ def build_llm_answer(
             "retrieved_ids": accepted,
             "facts_source": "server",
             "claim_citation_check": "passed",
+            "dropped_uncited_claims": len(missing_claim_citations),
         },
         analysis=analysis,
     )

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from app.document_processing.chunker import Chunk
@@ -96,6 +97,21 @@ def _score_multiplier(query: str, chunk: Chunk) -> float:
     return 0.6
 
 
+def _engineering_corpus(root: Path) -> list[tuple[str, str, str]]:
+    manifest_path = root / "knowledge_base" / "metadata" / "engineering_sources.json"
+    if not manifest_path.exists():
+        return []
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    entries: list[tuple[str, str, str]] = []
+    for document in manifest.get("documents", []):
+        relative = document.get("processed_markdown")
+        if not relative:
+            continue
+        if (root / relative).exists():
+            entries.append((document["document_id"], document["document_type"], relative))
+    return entries
+
+
 class LearningCorpusIndex:
     def __init__(self, chunks: list[Chunk]) -> None:
         if not chunks:
@@ -109,18 +125,29 @@ class LearningCorpusIndex:
         cls,
         corpus: list[tuple[str, str, str]] | None = None,
         root: Path | str = ".",
+        include_engineering: bool = False,
     ) -> "LearningCorpusIndex":
         base = Path(root)
+        entries = list(corpus or DEFAULT_LEARNING_CORPUS)
+        if include_engineering:
+            entries.extend(_engineering_corpus(base))
         chunks: list[Chunk] = []
-        for document_id, document_type, relative in corpus or DEFAULT_LEARNING_CORPUS:
+        for document_id, document_type, relative in entries:
             chunks.extend(chunk_markdown(base / relative, document_id, document_type))
         return cls(chunks)
 
-    def search(self, query: str, top_k: int = 3) -> list[RetrievalHit]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 3,
+        exclude_methodology: bool = True,
+    ) -> list[RetrievalHit]:
         if not query.strip():
             raise ValueError("query must not be empty")
         expanded = _expand_query(query)
         hits = self.store.search(expanded, top_k=max(top_k * 4, top_k))
+        if exclude_methodology:
+            hits = [hit for hit in hits if hit.chunk.document_type != "methodology"]
         adjusted = sorted(
             ((hit.score * _score_multiplier(expanded, hit.chunk), hit) for hit in hits),
             key=lambda item: item[0],

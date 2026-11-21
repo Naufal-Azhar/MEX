@@ -7,7 +7,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 os.environ.setdefault("EMBEDDING_BACKEND", "tfidf")
-os.environ.setdefault("LLM_PROVIDER", "none")
+os.environ["LLM_PROVIDER"] = "none"
+os.environ["LLM_API_KEY"] = ""
 os.environ.setdefault("PYTHONHASHSEED", "0")
 
 import pytest

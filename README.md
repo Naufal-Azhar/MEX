@@ -25,7 +25,7 @@ Telemetry fixture: 2025 Abu Dhabi Qualifying, **7 cached laps** (clean fast, med
 
 Screenshots of the running app: `research/screenshots/race_analysis.png`, `race_analysis_results.png`, `engineering_tutor.png`, `regulation_lab.png`.
 
-> **Generation status:** no LLM provider is configured. `/v1/ask` returns structured deterministic answers from measured facts and retrieved quotes, with citation validation. This is **not** generative RAG yet.
+> **Generation status:** Google AI Studio is configured locally via `.env` with `gemini-3.1-flash-lite`. `/v1/ask` now returns `generated` answers for theory and telemetry questions, while keeping facts and rule findings server-side and validating `[E#]` citations. The full A/B/C comparison and semantic citation audit are not run.
 >
 > When a provider is enabled, observed facts and rule findings are still rendered server-side; the LLM cannot alter numbers or verdicts. Theory items must carry a valid `[E#]` citation, and retrieved evidence is treated as untrusted data.
 
@@ -199,7 +199,7 @@ Known limitation: the TF-IDF vocabulary is dominated by Section C, so some metho
 
 Current state:
 
-- **138 tests pass** (66 legacy + 72 new).
+- **140 tests pass** (66 legacy + 74 new).
 - Decision suite: **18/18** internal outcomes, all external statuses correct, F1 (VIOLATED) = 1.0.
 - Citation verification rate: **1.0**; trace consistency: **1.0**; explanation completeness: **1.0**.
 - Retrieval (MiniLM + Qdrant, k=5): hit rate **0.9**, MRR **0.9**, precision@5 **0.18** (one C4.2/C10.1 confusion).
@@ -218,11 +218,20 @@ MEX-AI telemetry slice (2025 Abu Dhabi Q3, VER lap 14 vs NOR lap 16):
 
 These results are on small, synthetic or public fixtures. They are not evidence of real-world accuracy.
 
-## LLM stage (deferred)
+## LLM stage (Gemini free tier)
 
-`LLM_PROVIDER=none` by default; no network calls. `/v1/ask` then returns structured deterministic answers with `generation_status=unavailable`. The provider adapters exist for an OpenAI-compatible API and Ollama, but they are **not tested against a real provider** in this workspace.
+The workspace `.env` is configured for an OpenAI-compatible Google AI Studio endpoint:
 
-When the LLM stage is resumed:
+```bat
+LLM_PROVIDER=api
+LLM_API_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+LLM_API_MODEL=gemini-3.1-flash-lite
+LLM_API_KEY=...local only...
+```
+
+`/v1/ask` now returns `generation_status=generated` for smoke-tested theory and telemetry questions. The key stays in `.env` (gitignored); tests force `LLM_PROVIDER=none` and an empty key so pytest does not consume API quota. A/B/C comparison and semantic citation audit are still pending.
+
+Optional Ollama configuration remains available:
 
 ```bat
 set LLM_PROVIDER=ollama
@@ -230,7 +239,7 @@ set OLLAMA_BASE_URL=http://localhost:11434
 set OLLAMA_MODEL=llama3.1
 ```
 
-The LLM may only propose facts; it cannot create/activate rules or override the engine verdict.
+The LLM may only propose facts and phrasing; it cannot create/activate rules or override the engine verdict.
 
 ## Project layout
 

@@ -228,6 +228,33 @@ Hasil yang benar-benar dieksekusi:
 
 Hasil: `pytest` penuh **138 passed**, exit 0. LLM tetap **BLOCKED**.
 
+## 2.9 LLM aktif — Gemini free tier (21 November 2026)
+
+Konfigurasi:
+
+- Provider: Google AI Studio, endpoint OpenAI-compatible.
+- Model teruji: `gemini-3.1-flash-lite`.
+- Key disimpan di `.env` (gitignored), tidak dicetak/di-commit.
+- `gemini-2.5-flash` sudah tidak tersedia untuk user baru; `gemini-3.8-flash` sempat 503. `gemini-3.1-flash-lite` stabil untuk smoke test.
+
+Hasil nyata:
+
+- Teori "how does braking distance relate to entering speed?" → `generated`, sitasi `[E1]`, teori menyebut hubungan kuadratik.
+- Telemetry "compare the braking between these two laps" (VER-Q-14 vs NOR-Q-16) → `generated`, 13 observed facts dari server, 6 findings, 3 sitasi.
+- HTTP `/v1/ask` "what does throttle percentage mean?" → `generated`, teori `[E1, E3]`, `facts_source=server`.
+- Pertanyaan tanpa bukti "tekanan rem maksimum dalam bar" → `unsupported`, `missing_data`/`limitations` diisi, tidak ada angka karangan.
+
+Perbaikan yang diperlukan saat integrasi:
+
+- Retry bounded untuk 429/500/502/503/504 dan timeout pada provider API.
+- Parser sitasi menerima multi-ID `[E1, E3]`.
+- Item teori tanpa sitasi dibuang; reject hanya jika seluruh teori tanpa sitasi.
+- `tests/conftest.py` memaksa `LLM_PROVIDER=none` dan `LLM_API_KEY` kosong agar pytest tidak memakai kuota API.
+
+Status: **LLM smoke test PASS**, tetapi A/B/C, audit semantik sitasi, dan B vs C tetap belum dijalankan. Total suite: **140 passed**.
+
+
+
 
 
 

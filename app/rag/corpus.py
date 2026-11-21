@@ -54,6 +54,11 @@ def _split_long(text: str, max_chars: int) -> list[str]:
     return parts
 
 
+def _page_number(article: str) -> int:
+    match = re.match(r"Page\s+(\d+)", article, re.IGNORECASE)
+    return int(match.group(1)) if match else 1
+
+
 def chunk_markdown(
     path: Path | str,
     document_id: str,
@@ -74,6 +79,7 @@ def chunk_markdown(
             article = part.splitlines()[0].lstrip("# ").strip()
         else:
             article = "introduction"
+        page = _page_number(article)
         prose, tables = _split_tables(part)
         for piece in _split_long(prose, max_chars):
             piece = piece.strip()
@@ -88,8 +94,8 @@ def chunk_markdown(
                     text=piece,
                     article=article,
                     subarticle=None,
-                    page=1,
-                    page_end=1,
+                    page=page,
+                    page_end=page,
                     document_type=document_type,
                 )
             )
@@ -103,8 +109,8 @@ def chunk_markdown(
                         text=row_text,
                         article=article,
                         subarticle="table_row",
-                        page=1,
-                        page_end=1,
+                        page=page,
+                        page_end=page,
                         document_type=document_type,
                     )
                 )

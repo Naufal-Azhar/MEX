@@ -28,7 +28,7 @@ def _rank(articles: list[str], expected: list[str]) -> int | None:
 
 def main() -> int:
     data = json.loads(CASES_PATH.read_text(encoding="utf-8"))
-    index = LearningCorpusIndex.from_paths(root=ROOT)
+    index = LearningCorpusIndex.from_paths(root=ROOT, include_engineering=True)
     rows = []
     for case in data["cases"]:
         hits = index.search(case["query"], top_k=5)

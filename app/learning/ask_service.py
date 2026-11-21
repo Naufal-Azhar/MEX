@@ -40,6 +40,7 @@ THEORY_TERMS = (
     "braking",
     "grip",
     "load transfer",
+    "load",
     "drag",
     "downforce",
     "traction",
@@ -48,6 +49,15 @@ THEORY_TERMS = (
     "throttle",
     "speed",
     "tyre",
+    "tire",
+    "relaxation",
+    "lateral",
+    "longitudinal",
+    "dynamics",
+    "friction",
+    "slip",
+    "suspension",
+    "vehicle",
 )
 
 
@@ -92,7 +102,7 @@ class AskService:
     @classmethod
     def default(cls, root: Path | str = ROOT) -> "AskService":
         return cls(
-            corpus=LearningCorpusIndex.from_paths(root=root),
+            corpus=LearningCorpusIndex.from_paths(root=root, include_engineering=True),
             learning=TelemetryLearningService.default(),
             provider=get_provider(),
         )

@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from app.config import PROCESSED_DIR, VECTOR_DB_DIR, load_settings
+from app.config import PROCESSED_DIR, ROOT, VECTOR_DB_DIR, load_settings
 from app.document_processing.chunker import Chunk, chunks_from_processed_dir
 from app.rag.embeddings import (
     EmbeddingBackend,
@@ -153,6 +153,14 @@ class Retriever:
 
     def describe(self) -> dict[str, Any]:
         info = self.store.describe()
+        target = info.get("target")
+        if isinstance(target, str):
+            target_path = Path(target)
+            if target_path.is_absolute():
+                try:
+                    info["target"] = target_path.relative_to(ROOT).as_posix()
+                except ValueError:
+                    pass
         if self.backend is not None:
             info["embedding"] = self.backend.describe()
         if self.notes:

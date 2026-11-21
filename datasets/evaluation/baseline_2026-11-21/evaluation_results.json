@@ -1,0 +1,1294 @@
+{
+  "decisions": {
+    "mode": "rag_disabled",
+    "inference": "backward_chaining",
+    "validation_status": "reviewed_demo_only",
+    "cases": [
+      {
+        "case_id": "TC01",
+        "goal": "wheelbase_compliance",
+        "split": "development",
+        "expected_status": "TRUE",
+        "actual_status": "TRUE",
+        "external_status": "SATISFIED",
+        "expected_rule_id": "FIA26-C2.3.3-WHEELBASE",
+        "actual_rule_id": "FIA26-C2.3.3-WHEELBASE",
+        "expected_article": "C2.3.3",
+        "actual_article": "C2.3.3",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 97.13
+      },
+      {
+        "case_id": "TC02",
+        "goal": "cockpit_position_compliance",
+        "split": "development",
+        "expected_status": "TRUE",
+        "actual_status": "TRUE",
+        "external_status": "SATISFIED",
+        "expected_rule_id": "FIA26-C2.3.5-COCKPIT-POSITION",
+        "actual_rule_id": "FIA26-C2.3.5-COCKPIT-POSITION",
+        "expected_article": "C2.3.5",
+        "actual_article": "C2.3.5",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.3
+      },
+      {
+        "case_id": "TC04",
+        "goal": "minimum_mass_compliance",
+        "split": "development",
+        "expected_status": "TRUE",
+        "actual_status": "TRUE",
+        "external_status": "SATISFIED",
+        "expected_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "actual_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "expected_article": "C4.1",
+        "actual_article": "C4.1",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 1.2
+      },
+      {
+        "case_id": "TC05",
+        "goal": "mass_distribution_compliance",
+        "split": "development",
+        "expected_status": "TRUE",
+        "actual_status": "TRUE",
+        "external_status": "SATISFIED",
+        "expected_rule_id": "FIA26-C4.2-MASS-DISTRIBUTION",
+        "actual_rule_id": "FIA26-C4.2-MASS-DISTRIBUTION",
+        "expected_article": "C4.2",
+        "actual_article": "C4.2",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.72
+      },
+      {
+        "case_id": "TC06",
+        "goal": "wheelbase_compliance",
+        "split": "development",
+        "expected_status": "FALSE",
+        "actual_status": "FALSE",
+        "external_status": "VIOLATED",
+        "expected_rule_id": "FIA26-C2.3.3-WHEELBASE",
+        "actual_rule_id": "FIA26-C2.3.3-WHEELBASE",
+        "expected_article": "C2.3.3",
+        "actual_article": "C2.3.3",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.21
+      },
+      {
+        "case_id": "TC08",
+        "goal": "half_width_compliance",
+        "split": "development",
+        "expected_status": "FALSE",
+        "actual_status": "FALSE",
+        "external_status": "VIOLATED",
+        "expected_rule_id": "FIA26-C2.3.1-HALF-WIDTH",
+        "actual_rule_id": "FIA26-C2.3.1-HALF-WIDTH",
+        "expected_article": "C2.3.1",
+        "actual_article": "C2.3.1",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.21
+      },
+      {
+        "case_id": "TC09",
+        "goal": "minimum_mass_compliance",
+        "split": "development",
+        "expected_status": "FALSE",
+        "actual_status": "FALSE",
+        "external_status": "VIOLATED",
+        "expected_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "actual_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "expected_article": "C4.1",
+        "actual_article": "C4.1",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 1.13
+      },
+      {
+        "case_id": "TC10",
+        "goal": "mass_distribution_compliance",
+        "split": "development",
+        "expected_status": "FALSE",
+        "actual_status": "FALSE",
+        "external_status": "VIOLATED",
+        "expected_rule_id": "FIA26-C4.2-MASS-DISTRIBUTION",
+        "actual_rule_id": "FIA26-C4.2-MASS-DISTRIBUTION",
+        "expected_article": "C4.2",
+        "actual_article": "C4.2",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.75
+      },
+      {
+        "case_id": "TC11",
+        "goal": "wheelbase_compliance",
+        "split": "development",
+        "expected_status": "UNKNOWN",
+        "actual_status": "UNKNOWN",
+        "external_status": "INSUFFICIENT_DATA",
+        "expected_rule_id": "FIA26-C2.3.3-WHEELBASE",
+        "actual_rule_id": "FIA26-C2.3.3-WHEELBASE",
+        "expected_article": "C2.3.3",
+        "actual_article": "C2.3.3",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [
+            "wheelbase"
+          ],
+          "actual": [
+            "wheelbase"
+          ]
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.2
+      },
+      {
+        "case_id": "TC13",
+        "goal": "minimum_mass_compliance",
+        "split": "development",
+        "expected_status": "UNKNOWN",
+        "actual_status": "UNKNOWN",
+        "external_status": "INSUFFICIENT_DATA",
+        "expected_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "actual_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "expected_article": "C4.1",
+        "actual_article": "C4.1",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [
+            "nominal_tyre_mass"
+          ],
+          "actual": [
+            "nominal_tyre_mass"
+          ]
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.79
+      },
+      {
+        "case_id": "TC15",
+        "goal": "mass_distribution_compliance",
+        "split": "development",
+        "expected_status": "UNKNOWN",
+        "actual_status": "UNKNOWN",
+        "external_status": "NOT_APPLICABLE",
+        "expected_rule_id": "FIA26-C4.2-MASS-DISTRIBUTION",
+        "actual_rule_id": "FIA26-C4.2-MASS-DISTRIBUTION",
+        "expected_article": "C4.2",
+        "actual_article": "C4.2",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.28
+      },
+      {
+        "case_id": "TC16",
+        "goal": "minimum_mass_compliance",
+        "split": "development",
+        "expected_status": "FALSE",
+        "actual_status": "FALSE",
+        "external_status": "VIOLATED",
+        "expected_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "actual_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "expected_article": "C4.1",
+        "actual_article": "C4.1",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 1.01
+      },
+      {
+        "case_id": "TC03",
+        "goal": "half_width_compliance",
+        "split": "heldout",
+        "expected_status": "TRUE",
+        "actual_status": "TRUE",
+        "external_status": "SATISFIED",
+        "expected_rule_id": "FIA26-C2.3.1-HALF-WIDTH",
+        "actual_rule_id": "FIA26-C2.3.1-HALF-WIDTH",
+        "expected_article": "C2.3.1",
+        "actual_article": "C2.3.1",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.25
+      },
+      {
+        "case_id": "TC07",
+        "goal": "cockpit_position_compliance",
+        "split": "heldout",
+        "expected_status": "FALSE",
+        "actual_status": "FALSE",
+        "external_status": "VIOLATED",
+        "expected_rule_id": "FIA26-C2.3.5-COCKPIT-POSITION",
+        "actual_rule_id": "FIA26-C2.3.5-COCKPIT-POSITION",
+        "expected_article": "C2.3.5",
+        "actual_article": "C2.3.5",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.26
+      },
+      {
+        "case_id": "TC12",
+        "goal": "cockpit_position_compliance",
+        "split": "heldout",
+        "expected_status": "UNKNOWN",
+        "actual_status": "UNKNOWN",
+        "external_status": "INSUFFICIENT_DATA",
+        "expected_rule_id": "FIA26-C2.3.5-COCKPIT-POSITION",
+        "actual_rule_id": "FIA26-C2.3.5-COCKPIT-POSITION",
+        "expected_article": "C2.3.5",
+        "actual_article": "C2.3.5",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [
+            "cockpit_position_distance"
+          ],
+          "actual": [
+            "cockpit_position_distance"
+          ]
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.29
+      },
+      {
+        "case_id": "TC14",
+        "goal": "minimum_mass_compliance",
+        "split": "heldout",
+        "expected_status": "UNKNOWN",
+        "actual_status": "UNKNOWN",
+        "external_status": "INSUFFICIENT_DATA",
+        "expected_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "actual_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "expected_article": "C4.1",
+        "actual_article": "C4.1",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [
+            "competition_heat_hazard_declared",
+            "heat_hazard_declared",
+            "session_category"
+          ],
+          "actual": [
+            "competition_heat_hazard_declared",
+            "heat_hazard_declared",
+            "session_category"
+          ]
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 1.32
+      },
+      {
+        "case_id": "TC17",
+        "goal": "minimum_mass_compliance",
+        "split": "heldout",
+        "expected_status": "TRUE",
+        "actual_status": "TRUE",
+        "external_status": "SATISFIED",
+        "expected_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "actual_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "expected_article": "C4.1",
+        "actual_article": "C4.1",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.83
+      },
+      {
+        "case_id": "TC18",
+        "goal": "minimum_mass_compliance",
+        "split": "heldout",
+        "expected_status": "FALSE",
+        "actual_status": "FALSE",
+        "external_status": "VIOLATED",
+        "expected_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "actual_rule_id": "FIA26-C4.1-MINIMUM-MASS",
+        "expected_article": "C4.1",
+        "actual_article": "C4.1",
+        "rule_match": true,
+        "article_match": true,
+        "missing_fact_metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "expected": [],
+          "actual": []
+        },
+        "explanation_completeness": {
+          "score": 1.0,
+          "checks": {
+            "mentions_status_or_verdict": true,
+            "mentions_rule_id": true,
+            "mentions_article": true,
+            "mentions_evidence_or_missing": true,
+            "includes_scope_disclaimer": true
+          }
+        },
+        "trace_consistency": {
+          "consistent": true,
+          "issues": []
+        },
+        "citation_in_explanation": true,
+        "citation_valid": true,
+        "latency_ms": 0.75
+      }
+    ],
+    "aggregate": {
+      "classification": {
+        "accuracy": 1.0,
+        "positive_label": "FALSE",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "per_label": {
+          "TRUE": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 6
+          },
+          "FALSE": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 7
+          },
+          "UNKNOWN": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 5
+          }
+        },
+        "confusion": {
+          "FALSE->FALSE": 7,
+          "TRUE->TRUE": 6,
+          "UNKNOWN->UNKNOWN": 5
+        },
+        "count": 18
+      },
+      "rule_match_accuracy": 1.0,
+      "article_match_accuracy": 1.0,
+      "citation_accuracy": 1.0,
+      "citation_verification_rate": 1.0,
+      "missing_fact_precision": 1.0,
+      "missing_fact_recall": 1.0,
+      "explanation_completeness": 1.0,
+      "trace_consistency": 1.0,
+      "latency_ms_mean": 5.98,
+      "latency_ms_p95": 97.13,
+      "failure_rate": 0.0,
+      "case_count": 18
+    },
+    "by_split": {
+      "development": {
+        "classification": {
+          "accuracy": 1.0,
+          "positive_label": "FALSE",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "per_label": {
+            "TRUE": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 4
+            },
+            "FALSE": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 5
+            },
+            "UNKNOWN": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 3
+            }
+          },
+          "confusion": {
+            "FALSE->FALSE": 5,
+            "TRUE->TRUE": 4,
+            "UNKNOWN->UNKNOWN": 3
+          },
+          "count": 12
+        },
+        "rule_match_accuracy": 1.0,
+        "article_match_accuracy": 1.0,
+        "citation_accuracy": 1.0,
+        "citation_verification_rate": 1.0,
+        "missing_fact_precision": 1.0,
+        "missing_fact_recall": 1.0,
+        "explanation_completeness": 1.0,
+        "trace_consistency": 1.0,
+        "latency_ms_mean": 8.66,
+        "latency_ms_p95": 97.13,
+        "failure_rate": 0.0,
+        "case_count": 12
+      },
+      "heldout": {
+        "classification": {
+          "accuracy": 1.0,
+          "positive_label": "FALSE",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "per_label": {
+            "TRUE": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 2
+            },
+            "FALSE": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 2
+            },
+            "UNKNOWN": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 2
+            }
+          },
+          "confusion": {
+            "FALSE->FALSE": 2,
+            "TRUE->TRUE": 2,
+            "UNKNOWN->UNKNOWN": 2
+          },
+          "count": 6
+        },
+        "rule_match_accuracy": 1.0,
+        "article_match_accuracy": 1.0,
+        "citation_accuracy": 1.0,
+        "citation_verification_rate": 1.0,
+        "missing_fact_precision": 1.0,
+        "missing_fact_recall": 1.0,
+        "explanation_completeness": 1.0,
+        "trace_consistency": 1.0,
+        "latency_ms_mean": 0.62,
+        "latency_ms_p95": 1.32,
+        "failure_rate": 0.0,
+        "case_count": 6
+      }
+    }
+  },
+  "retrieval": {
+    "cases": [
+      {
+        "case_id": "RT01",
+        "query": "maximum wheelbase 3400 mm distance between planes XF and XR",
+        "expected_articles": [
+          "C2.3.3"
+        ],
+        "retrieved": [
+          {
+            "article": "C2.3.3",
+            "page": 11,
+            "score": 0.792055
+          },
+          {
+            "article": "C2.3.4",
+            "page": 11,
+            "score": 0.51325
+          },
+          {
+            "article": "C2.3.5",
+            "page": 11,
+            "score": 0.454473
+          },
+          {
+            "article": "C3.18.10",
+            "page": 56,
+            "score": 0.417105
+          },
+          {
+            "article": "C12.6.1",
+            "page": 126,
+            "score": 0.407624
+          }
+        ],
+        "metrics": {
+          "hit": 1.0,
+          "precision_at_k": 0.2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        "latency_ms": 239.84
+      },
+      {
+        "case_id": "RT02",
+        "query": "minimum mass 726 kg qualifying 724 kg other sessions nominal tyre mass",
+        "expected_articles": [
+          "C4.1"
+        ],
+        "retrieved": [
+          {
+            "article": "C4.1",
+            "page": 59,
+            "score": 0.730905
+          },
+          {
+            "article": "C4.7",
+            "page": 60,
+            "score": 0.632016
+          },
+          {
+            "article": "C4.2",
+            "page": 59,
+            "score": 0.613755
+          },
+          {
+            "article": "C1",
+            "page": 193,
+            "score": 0.531438
+          },
+          {
+            "article": "C4.5.2",
+            "page": 60,
+            "score": 0.47713
+          }
+        ],
+        "metrics": {
+          "hit": 1.0,
+          "precision_at_k": 0.2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        "latency_ms": 57.67
+      },
+      {
+        "case_id": "RT03",
+        "query": "front axle mass 0.44 rear axle mass 0.54 mass distribution",
+        "expected_articles": [
+          "C4.2"
+        ],
+        "retrieved": [
+          {
+            "article": "C10.1",
+            "page": 106,
+            "score": 0.511206
+          },
+          {
+            "article": "C9.5.2",
+            "page": 103,
+            "score": 0.496658
+          },
+          {
+            "article": "C10.2.2",
+            "page": 106,
+            "score": 0.475212
+          },
+          {
+            "article": "C13.7.2",
+            "page": 144,
+            "score": 0.444875
+          },
+          {
+            "article": "C5.5.6",
+            "page": 71,
+            "score": 0.438698
+          }
+        ],
+        "metrics": {
+          "hit": 0.0,
+          "precision_at_k": 0.0,
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        "latency_ms": 53.8
+      },
+      {
+        "case_id": "RT04",
+        "query": "950 mm from plane Y=0 tyres wheel rims half width",
+        "expected_articles": [
+          "C2.3.1"
+        ],
+        "retrieved": [
+          {
+            "article": "C2.3.1",
+            "page": 10,
+            "score": 0.57046
+          },
+          {
+            "article": "C10.6.1",
+            "page": 112,
+            "score": 0.532169
+          },
+          {
+            "article": "C2.3.4",
+            "page": 11,
+            "score": 0.494744
+          },
+          {
+            "article": "C13.10",
+            "page": 146,
+            "score": 0.443701
+          },
+          {
+            "article": "C2.1.2",
+            "page": 9,
+            "score": 0.419974
+          }
+        ],
+        "metrics": {
+          "hit": 1.0,
+          "precision_at_k": 0.2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        "latency_ms": 55.89
+      },
+      {
+        "case_id": "RT05",
+        "query": "cockpit position XA XC 1830 mm 2030 mm",
+        "expected_articles": [
+          "C2.3.5"
+        ],
+        "retrieved": [
+          {
+            "article": "C2.3.5",
+            "page": 11,
+            "score": 0.818046
+          },
+          {
+            "article": "C12.5",
+            "page": 124,
+            "score": 0.610822
+          },
+          {
+            "article": "C12.6",
+            "page": 125,
+            "score": 0.515124
+          },
+          {
+            "article": "C2.3.6",
+            "page": 11,
+            "score": 0.469156
+          },
+          {
+            "article": "C2.3.4",
+            "page": 11,
+            "score": 0.457423
+          }
+        ],
+        "metrics": {
+          "hit": 1.0,
+          "precision_at_k": 0.2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        "latency_ms": 56.6
+      },
+      {
+        "case_id": "RT06",
+        "query": "heat hazard mass increase 5 kg TTCS",
+        "expected_articles": [
+          "C4.6"
+        ],
+        "retrieved": [
+          {
+            "article": "C4.6",
+            "page": 60,
+            "score": 0.725191
+          },
+          {
+            "article": "C4.1",
+            "page": 59,
+            "score": 0.481945
+          },
+          {
+            "article": "C5.5.2",
+            "page": 70,
+            "score": 0.481371
+          },
+          {
+            "article": "C4.2",
+            "page": 59,
+            "score": 0.427414
+          },
+          {
+            "article": "C9.5.2",
+            "page": 103,
+            "score": 0.415797
+          }
+        ],
+        "metrics": {
+          "hit": 1.0,
+          "precision_at_k": 0.2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        "latency_ms": 50.83
+      },
+      {
+        "case_id": "RT07",
+        "query": "nominal tyre mass measurement 50 tyres per axle dry weather tyres",
+        "expected_articles": [
+          "C4.7"
+        ],
+        "retrieved": [
+          {
+            "article": "C4.7",
+            "page": 60,
+            "score": 0.695909
+          },
+          {
+            "article": "C4.2",
+            "page": 59,
+            "score": 0.566988
+          },
+          {
+            "article": "C1",
+            "page": 193,
+            "score": 0.563383
+          },
+          {
+            "article": "C4.1",
+            "page": 59,
+            "score": 0.522479
+          },
+          {
+            "article": "C10.8.2",
+            "page": 114,
+            "score": 0.397155
+          }
+        ],
+        "metrics": {
+          "hit": 1.0,
+          "precision_at_k": 0.2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        "latency_ms": 57.34
+      },
+      {
+        "case_id": "RT08",
+        "query": "driver ballast density greater than 7500 kg/m3",
+        "expected_articles": [
+          "C4.3.2"
+        ],
+        "retrieved": [
+          {
+            "article": "C4.3.2",
+            "page": 59,
+            "score": 0.739608
+          },
+          {
+            "article": "C4.5.2",
+            "page": 60,
+            "score": 0.728049
+          },
+          {
+            "article": "C4.5",
+            "page": 60,
+            "score": 0.711483
+          },
+          {
+            "article": "C4.3",
+            "page": 59,
+            "score": 0.593401
+          },
+          {
+            "article": "C5.5.8",
+            "page": 71,
+            "score": 0.567551
+          }
+        ],
+        "metrics": {
+          "hit": 1.0,
+          "precision_at_k": 0.2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        "latency_ms": 51.49
+      },
+      {
+        "case_id": "RT09",
+        "query": "rear bulkhead position distance XC XPU 360 mm",
+        "expected_articles": [
+          "C2.3.6"
+        ],
+        "retrieved": [
+          {
+            "article": "C2.3.6",
+            "page": 11,
+            "score": 0.843949
+          },
+          {
+            "article": "C13.6.3",
+            "page": 143,
+            "score": 0.499777
+          },
+          {
+            "article": "C3.18.2",
+            "page": 53,
+            "score": 0.487038
+          },
+          {
+            "article": "C12.6.1",
+            "page": 126,
+            "score": 0.484085
+          },
+          {
+            "article": "C3.18.13",
+            "page": 57,
+            "score": 0.469542
+          }
+        ],
+        "metrics": {
+          "hit": 1.0,
+          "precision_at_k": 0.2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        "latency_ms": 328.44
+      },
+      {
+        "case_id": "RT10",
+        "query": "front wheel position plane XF between XA 0 and 150",
+        "expected_articles": [
+          "C2.3.4"
+        ],
+        "retrieved": [
+          {
+            "article": "C2.3.4",
+            "page": 11,
+            "score": 0.867125
+          },
+          {
+            "article": "C2.3.3",
+            "page": 11,
+            "score": 0.560582
+          },
+          {
+            "article": "C2.3.5",
+            "page": 11,
+            "score": 0.543661
+          },
+          {
+            "article": "C2.1.3",
+            "page": 9,
+            "score": 0.539213
+          },
+          {
+            "article": "C10.10.1",
+            "page": 115,
+            "score": 0.521146
+          }
+        ],
+        "metrics": {
+          "hit": 1.0,
+          "precision_at_k": 0.2,
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        "latency_ms": 68.67
+      }
+    ],
+    "aggregate": {
+      "cases": 10,
+      "k": 5,
+      "hit_rate": 0.9,
+      "precision_at_k": 0.18,
+      "recall_at_k": 0.9,
+      "mrr": 0.9,
+      "latency_ms_mean": 102.06,
+      "latency_ms_p95": 328.44,
+      "index": {
+        "backend": "sentence_transformers",
+        "model": "sentence-transformers/all-MiniLM-L6-v2",
+        "dimension": 384,
+        "chunk_count": 1184,
+        "kind": "qdrant",
+        "collection": "regulation_chunks",
+        "target": "C:\\Users\\HAR\\Documents\\SEMESTER 5\\SENIN\\AI\\Project\\AI-Pakar\\storage\\vector_db\\qdrant",
+        "embedding": {
+          "backend": "sentence_transformers",
+          "dimension": 384,
+          "notes": []
+        }
+      }
+    }
+  }
+}

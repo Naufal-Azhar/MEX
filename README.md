@@ -11,6 +11,8 @@ Source: `FIA 2026 Formula One Regulations — Section C [Technical]`, **Issue 21
 
 > This is **not FIA certification** and not a whole-car compliance check. It only evaluates the reviewed provisions listed below. Rules are currently `reviewed`, not `active`; results are demo-only until a human reviewer signs off.
 
+> **Revision direction (21 November 2026):** `revisi/pemetaan_public_revisi.md` sections 22–34 reposition this work as MEX-AI (Race Analysis, Engineering Tutor, Regulation Lab). The regulation-lab functionality in this README remains the preserved baseline. Phase 0 decisions, verified test/evaluation baseline, and open blockers are recorded in `research/revision_decisions.md`.
+
 ## Covered provisions
 
 | Rule ID | Article | Requirement | Page |

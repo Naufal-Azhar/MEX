@@ -1,5 +1,6 @@
 # Taste — Command Code
-- Requires all dependencies and runtime artifacts (venv, pip/model caches, vector stores, logs) to stay isolated inside the project workspace — no global installs, nothing written outside the repo. Confidence: 0.85
+- Requires all dependencies and runtime artifacts (venv, pip/model caches, vector stores, logs) to stay isolated inside the project workspace — no global installs, nothing written outside the repo. Never edit, rewrite, or create files outside the workspace; if something is needed, fetch/install it into the workspace itself. Confidence: 0.9
+- Reuse what's already installed on the machine instead of re-downloading dependencies; only download when the dependency is genuinely missing, and then install it into the workspace. Confidence: 0.8
 - Prefers to run servers/tests/builds himself: give the step-by-step commands (with the shell variant spelled out) instead of starting processes for him. Confidence: 0.7
 - Wants startup/run instructions kept as short as possible — a single combined one-liner per service, with no redundant env vars or setup steps. Confidence: 0.7
 - Runs commands in Windows PowerShell 5.1 — run/startup commands must be valid there (`;` / `Set-Location`, not `&&`); give the PowerShell-correct form by default. Confidence: 0.6

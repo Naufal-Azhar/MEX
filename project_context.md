@@ -5,6 +5,7 @@ Status: Approved direction; regulatory rule selection and implementation pending
 Priority: Academic research; demonstrable MVP within approximately two weeks
 Primary language: Indonesian for user-facing explanations; Python for implementation
 Instruction hierarchy: This document is the product and engineering baseline. Actual FIA regulation content is authoritative only when verified against the supplied official FIA document. If a requested feature conflicts with verified rules or available evidence, stop and report the conflict. Do not fabricate details.
+Revision precedence (21 November 2026): `revisi/pemetaan_public_revisi.md` sections 22–34 define the current MEX-AI revision direction and supersede conflicting plans in this document, including the wheelbase 2025–2026 priority in section 15.2. The integrity constraints, rule lifecycle, demo status, and inference/LLM separation below remain in force. Implementation decisions and verified baseline results are logged in `research/revision_decisions.md`.
 
 1. Executive context and decision history
 The project began as a university AI expert-system assignment about knowledge bases, inference engines, forward chaining and backward chaining. Early alternatives were (a) malware and full-computer threat scanning and (b) web vulnerability assessment. Full-device malware scanning was rejected as too broad for the time and evaluation resources; web vulnerability assessment remains a backup concept, not part of this build.

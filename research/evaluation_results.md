@@ -1,6 +1,6 @@
 # Evaluation Results
 
-Generated: 2026-11-17T05:49:27.745200+00:00
+Generated: 2026-11-21T04:44:41.805307+00:00
 
 Mode: `RAG + LLM extraction disabled + Backward Chaining`. LLM-only (A) and RAG+LLM (B) configurations have not been run yet; see `research/evaluation_plan.md`.
 Rule validation status: `reviewed_demo_only`. Reviewed rules are demo-only until a human reviewer signs them off.
@@ -20,7 +20,7 @@ Rule validation status: `reviewed_demo_only`. Reviewed rules are demo-only until
 - Missing-fact recall: 1.0
 - Explanation completeness: 1.0
 - Backward-chaining trace consistency: 1.0
-- Decision latency mean / p95 (ms): 7.43 / 120.62
+- Decision latency mean / p95 (ms): 2.45 / 39.49
 - Failure rate: 0.0
 
 ### Split summary
@@ -69,7 +69,7 @@ Rule validation status: `reviewed_demo_only`. Reviewed rules are demo-only until
 - Precision@k: 0.18
 - Recall@k: 0.9
 - MRR: 0.9
-- Latency mean / p95 (ms): 91.57 / 351.86
+- Latency mean / p95 (ms): 40.81 / 206.96
 - Index: {"backend": "sentence_transformers", "dimension": 384, "notes": []}
 
 | Case | Query | Expected | Top retrieved | Hit | RR |

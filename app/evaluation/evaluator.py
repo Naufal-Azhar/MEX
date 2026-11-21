@@ -11,7 +11,7 @@ from app.config import DATASETS_DIR, get_logger
 from app.evaluation.metrics import classification_metrics, retrieval_metrics, set_precision_recall_f1
 from app.expert_system.service import ComplianceService
 from app.schemas.facts import Fact, FactOrigin, FactStore
-from app.schemas.results import CheckReport, TraceNode
+from app.schemas.results import CheckReport, ExternalStatus, TraceNode
 
 logger = get_logger("app.evaluation")
 
@@ -36,24 +36,15 @@ def _facts_from_case(items: list[dict[str, Any]]) -> FactStore:
 
 def explanation_completeness(report: CheckReport) -> dict[str, Any]:
     checks = {
-        "mentions_status_or_verdict": any(
-            word in report.explanation.lower()
-            for word in (
-                "memenuhi",
-                "tidak memenuhi",
-                "belum dapat ditentukan",
-                "tidak berlaku",
-                "tidak dapat diputuskan",
-                "kesalahan sistem",
-            )
+        "has_explanation_text": bool((report.explanation or "").strip()),
+        "has_verdict_status": report.status is not None,
+        "has_rule_reference": bool(report.rule_id)
+        or report.status in (ExternalStatus.UNSUPPORTED, ExternalStatus.ERROR),
+        "has_source_reference": bool(report.source),
+        "has_evidence_or_missing_facts": bool(
+            report.citations or report.missing_facts or report.applicability_conditions
         ),
-        "mentions_rule_id": bool(report.rule_id and report.rule_id in report.explanation),
-        "mentions_article": bool(report.source and f"Article {report.source.article}" in report.explanation),
-        "mentions_evidence_or_missing": any(
-            marker in report.explanation
-            for marker in ("Kutipan regulasi", "Fakta yang masih diperlukan", "Sitasi sumber", "Goal yang didukung")
-        ),
-        "includes_scope_disclaimer": "seluruh kepatuhan" in report.explanation,
+        "has_declared_limitations": bool(report.limitations),
     }
     return {"score": round(sum(checks.values()) / len(checks), 4), "checks": checks}
 

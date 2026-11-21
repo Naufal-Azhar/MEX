@@ -27,11 +27,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -40,7 +41,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 120.62
+        "latency_ms": 39.49
       },
       {
         "case_id": "TC02",
@@ -65,11 +66,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -78,7 +80,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.6
+        "latency_ms": 0.31
       },
       {
         "case_id": "TC04",
@@ -103,11 +105,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -116,7 +119,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 1.58
+        "latency_ms": 0.4
       },
       {
         "case_id": "TC05",
@@ -141,11 +144,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -154,7 +158,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.84
+        "latency_ms": 0.35
       },
       {
         "case_id": "TC06",
@@ -179,11 +183,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -192,7 +197,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.17
+        "latency_ms": 0.11
       },
       {
         "case_id": "TC08",
@@ -217,11 +222,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -230,7 +236,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.16
+        "latency_ms": 0.12
       },
       {
         "case_id": "TC09",
@@ -255,11 +261,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -268,7 +275,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.76
+        "latency_ms": 0.53
       },
       {
         "case_id": "TC10",
@@ -293,11 +300,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -306,7 +314,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.87
+        "latency_ms": 0.3
       },
       {
         "case_id": "TC11",
@@ -335,11 +343,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -348,7 +357,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.37
+        "latency_ms": 0.1
       },
       {
         "case_id": "TC13",
@@ -377,11 +386,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -390,7 +400,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 1.6
+        "latency_ms": 0.38
       },
       {
         "case_id": "TC15",
@@ -415,11 +425,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -428,7 +439,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.24
+        "latency_ms": 0.12
       },
       {
         "case_id": "TC16",
@@ -453,11 +464,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -466,7 +478,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.75
+        "latency_ms": 0.32
       },
       {
         "case_id": "TC03",
@@ -491,11 +503,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -504,7 +517,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.27
+        "latency_ms": 0.09
       },
       {
         "case_id": "TC07",
@@ -529,11 +542,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -542,7 +556,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.27
+        "latency_ms": 0.08
       },
       {
         "case_id": "TC12",
@@ -571,11 +585,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -584,7 +599,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 0.28
+        "latency_ms": 0.1
       },
       {
         "case_id": "TC14",
@@ -617,11 +632,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -630,7 +646,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 2.0
+        "latency_ms": 0.6
       },
       {
         "case_id": "TC17",
@@ -655,11 +671,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -668,7 +685,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 1.37
+        "latency_ms": 0.37
       },
       {
         "case_id": "TC18",
@@ -693,11 +710,12 @@
         "explanation_completeness": {
           "score": 1.0,
           "checks": {
-            "mentions_status_or_verdict": true,
-            "mentions_rule_id": true,
-            "mentions_article": true,
-            "mentions_evidence_or_missing": true,
-            "includes_scope_disclaimer": true
+            "has_explanation_text": true,
+            "has_verdict_status": true,
+            "has_rule_reference": true,
+            "has_source_reference": true,
+            "has_evidence_or_missing_facts": true,
+            "has_declared_limitations": true
           }
         },
         "trace_consistency": {
@@ -706,7 +724,7 @@
         },
         "citation_in_explanation": true,
         "citation_valid": true,
-        "latency_ms": 1.05
+        "latency_ms": 0.31
       }
     ],
     "aggregate": {
@@ -751,8 +769,8 @@
       "missing_fact_recall": 1.0,
       "explanation_completeness": 1.0,
       "trace_consistency": 1.0,
-      "latency_ms_mean": 7.43,
-      "latency_ms_p95": 120.62,
+      "latency_ms_mean": 2.45,
+      "latency_ms_p95": 39.49,
       "failure_rate": 0.0,
       "case_count": 18
     },
@@ -799,8 +817,8 @@
         "missing_fact_recall": 1.0,
         "explanation_completeness": 1.0,
         "trace_consistency": 1.0,
-        "latency_ms_mean": 10.71,
-        "latency_ms_p95": 120.62,
+        "latency_ms_mean": 3.54,
+        "latency_ms_p95": 39.49,
         "failure_rate": 0.0,
         "case_count": 12
       },
@@ -846,8 +864,8 @@
         "missing_fact_recall": 1.0,
         "explanation_completeness": 1.0,
         "trace_consistency": 1.0,
-        "latency_ms_mean": 0.87,
-        "latency_ms_p95": 2.0,
+        "latency_ms_mean": 0.26,
+        "latency_ms_p95": 0.6,
         "failure_rate": 0.0,
         "case_count": 6
       }
@@ -894,7 +912,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 86.77
+        "latency_ms": 39.65
       },
       {
         "case_id": "RT02",
@@ -935,7 +953,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 57.42
+        "latency_ms": 22.32
       },
       {
         "case_id": "RT03",
@@ -976,7 +994,7 @@
           "recall_at_k": 0.0,
           "reciprocal_rank": 0.0
         },
-        "latency_ms": 55.3
+        "latency_ms": 19.85
       },
       {
         "case_id": "RT04",
@@ -1017,7 +1035,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 59.75
+        "latency_ms": 18.14
       },
       {
         "case_id": "RT05",
@@ -1058,7 +1076,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 57.37
+        "latency_ms": 19.32
       },
       {
         "case_id": "RT06",
@@ -1099,7 +1117,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 52.14
+        "latency_ms": 19.38
       },
       {
         "case_id": "RT07",
@@ -1140,7 +1158,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 61.44
+        "latency_ms": 21.89
       },
       {
         "case_id": "RT08",
@@ -1181,7 +1199,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 64.66
+        "latency_ms": 17.12
       },
       {
         "case_id": "RT09",
@@ -1222,7 +1240,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 351.86
+        "latency_ms": 206.96
       },
       {
         "case_id": "RT10",
@@ -1263,7 +1281,7 @@
           "recall_at_k": 1.0,
           "reciprocal_rank": 1.0
         },
-        "latency_ms": 68.96
+        "latency_ms": 23.5
       }
     ],
     "aggregate": {
@@ -1273,8 +1291,8 @@
       "precision_at_k": 0.18,
       "recall_at_k": 0.9,
       "mrr": 0.9,
-      "latency_ms_mean": 91.57,
-      "latency_ms_p95": 351.86,
+      "latency_ms_mean": 40.81,
+      "latency_ms_p95": 206.96,
       "index": {
         "backend": "sentence_transformers",
         "model": "sentence-transformers/all-MiniLM-L6-v2",
@@ -1282,7 +1300,7 @@
         "chunk_count": 1184,
         "kind": "qdrant",
         "collection": "regulation_chunks",
-        "target": "C:\\Users\\HAR\\Documents\\SEMESTER 5\\SENIN\\AI\\Project\\AI-Pakar\\storage\\vector_db\\qdrant",
+        "target": "storage/vector_db/qdrant",
         "embedding": {
           "backend": "sentence_transformers",
           "dimension": 384,

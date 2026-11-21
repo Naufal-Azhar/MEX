@@ -110,6 +110,35 @@ Perubahan threshold yang didokumentasikan:
 - `brake` dinormalisasi dari 0/1 atau 0/100 ke boolean; onset memakai debounce 2 sampel.
 - Semua angka di atas adalah hasil fixture, bukan klaim performa pembalap.
 
+## 2.4 Phase 4 — ruleset analisis, evidence gate, endpoint (21 November 2026)
+
+File baru:
+
+| File | Peran |
+|---|---|
+| `knowledge_base/rules/telemetry_rules.json` | 8 rule `draft` (TEL-R01..R08) dengan sumber dan kondisi |
+| `app/schemas/analysis.py` | Status analisis, gate result, finding, evidence reference, report, request |
+| `app/learning/evidence_gate.py` | Data gate dan knowledge gate |
+| `app/learning/service.py` | Orkestrasi BC + gate + laporan |
+| `tests/test_analysis_rules.py` | 15 test baru |
+
+Perubahan aditif:
+
+- `KnowledgeBase` menerima `include_draft=False` (default). Default perilaku lama tidak berubah; ruleset telemetry dimuat dengan `include_draft=True` khusus mode prototipe.
+- Endpoint baru: `GET /v1/races`, `GET /v1/races/{session_id}/laps`, `POST /v1/telemetry/analyze`.
+- Handler `RequestValidationError` diperbaiki agar `ctx.error` (ValueError) tidak lagi membuat respons 422 gagal diserialisasi.
+
+Hasil yang benar-benar dieksekusi:
+
+- `pytest tests/test_analysis_rules.py` → **15 passed**, exit 0.
+- `pytest` penuh → **99 passed**, exit 0 (66 baseline + 18 telemetry + 15 analysis).
+- Analisis nyata: data gate PASS, knowledge gate PASS (6 kutipan ditemukan), 4 finding `OBSERVED` (R01–R04), R05/R06 `NOT_APPLICABLE` tanpa pertanyaan understeer/drag, R07/R08 `INSUFFICIENT_DATA`.
+- `engineering_interpretation_status` = `INSUFFICIENT_DATA` karena sumber teknik yang tersedia belum cukup untuk interpretasi tersokong.
+- Artefak: `datasets/telemetry/analysis/learning_report.json`.
+- Aturan tetap `draft`; tidak ada yang dipromosikan ke `reviewed`/`active`, dan tidak ada klaim FC.
+
+
+
 
 
 

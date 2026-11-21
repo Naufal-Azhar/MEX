@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -76,6 +77,16 @@ async def fact_conflict_handler(request: Request, exc: FactConflictError) -> JSO
     )
 
 
+def _safe_validation_error(error: dict) -> dict:
+    return {
+        "type": error.get("type"),
+        "loc": list(error.get("loc", [])),
+        "msg": error.get("msg"),
+        "input": jsonable_encoder(error.get("input")),
+        "ctx": {key: str(value) for key, value in (error.get("ctx") or {}).items()},
+    }
+
+
 @app.exception_handler(RequestValidationError)
 async def request_validation_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     return JSONResponse(
@@ -86,7 +97,7 @@ async def request_validation_handler(request: Request, exc: RequestValidationErr
                 {
                     "code": "INVALID_INPUT",
                     "message": "Request schema validation failed.",
-                    "details": error,
+                    "details": _safe_validation_error(error),
                 }
                 for error in exc.errors()
             ],

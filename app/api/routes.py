@@ -8,11 +8,13 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
-from app.config import get_logger, load_settings
+from app.config import DATASETS_DIR, get_logger, load_settings
 from app.expert_system.knowledge_base import default_facts_path
 from app.expert_system.service import ComplianceService
+from app.learning.service import TelemetryLearningService
 from app.llm.base import LLMError
 from app.llm.fact_extractor import DeterministicFactExtractor, get_extractor
+from app.schemas.analysis import TelemetryAnalysisReport, TelemetryAnalyzeRequest
 from app.schemas.api import (
     CheckAllRequest,
     CheckRequest,
@@ -29,6 +31,7 @@ router = APIRouter()
 _service: ComplianceService | None = None
 _retriever: Any = None
 _retriever_lock = threading.Lock()
+_learning_service: TelemetryLearningService | None = None
 
 
 def service() -> ComplianceService:
@@ -36,6 +39,20 @@ def service() -> ComplianceService:
     if _service is None:
         _service = ComplianceService()
     return _service
+
+
+def learning_service() -> TelemetryLearningService:
+    global _learning_service
+    if _learning_service is None:
+        _learning_service = TelemetryLearningService.default()
+    return _learning_service
+
+
+def _telemetry_manifest() -> dict[str, Any]:
+    path = DATASETS_DIR / "telemetry" / "manifest.json"
+    if not path.exists():
+        raise HTTPException(status_code=503, detail="Telemetry fixture manifest not found.")
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def retriever():
@@ -131,6 +148,53 @@ def goals() -> list[GoalInfo]:
 @router.get("/rules")
 def rules() -> list[dict[str, Any]]:
     return _rules_payload()
+
+
+@router.get("/v1/races")
+def races() -> list[dict[str, Any]]:
+    manifest = _telemetry_manifest()
+    session = manifest["session"]
+    return [
+        {
+            "session_id": manifest["session_id"],
+            "season": session["season"],
+            "event": session["event"],
+            "session_type": session["session_type"],
+            "provider": manifest["provider"],
+            "license": manifest["license"],
+            "lap_count": len(manifest["laps"]),
+        }
+    ]
+
+
+@router.get("/v1/races/{session_id}/laps")
+def race_laps(session_id: str) -> list[dict[str, Any]]:
+    manifest = _telemetry_manifest()
+    if session_id != manifest["session_id"]:
+        raise HTTPException(status_code=404, detail=f"Unknown session '{session_id}'.")
+    return learning_service().telemetry.available_laps()
+
+
+@router.post("/v1/telemetry/analyze", response_model=TelemetryAnalysisReport)
+def telemetry_analyze(request: TelemetryAnalyzeRequest) -> TelemetryAnalysisReport:
+    segment = None
+    if request.segment_start_m is not None and request.segment_end_m is not None:
+        segment = (request.segment_start_m, request.segment_end_m)
+    try:
+        return learning_service().analyze(
+            request.lap_a_id,
+            request.lap_b_id,
+            segment=segment,
+            question=request.question,
+            level=request.level,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001 - never expose a stack trace
+        logger.exception("telemetry analysis failed")
+        raise HTTPException(status_code=500, detail="Telemetry analysis failed.") from exc
 
 
 def _check(goal_id: str, facts, document_issue: str | None) -> CheckReport:

@@ -29,13 +29,19 @@ class KnowledgeBase:
     must carry a validation warning.
     """
 
-    def __init__(self, rule_set: RuleSet, allow_reviewed: bool | None = None) -> None:
+    def __init__(
+        self,
+        rule_set: RuleSet,
+        allow_reviewed: bool | None = None,
+        include_draft: bool = False,
+    ) -> None:
         self.rule_set = rule_set
         self.allow_reviewed = _allow_reviewed_default() if allow_reviewed is None else allow_reviewed
+        self.include_draft = include_draft
         self._by_goal: dict[str, list[Rule]] = {}
 
         for rule in rule_set.rules:
-            if rule.is_runnable(self.allow_reviewed):
+            if include_draft or rule.is_runnable(self.allow_reviewed):
                 self._by_goal.setdefault(rule.goal, []).append(rule)
 
         for goal, rules in self._by_goal.items():
@@ -45,13 +51,31 @@ class KnowledgeBase:
             rules.sort(key=lambda rule: 0 if rule.status is RuleStatus.ACTIVE else 1)
 
     @classmethod
-    def from_file(cls, path: Path | str = DEFAULT_RULES_PATH, allow_reviewed: bool | None = None) -> "KnowledgeBase":
+    def from_file(
+        cls,
+        path: Path | str = DEFAULT_RULES_PATH,
+        allow_reviewed: bool | None = None,
+        include_draft: bool = False,
+    ) -> "KnowledgeBase":
         data = json.loads(Path(path).read_text(encoding="utf-8"))
-        return cls(RuleSet.model_validate(data), allow_reviewed=allow_reviewed)
+        return cls(RuleSet.model_validate(data), allow_reviewed=allow_reviewed, include_draft=include_draft)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any], allow_reviewed: bool | None = None) -> "KnowledgeBase":
-        return cls(RuleSet.model_validate(data), allow_reviewed=allow_reviewed)
+    def from_dict(
+        cls,
+        data: dict[str, Any],
+        allow_reviewed: bool | None = None,
+        include_draft: bool = False,
+    ) -> "KnowledgeBase":
+        return cls(
+            RuleSet.model_validate(data),
+            allow_reviewed=allow_reviewed,
+            include_draft=include_draft,
+        )
+
+    @property
+    def prototype_mode(self) -> bool:
+        return self.include_draft
 
     @property
     def document_id(self) -> str:

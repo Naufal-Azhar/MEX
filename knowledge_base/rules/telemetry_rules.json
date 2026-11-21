@@ -1,0 +1,167 @@
+{
+  "version": "0.1.0",
+  "regulation": "MEX-AI telemetry learning ruleset (prototype)",
+  "regulation_issue": "v1-2026-11-21",
+  "document_id": "mex-telemetry-notes",
+  "scope": "Prototype observational rules for a two-lap telemetry comparison. Draft only; not reviewed, not active, and not a performance verdict.",
+  "subdomain": "braking and speed interpretation",
+  "rules": [
+    {
+      "rule_id": "TEL-R01",
+      "name": "Speed comparison is available when both laps align with sufficient coverage",
+      "source": {
+        "document_id": "mex-telemetry-notes",
+        "document": "Telemetry Data Dictionary and Engineering Fundamentals Notes",
+        "issue": "v1-2026-11-21",
+        "article": "data_dictionary section 2; feature_spec section 3.2",
+        "quote": "Cross-lap alignment is approximate because racing lines differ."
+      },
+      "applies_if": [],
+      "conditions": [
+        {"left": {"fact": "laps_aligned"}, "operator": "==", "right": {"const": true}},
+        {"left": {"fact": "valid_speed_a"}, "operator": "==", "right": {"const": true}},
+        {"left": {"fact": "valid_speed_b"}, "operator": "==", "right": {"const": true}},
+        {"left": {"fact": "coverage_sufficient"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conclusion": {"goal": "speed_comparison_available", "kind": "boolean", "value": true},
+      "status": "draft",
+      "notes": "Availability only. It does not claim that one lap is faster overall."
+    },
+    {
+      "rule_id": "TEL-R02",
+      "name": "A speed-profile difference is observed when the delta exceeds tolerance",
+      "source": {
+        "document_id": "mex-telemetry-notes",
+        "document": "Telemetry Data Dictionary and Engineering Fundamentals Notes",
+        "issue": "v1-2026-11-21",
+        "article": "feature_spec section 3.2",
+        "quote": "is a change in speed per unit time along the path"
+      },
+      "applies_if": [
+        {"left": {"goal_value": "speed_comparison_available"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conditions": [
+        {"left": {"fact": "speed_delta_exceeds_tolerance"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conclusion": {"goal": "speed_profile_difference_observed", "kind": "boolean", "value": true},
+      "status": "draft",
+      "notes": "Tolerance is a prototype configuration value."
+    },
+    {
+      "rule_id": "TEL-R03",
+      "name": "A relative brake-onset difference is observed when it exceeds uncertainty",
+      "source": {
+        "document_id": "mex-telemetry-notes",
+        "document": "Telemetry Data Dictionary and Engineering Fundamentals Notes",
+        "issue": "v1-2026-11-21",
+        "article": "feature_spec section 3.3-3.4",
+        "quote": "Never describe it as pressure or pedal force."
+      },
+      "applies_if": [
+        {"left": {"goal_value": "speed_comparison_available"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conditions": [
+        {"left": {"fact": "valid_brake_onsets"}, "operator": "==", "right": {"const": true}},
+        {"left": {"fact": "alignment_quality_sufficient"}, "operator": "==", "right": {"const": true}},
+        {"left": {"fact": "onset_delta_exceeds_uncertainty"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conclusion": {"goal": "relative_brake_onset_difference_observed", "kind": "boolean", "value": true},
+      "status": "draft",
+      "notes": "Brake is an indicator, not pressure."
+    },
+    {
+      "rule_id": "TEL-R04",
+      "name": "An observed brake-onset difference makes braking dynamics a relevant learning topic",
+      "source": {
+        "document_id": "mex-telemetry-notes",
+        "document": "Telemetry Data Dictionary and Engineering Fundamentals Notes",
+        "issue": "v1-2026-11-21",
+        "article": "engineering_fundamentals section 2",
+        "quote": "Braking distance grows with the square of entering speed"
+      },
+      "applies_if": [
+        {"left": {"goal_value": "relative_brake_onset_difference_observed"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conditions": [],
+      "conclusion": {"goal": "braking_dynamics_learning_topic_relevant", "kind": "boolean", "value": true},
+      "status": "draft",
+      "notes": "Topic relevance only; no diagnosis of driver or car."
+    },
+    {
+      "rule_id": "TEL-R05",
+      "name": "Understeer diagnosis is withheld when steering or vehicle response is unavailable",
+      "source": {
+        "document_id": "mex-telemetry-notes",
+        "document": "Telemetry Data Dictionary and Engineering Fundamentals Notes",
+        "issue": "v1-2026-11-21",
+        "article": "engineering_fundamentals section 6",
+        "quote": "Any causal explanation of an understeer/oversteer diagnosis"
+      },
+      "applies_if": [
+        {"left": {"fact": "goal_is_understeer_diagnosis"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conditions": [
+        {"left": {"fact": "steering_or_vehicle_response_unavailable"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conclusion": {"goal": "insufficient_evidence_for_understeer_diagnosis", "kind": "boolean", "value": true},
+      "status": "draft",
+      "notes": "Guardrail: missing data is not negative evidence."
+    },
+    {
+      "rule_id": "TEL-R06",
+      "name": "Drag comparison is withheld when aerodynamic and power context is unavailable",
+      "source": {
+        "document_id": "mex-telemetry-notes",
+        "document": "Telemetry Data Dictionary and Engineering Fundamentals Notes",
+        "issue": "v1-2026-11-21",
+        "article": "engineering_fundamentals section 5",
+        "quote": "Speed alone does not determine"
+      },
+      "applies_if": [
+        {"left": {"fact": "goal_is_drag_comparison"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conditions": [
+        {"left": {"fact": "required_aero_power_context_unavailable"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conclusion": {"goal": "insufficient_evidence_for_drag_cause", "kind": "boolean", "value": true},
+      "status": "draft",
+      "notes": "Guardrail against estimating drag from speed."
+    },
+    {
+      "rule_id": "TEL-R07",
+      "name": "Comparison context limitation is flagged when tyre or track context is unavailable",
+      "source": {
+        "document_id": "mex-telemetry-notes",
+        "document": "Telemetry Data Dictionary and Engineering Fundamentals Notes",
+        "issue": "v1-2026-11-21",
+        "article": "data_dictionary section 5",
+        "quote": "entering speed, tyre history, fuel, wind, traffic and driver intent can all differ"
+      },
+      "applies_if": [],
+      "conditions": [
+        {"left": {"fact": "tyre_context_or_track_context_unavailable"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conclusion": {"goal": "flag_comparison_context_limitation", "kind": "boolean", "value": true},
+      "status": "draft",
+      "notes": "The comparison remains descriptive."
+    },
+    {
+      "rule_id": "TEL-R08",
+      "name": "Supported engineering interpretation is withheld when scientific evidence is unverified",
+      "source": {
+        "document_id": "mex-telemetry-notes",
+        "document": "Telemetry Data Dictionary and Engineering Fundamentals Notes",
+        "issue": "v1-2026-11-21",
+        "article": "engineering_sources section 2",
+        "quote": "Not obtained; no licensed copy available in the workspace"
+      },
+      "applies_if": [
+        {"left": {"fact": "scientific_evidence_missing_or_unverified"}, "operator": "==", "right": {"const": true}}
+      ],
+      "conditions": [],
+      "conclusion": {"goal": "withhold_supported_engineering_interpretation", "kind": "boolean", "value": true},
+      "status": "draft",
+      "notes": "Knowledge gate: string verification is not semantic entailment."
+    }
+  ]
+}

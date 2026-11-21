@@ -1,5 +1,6 @@
 {
   "dataset_id": "tracinginsights-2025-abu-dhabi-qualifying-ver14-nor16",
+  "session_id": "2025-abu-dhabi-qualifying",
   "data_kind": "recorded_public_fixture",
   "provider": "TracingInsights",
   "provider_repository": "https://github.com/TracingInsights-Archive/2025",

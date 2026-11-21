@@ -1,0 +1,273 @@
+"""Structured grounded answers with citation validation and deterministic fallback."""
+
+from __future__ import annotations
+
+import json
+import re
+from typing import Any
+
+from app.llm.base import ChatMessage, LLMError, LLMProvider
+from app.schemas.analysis import AnalysisStatus, TelemetryAnalysisReport
+from app.schemas.learning import (
+    CitationRef,
+    GenerationStatus,
+    GroundedAnswer,
+    QuestionType,
+)
+from app.schemas.results import RetrievalHit
+
+PROMPT_VERSION = "mex-ask-v1"
+MAX_EVIDENCE_CHARS = 700
+CITATION_ID_RE = re.compile(r"^E\d+$")
+
+
+def citations_from_hits(hits: list[RetrievalHit]) -> list[CitationRef]:
+    citations: list[CitationRef] = []
+    for index, hit in enumerate(hits, start=1):
+        snippet = " ".join(hit.text.split())
+        citations.append(
+            CitationRef(
+                ref_id=f"E{index}",
+                document_id=hit.document_id,
+                article=hit.article,
+                quote=snippet[:300],
+                verified=True,
+                semantic_support_verified=False,
+            )
+        )
+    return citations
+
+
+def validate_citation_ids(citation_ids: list[str], citations: list[CitationRef]) -> tuple[list[str], list[str]]:
+    known = {citation.ref_id for citation in citations}
+    accepted = [item for item in citation_ids if item in known and CITATION_ID_RE.match(item)]
+    rejected = [item for item in citation_ids if item not in known]
+    return accepted, rejected
+
+
+def _format_fact(fact) -> str:
+    if fact.value is None:
+        return f"{fact.name}: tidak tersedia ({fact.status.value})"
+    unit = f" {fact.unit}" if fact.unit else ""
+    detail = f" [{fact.detail}]" if fact.detail else ""
+    return f"{fact.name} = {fact.value}{unit}{detail}"
+
+
+def deterministic_content(
+    question: str,
+    question_type: QuestionType,
+    hits: list[RetrievalHit],
+    analysis: TelemetryAnalysisReport | None,
+) -> tuple[list[str], list[str], list[str], list[str], list[str], list[str]]:
+    observed: list[str] = []
+    findings: list[str] = []
+    explanations: list[str] = []
+    theory: list[str] = []
+    missing: list[str] = []
+    limitations: list[str] = []
+
+    if analysis is not None:
+        observed = [_format_fact(fact) for fact in analysis.observed_facts]
+        findings = [
+            f"{finding.rule_id} ({finding.goal}): {finding.status.value}"
+            for finding in analysis.findings
+            if finding.status is not AnalysisStatus.NOT_APPLICABLE
+        ]
+        explanations = [
+            "Perbedaan titik pengereman dapat dipengaruhi kecepatan masuk, kondisi ban, racing line, angin, lalu lintas, atau niat pembalap.",
+            "Data publik ini tidak memuat beban bahan bakar, suhu ban, atau tekanan rem, sehingga sebab spesifik tidak dapat disimpulkan.",
+        ]
+        missing = list(analysis.missing_data)
+        limitations = list(analysis.limitations)
+
+    for index, hit in enumerate(hits, start=1):
+        text = " ".join(hit.text.split())
+        text = re.sub(r"^#+\s*", "", text)
+        text = re.sub(r"[`*_]", "", text)
+        snippet = text[:MAX_EVIDENCE_CHARS]
+        theory.append(f"[E{index}] {snippet}")
+
+    if not limitations:
+        limitations = [
+            "Jawaban ini disusun deterministik dari fakta terukur dan kutipan; tidak ada generasi LLM.",
+            "Kutipan diverifikasi sebagai keberadaan string, bukan entailment semantik.",
+        ]
+    if not theory and question_type is QuestionType.THEORY:
+        limitations.append("Tidak ada bukti teori yang cukup untuk pertanyaan ini.")
+
+    return observed, findings, explanations, theory, missing, limitations
+
+
+def suggested_questions(question_type: QuestionType) -> list[str]:
+    if question_type is QuestionType.TELEMETRY_CASE:
+        return [
+            "Apa arti brake onset dalam data telemetri?",
+            "Mengapa perbedaan titik rem tidak otomatis berarti pembalap lebih baik?",
+            "Data apa yang masih diperlukan untuk menjelaskan perbedaan ini?",
+        ]
+    return [
+        "Bagaimana cara membaca grafik speed, throttle, dan brake?",
+        "Mengapa grip dan load transfer penting saat pengereman?",
+        "Kapan sistem harus menahan kesimpulan karena bukti kurang?",
+    ]
+
+
+def build_deterministic_answer(
+    question: str,
+    level: str,
+    question_type: QuestionType,
+    hits: list[RetrievalHit],
+    analysis: TelemetryAnalysisReport | None,
+    generation_status: GenerationStatus = GenerationStatus.UNAVAILABLE,
+    provenance: dict[str, Any] | None = None,
+) -> GroundedAnswer:
+    observed, findings, explanations, theory, missing, limitations = deterministic_content(
+        question, question_type, hits, analysis
+    )
+    citations = citations_from_hits(hits)
+    return GroundedAnswer(
+        question=question,
+        question_type=question_type,
+        level=level,
+        observed_facts=observed,
+        rule_based_findings=findings,
+        potential_explanations=explanations,
+        theory=theory,
+        citation_refs=citations,
+        missing_data=missing,
+        limitations=limitations,
+        suggested_learning_questions=suggested_questions(question_type),
+        generation_status=generation_status,
+        generation_provenance=provenance
+        or {
+            "provider": "none",
+            "model": None,
+            "prompt_version": PROMPT_VERSION,
+            "retrieval_backend": "tfidf",
+            "retrieved_ids": [citation.ref_id for citation in citations],
+            "note": "LLM provider is not configured; answer is deterministic.",
+        },
+        analysis=analysis,
+    )
+
+
+def _prompt(question: str, level: str, hits: list[RetrievalHit], analysis: TelemetryAnalysisReport | None) -> list[ChatMessage]:
+    evidence = "\n\n".join(
+        f"[E{index}] ({hit.document_id} / {hit.article})\n{' '.join(hit.text.split())[:1200]}"
+        for index, hit in enumerate(hits, start=1)
+    )
+    facts = ""
+    if analysis is not None:
+        facts = "\n".join(_format_fact(fact) for fact in analysis.observed_facts)
+    system = (
+        "You are an engineering learning assistant. Use only the supplied evidence and facts. "
+        "Never invent numbers, citations, rules, or causes. Separate observation, interpretation and limitation. "
+        "Return only a JSON object with keys: observed_facts (list of strings), rule_based_findings (list of strings), "
+        "potential_explanations (list of strings, explicitly non-causal), theory (list of strings), "
+        "citation_refs (list of evidence ids such as E1), missing_data (list of strings), "
+        "limitations (list of strings), suggested_learning_questions (list of strings)."
+    )
+    user = (
+        f"Level: {level}\nQuestion: {question}\n\nMeasured facts:\n{facts or 'none'}\n\n"
+        f"Evidence:\n{evidence or 'none'}"
+    )
+    return [ChatMessage(role="system", content=system), ChatMessage(role="user", content=user)]
+
+
+def build_llm_answer(
+    provider: LLMProvider,
+    question: str,
+    level: str,
+    question_type: QuestionType,
+    hits: list[RetrievalHit],
+    analysis: TelemetryAnalysisReport | None,
+) -> GroundedAnswer:
+    citations = citations_from_hits(hits)
+    try:
+        raw = provider.complete(_prompt(question, level, hits, analysis), temperature=0.0, max_tokens=900)
+        payload = json.loads(raw)
+    except (LLMError, json.JSONDecodeError, TypeError) as exc:
+        return build_deterministic_answer(
+            question,
+            level,
+            question_type,
+            hits,
+            analysis,
+            generation_status=GenerationStatus.ERROR,
+            provenance={
+                "provider": getattr(provider, "name", "unknown"),
+                "model": getattr(provider, "model", ""),
+                "prompt_version": PROMPT_VERSION,
+                "error": str(exc),
+            },
+        )
+
+    required = {
+        "observed_facts",
+        "rule_based_findings",
+        "potential_explanations",
+        "theory",
+        "citation_refs",
+        "missing_data",
+        "limitations",
+        "suggested_learning_questions",
+    }
+    if not required.issubset(payload):
+        return build_deterministic_answer(
+            question,
+            level,
+            question_type,
+            hits,
+            analysis,
+            generation_status=GenerationStatus.REJECTED,
+            provenance={
+                "provider": getattr(provider, "name", "unknown"),
+                "model": getattr(provider, "model", ""),
+                "prompt_version": PROMPT_VERSION,
+                "error": "missing required keys",
+            },
+        )
+
+    accepted, rejected = validate_citation_ids([str(item) for item in payload["citation_refs"]], citations)
+    if rejected:
+        return build_deterministic_answer(
+            question,
+            level,
+            question_type,
+            hits,
+            analysis,
+            generation_status=GenerationStatus.REJECTED,
+            provenance={
+                "provider": getattr(provider, "name", "unknown"),
+                "model": getattr(provider, "model", ""),
+                "prompt_version": PROMPT_VERSION,
+                "rejected_citation_ids": rejected,
+            },
+        )
+
+    def strings(key: str) -> list[str]:
+        value = payload.get(key, [])
+        return [str(item) for item in value] if isinstance(value, list) else []
+
+    return GroundedAnswer(
+        question=question,
+        question_type=question_type,
+        level=level,
+        observed_facts=strings("observed_facts"),
+        rule_based_findings=strings("rule_based_findings"),
+        potential_explanations=strings("potential_explanations"),
+        theory=strings("theory"),
+        citation_refs=[citation for citation in citations if citation.ref_id in accepted],
+        missing_data=strings("missing_data"),
+        limitations=strings("limitations"),
+        suggested_learning_questions=strings("suggested_learning_questions"),
+        generation_status=GenerationStatus.GENERATED,
+        generation_provenance={
+            "provider": getattr(provider, "name", "unknown"),
+            "model": getattr(provider, "model", ""),
+            "prompt_version": PROMPT_VERSION,
+            "retrieval_backend": "tfidf",
+            "retrieved_ids": accepted,
+        },
+        analysis=analysis,
+    )

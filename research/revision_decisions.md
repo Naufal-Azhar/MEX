@@ -137,6 +137,36 @@ Hasil yang benar-benar dieksekusi:
 - Artefak: `datasets/telemetry/analysis/learning_report.json`.
 - Aturan tetap `draft`; tidak ada yang dipromosikan ke `reviewed`/`active`, dan tidak ada klaim FC.
 
+## 2.5 Phase 5 — retrieval ter-scope dan /v1/ask (21 November 2026)
+
+File baru:
+
+| File | Peran |
+|---|---|
+| `app/rag/corpus.py` | Chunking Markdown berbasis heading section |
+| `app/learning/retrieval.py` | Indeks TF-IDF scoped untuk korpus engineering |
+| `app/rag/grounded_answer.py` | Jawaban terstruktur, fallback deterministik, validasi sitasi |
+| `app/learning/ask_service.py` | Routing pertanyaan dan orkestrasi jawaban |
+| `app/schemas/learning.py` | Schema pertanyaan, sitasi, jawaban |
+| `tests/test_learning_ask.py` | 13 test baru |
+
+Hasil yang benar-benar dieksekusi:
+
+- `pytest tests/test_learning_ask.py` → **13 passed**, exit 0.
+- `pytest` penuh → **112 passed**, exit 0.
+- Retrieval section-aware: query "what does throttle percentage mean" → artikel "3. Throttle"; "compare the braking..." memakai query terfokus dan kini mengarah ke "2. Braking" (sebelumnya "5. Provenance caveats").
+- `/v1/ask` teori: 200, `generation_status=unavailable`, 3 sitasi terverifikasi (keberadaan string).
+- `/v1/ask` telemetry case: 200, 13 observed facts, 6 findings, sitasi "2. Braking" pertama.
+- Validasi sitasi menolak ID karangan (`E99`); fake provider test memastikan schema dan jalur generasi bekerja, tetapi **provider LLM nyata tidak diuji**.
+- Artefak: `datasets/telemetry/analysis/ask_theory.json`, `ask_telemetry_case.json`.
+
+Blocker yang dinyatakan:
+
+- `LLM_PROVIDER=none`, tidak ada Ollama, tidak ada API key. Karena itu **RAG generatif belum selesai** menurut checklist Bab 33. Jawaban yang keluar adalah deterministik dari fakta + kutipan, bukan generasi LLM.
+- Pertanyaan regulasi tidak dicampur ke jalur telemetry; `/v1/ask` mengarahkan ke permukaan Regulation Lab/RAG lama.
+
+
+
 
 
 

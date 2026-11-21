@@ -11,10 +11,12 @@ from fastapi import APIRouter, HTTPException
 from app.config import DATASETS_DIR, get_logger, load_settings
 from app.expert_system.knowledge_base import default_facts_path
 from app.expert_system.service import ComplianceService
+from app.learning.ask_service import AskService
 from app.learning.service import TelemetryLearningService
 from app.llm.base import LLMError
 from app.llm.fact_extractor import DeterministicFactExtractor, get_extractor
 from app.schemas.analysis import TelemetryAnalysisReport, TelemetryAnalyzeRequest
+from app.schemas.learning import AskRequest, GroundedAnswer
 from app.schemas.api import (
     CheckAllRequest,
     CheckRequest,
@@ -32,6 +34,7 @@ _service: ComplianceService | None = None
 _retriever: Any = None
 _retriever_lock = threading.Lock()
 _learning_service: TelemetryLearningService | None = None
+_ask_service: AskService | None = None
 
 
 def service() -> ComplianceService:
@@ -46,6 +49,13 @@ def learning_service() -> TelemetryLearningService:
     if _learning_service is None:
         _learning_service = TelemetryLearningService.default()
     return _learning_service
+
+
+def ask_service() -> AskService:
+    global _ask_service
+    if _ask_service is None:
+        _ask_service = AskService.default()
+    return _ask_service
 
 
 def _telemetry_manifest() -> dict[str, Any]:
@@ -195,6 +205,19 @@ def telemetry_analyze(request: TelemetryAnalyzeRequest) -> TelemetryAnalysisRepo
     except Exception as exc:  # noqa: BLE001 - never expose a stack trace
         logger.exception("telemetry analysis failed")
         raise HTTPException(status_code=500, detail="Telemetry analysis failed.") from exc
+
+
+@router.post("/v1/ask", response_model=GroundedAnswer)
+def ask(request: AskRequest) -> GroundedAnswer:
+    try:
+        return ask_service().ask(request)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except LLMError as exc:
+        raise HTTPException(status_code=503, detail=f"LLM generation failed: {exc}") from exc
+    except Exception as exc:  # noqa: BLE001 - never expose a stack trace
+        logger.exception("grounded answer failed")
+        raise HTTPException(status_code=500, detail="Grounded answer generation failed.") from exc
 
 
 def _check(goal_id: str, facts, document_issue: str | None) -> CheckReport:

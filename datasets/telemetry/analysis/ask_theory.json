@@ -1,0 +1,63 @@
+{
+  "question": "how does braking distance relate to entering speed",
+  "question_type": "theory",
+  "level": "beginner",
+  "observed_facts": [],
+  "rule_based_findings": [],
+  "potential_explanations": [],
+  "theory": [
+    "[E1] 2. Braking Under an idealised constant deceleration a (negative), the stopping distance from speed v is:  d = v^2 / (2  |a|)  and the kinetic energy that must be dissipated is:  Ek = 0.5  m  v^2  Two consequences matter for telemetry learning: 1. Braking distance grows with the square of entering speed. A car entering a corner faster must brake earlier or harder, or both. 2. The brake channel marks when the driver applies the brake, not how much pressure is applied. A later brake onset is not automatically better: it may be enabled by higher grip, a different line, a tow, or a different entry speed. Reference: OpenStax, College Physics 2e, chapters on work, energy and energy conservation; Ne",
+    "[E2] 1. Speed, distance and time For a point moving along a path, instantaneous speed is the rate of change of distance:  v = ds / dt  With discrete telemetry samples, a finite-difference approximation is:  vavg = (s2 - s1) / (t2 - t1) aapprox = (v2 - v1) / (t2 - t1)  aapprox is a change in speed per unit time along the path. It is not a direct accelerometer measurement and it does not separate longitudinal acceleration from path curvature or gradient effects. Convert km/h to m/s before computing it. Reference: OpenStax, College Physics 2e, chapters on kinematics (CC BY-NC-SA 4.0). <https://openstax.org/details/books/college-physics-2e>",
+    "[E3] 5. Provenance caveats - The dataset is redistributed by a third party. It was originally collected through FastF1; independent verification against the official F1 feed is not possible here. - The two laps are from the same session and compound, which supports a descriptive comparison. They are not a controlled experiment: entering speed, tyre history, fuel, wind, traffic and driver intent can all differ. - No claim about driver skill, car damage, setup or causal mechanism is supported by this fixture alone."
+  ],
+  "citation_refs": [
+    {
+      "ref_id": "E1",
+      "document_id": "engineering-fundamentals",
+      "article": "2. Braking",
+      "quote": "## 2. Braking Under an idealised constant deceleration `a` (negative), the stopping distance from speed `v` is: ``` d = v^2 / (2 * |a|) ``` and the kinetic energy that must be dissipated is: ``` E_k = 0.5 * m * v^2 ``` Two consequences matter for telemetry learning: 1. Braking distance grows with th",
+      "verified": true,
+      "semantic_support_verified": false
+    },
+    {
+      "ref_id": "E2",
+      "document_id": "engineering-fundamentals",
+      "article": "1. Speed, distance and time",
+      "quote": "## 1. Speed, distance and time For a point moving along a path, instantaneous speed is the rate of change of distance: ``` v = ds / dt ``` With discrete telemetry samples, a finite-difference approximation is: ``` v_avg = (s2 - s1) / (t2 - t1) a_approx = (v2 - v1) / (t2 - t1) ``` `a_approx` is a cha",
+      "verified": true,
+      "semantic_support_verified": false
+    },
+    {
+      "ref_id": "E3",
+      "document_id": "telemetry-data-dictionary",
+      "article": "5. Provenance caveats",
+      "quote": "## 5. Provenance caveats - The dataset is redistributed by a third party. It was originally collected through FastF1; independent verification against the official F1 feed is not possible here. - The two laps are from the same session and compound, which supports a descriptive comparison. They are n",
+      "verified": true,
+      "semantic_support_verified": false
+    }
+  ],
+  "missing_data": [],
+  "limitations": [
+    "Jawaban ini disusun deterministik dari fakta terukur dan kutipan; tidak ada generasi LLM.",
+    "Kutipan diverifikasi sebagai keberadaan string, bukan entailment semantik."
+  ],
+  "suggested_learning_questions": [
+    "Bagaimana cara membaca grafik speed, throttle, dan brake?",
+    "Mengapa grip dan load transfer penting saat pengereman?",
+    "Kapan sistem harus menahan kesimpulan karena bukti kurang?"
+  ],
+  "generation_status": "unavailable",
+  "generation_provenance": {
+    "provider": "none",
+    "model": null,
+    "prompt_version": "mex-ask-v1",
+    "retrieval_backend": "tfidf",
+    "retrieved_ids": [
+      "E1",
+      "E2",
+      "E3"
+    ],
+    "note": "LLM provider is not configured; answer is deterministic."
+  },
+  "analysis": null
+}

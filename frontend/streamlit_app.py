@@ -14,13 +14,18 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app.config import SAMPLE_FACTS_PATH, load_settings  # noqa: E402
+from app.config import SAMPLE_FACTS_PATH, STORAGE_DIR, load_settings  # noqa: E402
 from app.expert_system.knowledge_base import KnowledgeBase  # noqa: E402
 from app.expert_system.service import ComplianceService  # noqa: E402
+from app.learning.ask_service import AskService  # noqa: E402
+from app.learning.service import TelemetryLearningService  # noqa: E402
 from app.llm.fact_extractor import get_extractor  # noqa: E402
+from app.race_data.alignment import align_laps  # noqa: E402
 from app.rag.retriever import Retriever  # noqa: E402
 from app.schemas.fact_specs import FACT_SPECS  # noqa: E402
 from app.schemas.facts import FactInput  # noqa: E402
+from app.schemas.learning import AskRequest  # noqa: E402
+from app.telemetry.plots import save_comparison_plot  # noqa: E402
 
 st.set_page_config(page_title="F1 / Technical Workbench", page_icon="◼", layout="wide", initial_sidebar_state="expanded")
 st.markdown(f"<style>{(Path(__file__).parent / 'theme.css').read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
@@ -58,6 +63,16 @@ def get_retriever() -> Retriever:
     return Retriever.load_or_build()
 
 
+@st.cache_resource
+def get_learning_service() -> TelemetryLearningService:
+    return TelemetryLearningService.default()
+
+
+@st.cache_resource
+def get_ask_service() -> AskService:
+    return AskService.default()
+
+
 def load_sample_facts() -> dict:
     data = json.loads(SAMPLE_FACTS_PATH.read_text(encoding="utf-8"))
     return {item["name"]: item["value"] for item in data["facts"]}
@@ -67,6 +82,15 @@ def api_request(base_url: str, path: str, payload: dict) -> dict | list:
     import httpx
 
     response = httpx.post(f"{base_url.rstrip('/')}{path}", json=payload, timeout=120)
+    if response.status_code >= 400:
+        raise RuntimeError(f"API error {response.status_code}: {response.text}")
+    return response.json()
+
+
+def api_get(base_url: str, path: str) -> dict | list:
+    import httpx
+
+    response = httpx.get(f"{base_url.rstrip('/')}{path}", timeout=120)
     if response.status_code >= 400:
         raise RuntimeError(f"API error {response.status_code}: {response.text}")
     return response.json()
@@ -345,13 +369,382 @@ def normalize_values(values: dict) -> dict:
     return result
 
 
+def _run_telemetry_analysis(mode: str, api_url: str, learning: TelemetryLearningService, payload: dict) -> dict:
+    if mode == "FastAPI":
+        return api_request(api_url, "/v1/telemetry/analyze", payload)
+    segment = None
+    if payload.get("segment_start_m") is not None and payload.get("segment_end_m") is not None:
+        segment = (payload["segment_start_m"], payload["segment_end_m"])
+    report = learning.analyze(
+        payload["lap_a_id"],
+        payload["lap_b_id"],
+        segment=segment,
+        question=payload.get("question"),
+        level=payload.get("level", "beginner"),
+    )
+    return report.model_dump(mode="json")
+
+
+def _run_ask(mode: str, api_url: str, ask_service: AskService, payload: dict) -> dict:
+    if mode == "FastAPI":
+        return api_request(api_url, "/v1/ask", payload)
+    return ask_service.ask(AskRequest(**payload)).model_dump(mode="json")
+
+
+def render_telemetry_plot(learning: TelemetryLearningService, lap_a: str, lap_b: str) -> None:
+    if lap_a not in learning.telemetry.laps or lap_b not in learning.telemetry.laps:
+        return
+    aligned = align_laps(learning.telemetry.laps[lap_a], learning.telemetry.laps[lap_b])
+    path = STORAGE_DIR / "plots" / f"{lap_a}_vs_{lap_b}.png"
+    save_comparison_plot(aligned, path, f"{lap_a} vs {lap_b}", lap_a, lap_b)
+    st.image(str(path), caption="Speed / throttle / brake terhadap jarak. Area merah = gap data.")
+
+
+def render_telemetry_report(report: dict, learning: TelemetryLearningService) -> None:
+    import pandas as pd
+
+    st.subheader("Status gerbang bukti")
+    data_gate = report.get("data_gate", {})
+    knowledge_gate = report.get("knowledge_gate", {})
+    gate_col_a, gate_col_b, gate_col_c = st.columns(3)
+    with gate_col_a:
+        st.metric("Data gate", "PASS" if data_gate.get("passed") else "FAIL")
+    with gate_col_b:
+        st.metric("Knowledge gate", "PASS" if knowledge_gate.get("passed") else "FAIL")
+    with gate_col_c:
+        st.metric("Interpretasi", report.get("engineering_interpretation_status", "-"))
+    if data_gate.get("missing"):
+        st.error("Data kurang: " + "; ".join(data_gate["missing"]))
+    if knowledge_gate.get("missing"):
+        st.error("Bukti tidak terlacak: " + "; ".join(knowledge_gate["missing"]))
+
+    st.subheader("Kualitas data")
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "Lap": lap_id,
+                    "Sampel": quality["sample_count"],
+                    "Durasi (s)": quality["duration_s"],
+                    "Jarak (m)": quality["distance_m"],
+                    "Median dt (s)": quality["median_dt_s"],
+                    "Gap maks (s)": quality["max_gap_s"],
+                    "Gap > batas": len(quality.get("gaps", [])),
+                }
+                for lap_id, quality in report.get("quality", {}).items()
+            ]
+        ),
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    speed_delta = report.get("speed_delta")
+    if speed_delta:
+        cols = st.columns(4)
+        cols[0].metric("Delta rata-rata", f"{speed_delta['mean_km_h']:.2f} km/h")
+        cols[1].metric("Delta min", f"{speed_delta['min_km_h']:.2f} km/h")
+        cols[2].metric("Delta maks", f"{speed_delta['max_km_h']:.2f} km/h")
+        cols[3].metric("Coverage", f"{speed_delta['coverage_ratio']:.3f}")
+
+    st.subheader("Fakta terukur")
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "Fakta": fact["name"],
+                    "Nilai": fact["value"],
+                    "Satuan": fact.get("unit"),
+                    "Status": fact["status"],
+                    "Detail": fact.get("detail") or "",
+                }
+                for fact in report.get("observed_facts", [])
+            ]
+        ),
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Temuan berbasis aturan")
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "Rule": finding["rule_id"],
+                    "Goal": finding["goal"],
+                    "Status": finding["status"],
+                    "Status aturan": finding["rule_status"],
+                }
+                for finding in report.get("findings", [])
+            ]
+        ),
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    comparisons = report.get("brake_onset_comparisons", [])
+    if comparisons:
+        st.subheader("Perbandingan brake onset")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Onset A (m)": item["onset_a"]["distance_m"],
+                        "Onset B (m)": item["onset_b"]["distance_m"],
+                        "Delta B-A (m)": item["delta_m"],
+                        "Dalam uncertainty": "ya" if item["within_alignment_uncertainty"] else "tidak",
+                    }
+                    for item in comparisons
+                ]
+            ),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    render_telemetry_plot(learning, report["lap_a"]["lap_id"], report["lap_b"]["lap_id"])
+
+    with st.expander("Data yang kurang"):
+        for item in report.get("missing_data", []):
+            st.markdown(f"- {item}")
+    with st.expander("Keterbatasan"):
+        for item in report.get("limitations", []):
+            st.markdown(f"- {item}")
+    with st.expander("Trace inferensi (JSON)"):
+        st.json(report.get("trace", []))
+
+    st.download_button(
+        "Unduh analisis sebagai JSON",
+        data=json.dumps(report, indent=2, ensure_ascii=False),
+        file_name=f"{report.get('analysis_id', 'analysis')}.json",
+        mime="application/json",
+        key=f"download_{report.get('analysis_id', 'analysis')}",
+    )
+
+
+def render_race_analysis(learning: TelemetryLearningService, mode: str, api_url: str) -> None:
+    st.markdown('<div class="workbench-eyebrow">MEX-AI / RACE ANALYSIS</div>', unsafe_allow_html=True)
+    st.markdown('<h1 class="workbench-title">Race Analysis<span style="color:#7f8792">.</span></h1>', unsafe_allow_html=True)
+    st.markdown(
+        '<p class="workbench-lede">Bandingkan dua lap dari sesi yang sama. Fakta terukur dipisahkan dari interpretasi, '
+        'dan data yang tidak tersedia tidak diubah menjadi kesimpulan.</p><div class="workbench-rule"></div>',
+        unsafe_allow_html=True,
+    )
+    st.warning("Fixture publik 2025 Abu Dhabi Qualifying. Hasil bersifat deskriptif, bukan penilaian pembalap.")
+
+    try:
+        if mode == "FastAPI":
+            races = api_get(api_url, "/v1/races")
+            session_id = races[0]["session_id"]
+            laps = api_get(api_url, f"/v1/races/{session_id}/laps")
+        else:
+            laps = learning.telemetry.available_laps()
+    except Exception as exc:  # noqa: BLE001
+        st.error(f"Gagal memuat daftar lap: {exc}")
+        return
+
+    labels = {
+        lap["lap_id"]: f"{lap['driver']} lap {lap['lap_number']} — {lap['lap_time_s']:.3f}s"
+        for lap in laps
+    }
+    options = list(labels)
+    col_a, col_b = st.columns(2)
+    with col_a:
+        lap_a = st.selectbox("Lap A", options, index=0, format_func=lambda item: labels[item])
+    with col_b:
+        lap_b = st.selectbox("Lap B", options, index=1 if len(options) > 1 else 0, format_func=lambda item: labels[item])
+
+    use_segment = st.checkbox("Batasi ke segmen jarak")
+    segment_start = segment_end = None
+    if use_segment:
+        seg_a, seg_b = st.columns(2)
+        segment_start = seg_a.number_input("Mulai (m)", min_value=0.0, value=300.0, step=50.0)
+        segment_end = seg_b.number_input("Selesai (m)", min_value=1.0, value=600.0, step=50.0)
+    question = st.text_input("Pertanyaan (opsional)", placeholder="Apa perbedaan fase pengereman?")
+
+    if st.button("Analisis lap", type="primary", disabled=lap_a == lap_b):
+        payload = {"lap_a_id": lap_a, "lap_b_id": lap_b, "question": question or None}
+        if use_segment:
+            payload["segment_start_m"] = float(segment_start)
+            payload["segment_end_m"] = float(segment_end)
+        try:
+            st.session_state["telemetry_report"] = _run_telemetry_analysis(mode, api_url, learning, payload)
+        except Exception as exc:  # noqa: BLE001
+            st.session_state.pop("telemetry_report", None)
+            st.error(f"Analisis gagal: {exc}")
+
+    report = st.session_state.get("telemetry_report")
+    if report:
+        st.divider()
+        render_telemetry_report(report, learning)
+
+
+def render_answer(answer: dict) -> None:
+    import pandas as pd
+
+    status = answer.get("generation_status")
+    if status == "unavailable":
+        st.warning(
+            "LLM tidak aktif. Jawaban ini disusun deterministik dari fakta terukur dan kutipan; "
+            "ini bukan generasi bahasa oleh model."
+        )
+    elif status in ("rejected", "error"):
+        st.error(f"Generasi ditolak atau gagal ({status}); fallback deterministik ditampilkan.")
+
+    st.caption(f"Tipe pertanyaan: {answer.get('question_type')} · Level: {answer.get('level')}")
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.subheader("Fakta terukur")
+        if answer.get("observed_facts"):
+            for item in answer["observed_facts"]:
+                st.markdown(f"- {item}")
+        else:
+            st.caption("Tidak ada fakta terukur.")
+    with col_b:
+        st.subheader("Temuan berbasis aturan")
+        if answer.get("rule_based_findings"):
+            for item in answer["rule_based_findings"]:
+                st.markdown(f"- {item}")
+        else:
+            st.caption("Tidak ada temuan.")
+
+    st.subheader("Materi teori")
+    if answer.get("theory"):
+        for item in answer["theory"]:
+            with st.expander(item[:90] + ("..." if len(item) > 90 else "")):
+                st.write(item)
+    else:
+        st.caption("Tidak ada materi teori yang diambil.")
+
+    if answer.get("citation_refs"):
+        st.subheader("Sitasi")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "ID": item["ref_id"],
+                        "Dokumen": item["document_id"],
+                        "Bagian": item.get("article"),
+                        "Terverifikasi": "ya" if item.get("verified") else "tidak",
+                        "Dukungan semantik": "ya" if item.get("semantic_support_verified") else "belum diaudit",
+                    }
+                    for item in answer["citation_refs"]
+                ]
+            ),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    if answer.get("potential_explanations"):
+        st.subheader("Faktor alternatif (bukan kausal)")
+        for item in answer["potential_explanations"]:
+            st.markdown(f"- {item}")
+
+    with st.expander("Data yang kurang"):
+        for item in answer.get("missing_data", []):
+            st.markdown(f"- {item}")
+    with st.expander("Keterbatasan"):
+        for item in answer.get("limitations", []):
+            st.markdown(f"- {item}")
+    if answer.get("suggested_learning_questions"):
+        st.subheader("Pertanyaan lanjutan")
+        for item in answer["suggested_learning_questions"]:
+            st.markdown(f"- {item}")
+
+    st.download_button(
+        "Unduh jawaban sebagai JSON",
+        data=json.dumps(answer, indent=2, ensure_ascii=False),
+        file_name="grounded_answer.json",
+        mime="application/json",
+    )
+
+
+def render_engineering_tutor(ask_service: AskService, learning: TelemetryLearningService, mode: str, api_url: str) -> None:
+    st.markdown('<div class="workbench-eyebrow">MEX-AI / ENGINEERING TUTOR</div>', unsafe_allow_html=True)
+    st.markdown('<h1 class="workbench-title">Engineering Tutor<span style="color:#7f8792">.</span></h1>', unsafe_allow_html=True)
+    st.markdown(
+        '<p class="workbench-lede">Tanya konsep teknik atau kaitkan pertanyaan dengan dua lap. '
+        'Jawaban memisahkan fakta, interpretasi, sitasi, dan keterbatasan.</p><div class="workbench-rule"></div>',
+        unsafe_allow_html=True,
+    )
+
+    level = st.radio("Level penjelasan", ["beginner", "engineering"], horizontal=True)
+    use_laps = st.checkbox("Gunakan konteks dua lap")
+    lap_a = lap_b = None
+    if use_laps:
+        laps = learning.telemetry.available_laps()
+        labels = {lap["lap_id"]: f"{lap['driver']} lap {lap['lap_number']}" for lap in laps}
+        col_a, col_b = st.columns(2)
+        lap_a = col_a.selectbox("Lap A", list(labels), format_func=lambda item: labels[item])
+        lap_b = col_b.selectbox("Lap B", list(labels), index=1, format_func=lambda item: labels[item])
+
+    question = st.text_area(
+        "Pertanyaan",
+        placeholder="Mengapa titik pengereman bisa berbeda? Apa arti brake onset?",
+        height=100,
+    )
+    if st.button("Tanya", type="primary", disabled=not question.strip()):
+        payload = {"question": question, "level": level}
+        if use_laps and lap_a and lap_b:
+            payload["lap_a_id"] = lap_a
+            payload["lap_b_id"] = lap_b
+        try:
+            st.session_state["ask_answer"] = _run_ask(mode, api_url, ask_service, payload)
+        except Exception as exc:  # noqa: BLE001
+            st.session_state.pop("ask_answer", None)
+            st.error(f"Pertanyaan gagal: {exc}")
+
+    if st.session_state.get("ask_answer"):
+        st.divider()
+        render_answer(st.session_state["ask_answer"])
+
+
 def main() -> None:
     settings = load_settings()
     service = get_service()
     kb = service.kb
 
-    st.markdown('<div class="workbench-eyebrow">F1 / REGULATION INTELLIGENCE / 2026</div>', unsafe_allow_html=True)
-    st.markdown('<h1 class="workbench-title">Technical Workbench<span style="color:#7f8792">.</span></h1>', unsafe_allow_html=True)
+    default_api_mode = os.getenv("UI_BACKEND", "local").strip().lower() in ("api", "fastapi")
+    default_api_url = os.getenv("API_URL", "http://127.0.0.1:8000")
+
+    with st.sidebar:
+        st.markdown('<div class="workbench-eyebrow">MEX-AI / WORKSPACE</div>', unsafe_allow_html=True)
+        st.header("Kontrol sistem")
+        module = st.radio("Modul", ["Race Analysis", "Engineering Tutor", "Regulation Lab"], index=2)
+        st.caption(f"{kb.regulation} · Issue {kb.regulation_issue}")
+        mode = st.radio("Backend", ["In-process", "FastAPI"], index=1 if default_api_mode else 0)
+        api_url = st.text_input("API URL", value=default_api_url, disabled=mode == "In-process")
+        if module == "Regulation Lab":
+            st.divider()
+            st.metric("Aturan ditinjau", len(kb.reviewed_rules()))
+            st.metric("Aturan aktif", len(kb.active_rules()))
+            st.metric(
+                "Goal pemeriksaan",
+                len([g for g in kb.goals() if any(r.conclusion.kind == "boolean" for r in kb.rules_for_goal(g))]),
+            )
+            st.caption("Ekstraksi teks: parser deterministik")
+            if st.button("Muat contoh fakta", use_container_width=True):
+                st.session_state["facts"] = load_sample_facts()
+                update_fact_widgets(st.session_state["facts"])
+                st.session_state["extraction_used"] = False
+                st.toast("Contoh fakta dimuat ke formulir.")
+            if st.button("Kosongkan fakta", use_container_width=True):
+                st.session_state["facts"] = {}
+                update_fact_widgets({})
+                st.session_state["extraction_used"] = False
+                st.session_state.pop("last_report", None)
+                st.toast("Fakta dan hasil pemeriksaan dikosongkan.")
+        else:
+            st.divider()
+            st.caption("Data: fixture publik 2025 Abu Dhabi Qualifying (VER lap 14, NOR lap 16).")
+
+    if module == "Race Analysis":
+        render_race_analysis(get_learning_service(), mode, api_url)
+        return
+    if module == "Engineering Tutor":
+        render_engineering_tutor(get_ask_service(), get_learning_service(), mode, api_url)
+        return
+
+    st.markdown('<div class="workbench-eyebrow">F1 / REGULATION LAB / 2026</div>', unsafe_allow_html=True)
+    st.markdown('<h1 class="workbench-title">Regulation Lab<span style="color:#7f8792">.</span></h1>', unsafe_allow_html=True)
     st.markdown(
         '<p class="workbench-lede">Periksa ketentuan teknis Formula 1 dengan fakta terstruktur, '
         'jejak inferensi, dan bukti yang dapat ditelusuri ke regulasi.</p><div class="workbench-rule"></div>',
@@ -362,34 +755,6 @@ def main() -> None:
             "Mode demo: aturan berstatus `reviewed`, belum disetujui manusia. "
             "Hasil tidak boleh dianggap sebagai validasi FIA."
         )
-
-    with st.sidebar:
-        st.markdown('<div class="workbench-eyebrow">WORKSPACE / FIA 2026</div>', unsafe_allow_html=True)
-        st.header("Kontrol sistem")
-        st.caption(f"{kb.regulation} · Issue {kb.regulation_issue}")
-        default_api_mode = os.getenv("UI_BACKEND", "local").strip().lower() in ("api", "fastapi")
-        default_api_url = os.getenv("API_URL", "http://127.0.0.1:8000")
-        mode = st.radio("Backend", ["In-process", "FastAPI"], index=1 if default_api_mode else 0)
-        api_url = st.text_input("API URL", value=default_api_url, disabled=mode == "In-process")
-        st.divider()
-        st.metric("Aturan ditinjau", len(kb.reviewed_rules()))
-        st.metric("Aturan aktif", len(kb.active_rules()))
-        st.metric(
-            "Goal pemeriksaan",
-            len([g for g in kb.goals() if any(r.conclusion.kind == "boolean" for r in kb.rules_for_goal(g))]),
-        )
-        st.caption("Ekstraksi teks: parser deterministik")
-        if st.button("Muat contoh fakta", use_container_width=True):
-            st.session_state["facts"] = load_sample_facts()
-            update_fact_widgets(st.session_state["facts"])
-            st.session_state["extraction_used"] = False
-            st.toast("Contoh fakta dimuat ke formulir.")
-        if st.button("Kosongkan fakta", use_container_width=True):
-            st.session_state["facts"] = {}
-            update_fact_widgets({})
-            st.session_state["extraction_used"] = False
-            st.session_state.pop("last_report", None)
-            st.toast("Fakta dan hasil pemeriksaan dikosongkan.")
 
     goals = [g for g in kb.goals() if any(rule.conclusion.kind == "boolean" for rule in kb.rules_for_goal(g))]
     goal_meta = {g: kb.rules_for_goal(g)[0] for g in goals}

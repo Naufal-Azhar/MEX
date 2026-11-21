@@ -13,6 +13,20 @@ Source: `FIA 2026 Formula One Regulations — Section C [Technical]`, **Issue 21
 
 > **Revision direction (21 November 2026):** `revisi/pemetaan_public_revisi.md` sections 22–34 reposition this work as MEX-AI (Race Analysis, Engineering Tutor, Regulation Lab). The regulation-lab functionality in this README remains the preserved baseline. Phase 0 decisions, verified test/evaluation baseline, and open blockers are recorded in `research/revision_decisions.md`.
 
+## MEX-AI modules (implemented)
+
+| Module | Status | Surface |
+|---|---|---|
+| **Race Analysis** | Implemented on one cached public fixture | `GET /v1/races`, `GET /v1/races/{id}/laps`, `POST /v1/telemetry/analyze`; Streamlit module |
+| **Engineering Tutor** | Implemented with deterministic fallback | `POST /v1/ask`; Streamlit module |
+| **Regulation Lab** | Preserved baseline | Existing `/v1/check`, `/v1/search`, Streamlit tabs |
+
+Telemetry fixture: 2025 Abu Dhabi Qualifying, VER lap 14 and NOR lap 16, from **TracingInsights** (Apache-2.0, public repository). Hashes and caveats: `datasets/telemetry/manifest.json`. Evaluation: `research/learning_evaluation.md`; acceptance status: `research/mvp_acceptance.md`.
+
+> **Generation status:** no LLM provider is configured. `/v1/ask` returns structured deterministic answers from measured facts and retrieved quotes, with citation validation. This is **not** generative RAG yet.
+
+
+
 ## Covered provisions
 
 | Rule ID | Article | Requirement | Page |
@@ -112,6 +126,10 @@ Canonical endpoints:
 | POST | `/v1/search` | Retrieve evidence (regulation only by default) |
 | POST | `/v1/extract-facts` | Deterministic fact extraction by default |
 | GET | `/v1/retrieval/status` | Index description |
+| GET | `/v1/races` | Telemetry session catalog from the cached fixture |
+| GET | `/v1/races/{session_id}/laps` | Available laps and metadata |
+| POST | `/v1/telemetry/analyze` | Deterministic two-lap features, draft rules, evidence gates |
+| POST | `/v1/ask` | Routed theory/telemetry answer with citations and limitations |
 
 Legacy aliases remain for compatibility: `/goals`, `/check`, `/check/all`, `/retrieve`, `/extract-facts`.
 
@@ -177,7 +195,7 @@ Known limitation: the TF-IDF vocabulary is dominated by Section C, so some metho
 
 Current state:
 
-- **66 tests pass** (unit, integration, API, e2e).
+- **112 tests pass** (66 legacy + 18 telemetry + 15 analysis + 13 retrieval/ask).
 - Decision suite: **18/18** internal outcomes, all external statuses correct, F1 (VIOLATED) = 1.0.
 - Citation verification rate: **1.0**; trace consistency: **1.0**; explanation completeness: **1.0**.
 - Retrieval (MiniLM + Qdrant, k=5): hit rate **0.9**, MRR **0.9**, precision@5 **0.18** (one C4.2/C10.1 confusion).
@@ -185,11 +203,20 @@ Current state:
 - Retrieval latency mean **91.57 ms**, p95 **351.86 ms** on the local machine (not a production benchmark).
 - Dataset split: **12 development** + **6 held-out** cases (`datasets/development_cases.json`, `heldout_cases.json`).
 
-These results are on a small, synthetic, self-authored dataset. They are not evidence of real-world accuracy.
+MEX-AI telemetry slice (2025 Abu Dhabi Q3, VER lap 14 vs NOR lap 16):
+
+- 617 / 623 samples; coverage 0.99995; 6 matched brake onsets.
+- Brake-onset deltas: −8.96, +2.55, +1.24, +0.57, −15.32, −12.61 m; the last two exceed the ±10 m alignment-uncertainty flag.
+- Speed delta (NOR − VER): mean −0.344 km/h, min −23.13, max +14.037.
+- Data gate PASS; knowledge gate PASS on quote presence only; `engineering_interpretation_status = INSUFFICIENT_DATA`.
+- All 8 telemetry rules remain `draft`. No human review was performed.
+- A/B/C LLM comparison, generative RAG, and educational evaluation are **not run** (no provider/participants).
+
+These results are on small, synthetic or public fixtures. They are not evidence of real-world accuracy.
 
 ## LLM stage (deferred)
 
-`LLM_PROVIDER=none` by default; no network calls. Adapters exist for an OpenAI-compatible API and Ollama, but they are **not tested** yet.
+`LLM_PROVIDER=none` by default; no network calls. `/v1/ask` then returns structured deterministic answers with `generation_status=unavailable`. The provider adapters exist for an OpenAI-compatible API and Ollama, but they are **not tested against a real provider** in this workspace.
 
 When the LLM stage is resumed:
 
@@ -205,22 +232,25 @@ The LLM may only propose facts; it cannot create/activate rules or override the 
 
 ```
 app/
-  api/routes.py                 /v1 API + legacy aliases
+  api/routes.py                 /v1 API + legacy aliases + telemetry/ask endpoints
   document_processing/          PDF loader, extractor (SHA-256), chunker
-  rag/                          embeddings, Qdrant/TF-IDF stores, retriever
+  rag/                          embeddings, Qdrant/TF-IDF stores, retriever, Markdown corpus, grounded answers
   llm/                          provider adapters + validated fact extraction
   expert_system/                KB, rule engine, backward chaining, explanation, service
-  schemas/                      facts, fact specs/units, rules, results, API models
+  race_data/                    telemetry fixture loader, validation, alignment
+  telemetry/                    deterministic features, analysis service, plots
+  learning/                     evidence gates, scoped retrieval, question routing, analysis service
+  schemas/                      facts, fact specs/units, rules, results, API, telemetry, analysis, learning
   evaluation/                   metrics and evaluator (dev/held-out split)
   config.py                     env settings + local cache isolation
   main.py                       FastAPI app + structured error handlers
-knowledge_base/                 source PDFs, processed text, manifest, rules, facts
-datasets/                       development/held-out cases, expected results, retrieval cases
-research/                       document analysis, rule selection, validation log, architecture, evaluation
-frontend/streamlit_app.py
-tests/                          66 tests
+knowledge_base/                 source PDFs, processed text, manifest, rules, facts, telemetry notes
+datasets/                       development/held-out cases, expected results, retrieval cases, telemetry fixtures
+research/                       document analysis, rule selection, validation log, architecture, evaluation, revision decisions
+frontend/streamlit_app.py       Race Analysis / Engineering Tutor / Regulation Lab
+tests/                          112 tests
 scripts/                        extract, index, evaluate, validate, migrate, split
-storage/                        model cache, Qdrant, TF-IDF index, logs (gitignored)
+storage/                        model cache, Qdrant, TF-IDF index, plots, logs (gitignored)
 ```
 
 ## Security and isolation
@@ -241,6 +271,12 @@ storage/                        model cache, Qdrant, TF-IDF index, logs (gitigno
 - A/B/C LLM comparison and LLM extraction testing are not done.
 - No latency/performance benchmark; Docker/CI not verified.
 - One retrieval confusion remains (C4.2 vs C10.1).
+- Telemetry slice covers one session and one lap pair; results are descriptive only.
+- The 8 telemetry rules are `draft`; no human review was performed.
+- Distance is provider-derived, so cross-lap alignment is approximate; brake is an indicator, not pressure.
+- The knowledge gate checks quote presence, not semantic entailment.
+- No real LLM generation was run; `/v1/ask` falls back to deterministic answers.
+- No UI screenshot artifact was produced; the Streamlit modules were executed headlessly with `AppTest`.
 
 ## Troubleshooting
 

@@ -165,6 +165,33 @@ Blocker yang dinyatakan:
 - `LLM_PROVIDER=none`, tidak ada Ollama, tidak ada API key. Karena itu **RAG generatif belum selesai** menurut checklist Bab 33. Jawaban yang keluar adalah deterministik dari fakta + kutipan, bukan generasi LLM.
 - Pertanyaan regulasi tidak dicampur ke jalur telemetry; `/v1/ask` mengarahkan ke permukaan Regulation Lab/RAG lama.
 
+## 2.6 Phase 6 — UI tiga modul, evaluasi, acceptance (21 November 2026)
+
+Perubahan:
+
+- `frontend/streamlit_app.py` menambahkan pemilih modul: **Race Analysis**, **Engineering Tutor**, **Regulation Lab**. Kode Regulation Lab lama dipertahankan.
+- Race Analysis: pilih dua lap, segmen opsional, jalankan analisis, lihat quality/fakta/temuan/onset/gate/trace, plot speed-throttle-brake, unduh JSON.
+- Engineering Tutor: pertanyaan teori atau kontekstual, level beginner/engineering, sitasi, batasan, fallback deterministik.
+- Regulation Lab: tab lama tetap utuh; sidebar hanya menampilkan kontrol fakta saat modul ini dipilih.
+
+Verifikasi yang benar-benar dijalankan:
+
+- `pytest` penuh → **112 passed**, exit 0.
+- `py_compile frontend/streamlit_app.py` → exit 0.
+- Streamlit `AppTest` untuk ketiga modul → tidak ada exception.
+- AppTest klik "Analisis lap" → tidak ada exception; 3 tabel hasil.
+- AppTest submit pertanyaan teori → tidak ada exception; warning fallback deterministik muncul.
+- Dokumen: `research/learning_evaluation.md`, `research/mvp_acceptance.md`; README diperbarui.
+
+Tidak dilakukan (jujur):
+
+- Screenshot UI nyata tidak dibuat; verifikasi memakai AppTest headless.
+- Eksperimen A/B/C tidak dijalankan karena provider LLM tidak tersedia.
+- Evaluasi pendidikan tidak dijalankan; tidak ada klaim peningkatan belajar.
+- Docker/Compose belum diverifikasi.
+
+
+
 
 
 

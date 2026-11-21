@@ -81,6 +81,37 @@ Pilot retrieval yang benar-benar dijalankan pada 2 dokumen baru (13 chunk):
 - Chunking berbasis heading `##`: 5 dari 6 query menempatkan section yang benar di ranking pertama. Query tentang unit/encoding `brake` masih mengambil section "Braking" lebih dulu karena definisi brake berada di tabel.
 - **Kesimpulan:** ingestion Markdown untuk RAG harus section-aware, dan tabel perlu perlakuan khusus. Ini menjadi pekerjaan Phase 5. Belum ada klaim kualitas retrieval pada korpus baru.
 
+## 2.3 Phase 3 — data adapter, fitur deterministik, plot (21 November 2026)
+
+File baru:
+
+| File | Peran |
+|---|---|
+| `app/schemas/telemetry.py` | Model provenance, quality, feature, onset, analysis report |
+| `app/race_data/loader.py` | Loader fixture + normalisasi brake (0/1 dan 0/100) |
+| `app/race_data/validation.py` | Validasi monotonic time/distance, rentang, durasi, channel |
+| `app/race_data/alignment.py` | Grid jarak bersama, interpolasi terbatas, channel diskret nearest |
+| `app/telemetry/features.py` | max speed, speed delta, brake/throttle onset, rate, segment time, data quality |
+| `app/telemetry/service.py` | Orkestrasi analisis dua lap |
+| `app/telemetry/plots.py` | Plot speed/throttle/brake vs jarak, gap ditandai |
+| `tests/test_telemetry.py` | 18 test baru |
+
+Hasil yang benar-benar dieksekusi:
+
+- `pytest tests/test_telemetry.py` → **18 passed**, exit 0.
+- `pytest` penuh → **84 passed**, exit 0 (66 baseline + 18 baru).
+- Analisis VER-Q-14 vs NOR-Q-16: 6 brake onset terpasang; delta T1 −8,96 m (dalam uncertainty), T2 +2,55 m, T3 +1,24 m, T4 +0,57 m, T5 **−15,32 m**, T6 **−12,61 m** (di luar uncertainty ±10 m).
+- `speed_delta` (B−A): mean −0,344 km/h, min −23,13, max +14,04; 5.031 titik grid valid; coverage 0,99995.
+- Artefak: `datasets/telemetry/analysis/ver14_vs_nor16.json` dan `.png`. Plot menandai dua dropout nyata (~3.500 m dan ~5.000 m).
+
+Perubahan threshold yang didokumentasikan:
+
+- Gap interpolasi awal 0,25 s menolak 28% titik grid karena banyak interval normal 0,26–0,33 s. Setelah mengukur distribusi (median 0,136 s; p99 0,323 s; dropout nyata ~1 s), default diubah menjadi **0,5 s**. Interval 0,25–0,5 s tetap diinterpolasi dan ditandai sebagai sampling uncertainty. Ini perubahan berbasis data, bukan pelonggaran diam-diam.
+- `brake` dinormalisasi dari 0/1 atau 0/100 ke boolean; onset memakai debounce 2 sampel.
+- Semua angka di atas adalah hasil fixture, bukan klaim performa pembalap.
+
+
+
 
 
 

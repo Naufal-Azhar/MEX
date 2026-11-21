@@ -1,0 +1,401 @@
+{
+  "analysis_id": "VER-Q-14__NOR-Q-16__step1",
+  "data_kind": "recorded_public_fixture",
+  "lap_a": {
+    "lap_id": "VER-Q-14",
+    "driver": "VER",
+    "lap_number": 14,
+    "session": "2025 Abu Dhabi Grand Prix Qualifying",
+    "lap_time_s": 82.295,
+    "compound": "SOFT",
+    "phase": "Q3"
+  },
+  "lap_b": {
+    "lap_id": "NOR-Q-16",
+    "driver": "NOR",
+    "lap_number": 16,
+    "session": "2025 Abu Dhabi Grand Prix Qualifying",
+    "lap_time_s": 82.408,
+    "compound": "SOFT",
+    "phase": "Q3"
+  },
+  "provenance": {
+    "VER-Q-14": {
+      "provider": "TracingInsights",
+      "repository": "https://github.com/TracingInsights-Archive/2025",
+      "license": "Apache-2.0",
+      "retrieved_at": "2026-11-21",
+      "telemetry_sha256": "C20D4C2BBC875E51F34BEBDA658EDD5ECD3F8A1581C486EBB01F7820FDB012AF",
+      "source_file": "raw/tracinginsights/2025-abu-dhabi-qualifying/VER_14_tel.json"
+    },
+    "NOR-Q-16": {
+      "provider": "TracingInsights",
+      "repository": "https://github.com/TracingInsights-Archive/2025",
+      "license": "Apache-2.0",
+      "retrieved_at": "2026-11-21",
+      "telemetry_sha256": "3D419D30686C7F14C92843491746B7A9459C18498C4E55A862B946DDB4873920",
+      "source_file": "raw/tracinginsights/2025-abu-dhabi-qualifying/NOR_16_tel.json"
+    }
+  },
+  "quality": {
+    "VER-Q-14": {
+      "sample_count": 617,
+      "duration_s": 82.295,
+      "distance_m": 5221.519,
+      "median_dt_s": 0.136,
+      "max_gap_s": 1.076,
+      "time_monotonic": true,
+      "distance_monotonic": true,
+      "missing_channels": [],
+      "gaps": [
+        {
+          "start_s": 51.003,
+          "end_s": 52.079,
+          "duration_s": 1.076
+        }
+      ],
+      "interpolation_gap_s": 0.5,
+      "uncertainty_flags": [
+        "derived_distance",
+        "brake_indicator",
+        "sampling",
+        "sampling_gaps"
+      ]
+    },
+    "NOR-Q-16": {
+      "sample_count": 623,
+      "duration_s": 82.408,
+      "distance_m": 5223.223,
+      "median_dt_s": 0.137,
+      "max_gap_s": 1.0,
+      "time_monotonic": true,
+      "distance_monotonic": true,
+      "missing_channels": [],
+      "gaps": [
+        {
+          "start_s": 36.569,
+          "end_s": 37.246,
+          "duration_s": 0.677
+        },
+        {
+          "start_s": 75.289,
+          "end_s": 76.289,
+          "duration_s": 1.0
+        }
+      ],
+      "interpolation_gap_s": 0.5,
+      "uncertainty_flags": [
+        "derived_distance",
+        "brake_indicator",
+        "sampling",
+        "sampling_gaps"
+      ]
+    }
+  },
+  "observed_facts": [
+    {
+      "name": "max_speed",
+      "value": 331.0,
+      "unit": "km/h",
+      "status": "OBSERVED",
+      "detail": null
+    },
+    {
+      "name": "max_speed",
+      "value": 329.0,
+      "unit": "km/h",
+      "status": "OBSERVED",
+      "detail": null
+    },
+    {
+      "name": "speed_delta_mean",
+      "value": -0.344,
+      "unit": "km/h",
+      "status": "OBSERVED",
+      "detail": "B minus A on the common distance grid"
+    },
+    {
+      "name": "speed_delta_min",
+      "value": -23.13,
+      "unit": "km/h",
+      "status": "OBSERVED",
+      "detail": null
+    },
+    {
+      "name": "speed_delta_max",
+      "value": 14.037,
+      "unit": "km/h",
+      "status": "OBSERVED",
+      "detail": null
+    },
+    {
+      "name": "brake_onset_count",
+      "value": 6,
+      "unit": null,
+      "status": "OBSERVED",
+      "detail": "VER-Q-14"
+    },
+    {
+      "name": "brake_onset_count",
+      "value": 6,
+      "unit": null,
+      "status": "OBSERVED",
+      "detail": "NOR-Q-16"
+    },
+    {
+      "name": "brake_onset_delta_1",
+      "value": -8.955,
+      "unit": "m",
+      "status": "OBSERVED",
+      "detail": "NOR-Q-16 minus VER-Q-14; positive means B brakes later; within alignment uncertainty"
+    },
+    {
+      "name": "brake_onset_delta_2",
+      "value": 2.553,
+      "unit": "m",
+      "status": "OBSERVED",
+      "detail": "NOR-Q-16 minus VER-Q-14; positive means B brakes later; within alignment uncertainty"
+    },
+    {
+      "name": "brake_onset_delta_3",
+      "value": 1.243,
+      "unit": "m",
+      "status": "OBSERVED",
+      "detail": "NOR-Q-16 minus VER-Q-14; positive means B brakes later; within alignment uncertainty"
+    },
+    {
+      "name": "brake_onset_delta_4",
+      "value": 0.566,
+      "unit": "m",
+      "status": "OBSERVED",
+      "detail": "NOR-Q-16 minus VER-Q-14; positive means B brakes later; within alignment uncertainty"
+    },
+    {
+      "name": "brake_onset_delta_5",
+      "value": -15.323,
+      "unit": "m",
+      "status": "OBSERVED",
+      "detail": "NOR-Q-16 minus VER-Q-14; positive means B brakes later; outside alignment uncertainty"
+    },
+    {
+      "name": "brake_onset_delta_6",
+      "value": -12.614,
+      "unit": "m",
+      "status": "OBSERVED",
+      "detail": "NOR-Q-16 minus VER-Q-14; positive means B brakes later; outside alignment uncertainty"
+    }
+  ],
+  "brake_onsets_a": [
+    {
+      "distance_m": 312.046,
+      "time_s": 4.159,
+      "speed_km_h": 263.0,
+      "throttle_pct": 0.0,
+      "estimated": true
+    },
+    {
+      "distance_m": 1320.374,
+      "time_s": 18.359,
+      "speed_km_h": 292.0,
+      "throttle_pct": 2.0,
+      "estimated": true
+    },
+    {
+      "distance_m": 2507.964,
+      "time_s": 35.518,
+      "speed_km_h": 324.0,
+      "throttle_pct": 0.0,
+      "estimated": true
+    },
+    {
+      "distance_m": 3554.828,
+      "time_s": 52.998,
+      "speed_km_h": 287.0,
+      "throttle_pct": 0.0,
+      "estimated": true
+    },
+    {
+      "distance_m": 4239.808,
+      "time_s": 63.239,
+      "speed_km_h": 242.0,
+      "throttle_pct": 0.0,
+      "estimated": true
+    },
+    {
+      "distance_m": 4970.367,
+      "time_s": 77.119,
+      "speed_km_h": 240.0,
+      "throttle_pct": 0.0,
+      "estimated": true
+    }
+  ],
+  "brake_onsets_b": [
+    {
+      "distance_m": 303.091,
+      "time_s": 4.046,
+      "speed_km_h": 279.0,
+      "throttle_pct": 0.0,
+      "estimated": true
+    },
+    {
+      "distance_m": 1322.927,
+      "time_s": 18.405,
+      "speed_km_h": 278.0,
+      "throttle_pct": 0.0,
+      "estimated": true
+    },
+    {
+      "distance_m": 2509.207,
+      "time_s": 35.566,
+      "speed_km_h": 318.0,
+      "throttle_pct": 7.0,
+      "estimated": true
+    },
+    {
+      "distance_m": 3555.394,
+      "time_s": 53.125,
+      "speed_km_h": 293.0,
+      "throttle_pct": 0.0,
+      "estimated": true
+    },
+    {
+      "distance_m": 4224.485,
+      "time_s": 63.046,
+      "speed_km_h": 274.0,
+      "throttle_pct": 0.0,
+      "estimated": true
+    },
+    {
+      "distance_m": 4957.753,
+      "time_s": 77.046,
+      "speed_km_h": 271.0,
+      "throttle_pct": 0.0,
+      "estimated": true
+    }
+  ],
+  "brake_onset_comparisons": [
+    {
+      "onset_a": {
+        "distance_m": 312.046,
+        "time_s": 4.159,
+        "speed_km_h": 263.0,
+        "throttle_pct": 0.0,
+        "estimated": true
+      },
+      "onset_b": {
+        "distance_m": 303.091,
+        "time_s": 4.046,
+        "speed_km_h": 279.0,
+        "throttle_pct": 0.0,
+        "estimated": true
+      },
+      "delta_m": -8.955,
+      "within_alignment_uncertainty": true
+    },
+    {
+      "onset_a": {
+        "distance_m": 1320.374,
+        "time_s": 18.359,
+        "speed_km_h": 292.0,
+        "throttle_pct": 2.0,
+        "estimated": true
+      },
+      "onset_b": {
+        "distance_m": 1322.927,
+        "time_s": 18.405,
+        "speed_km_h": 278.0,
+        "throttle_pct": 0.0,
+        "estimated": true
+      },
+      "delta_m": 2.553,
+      "within_alignment_uncertainty": true
+    },
+    {
+      "onset_a": {
+        "distance_m": 2507.964,
+        "time_s": 35.518,
+        "speed_km_h": 324.0,
+        "throttle_pct": 0.0,
+        "estimated": true
+      },
+      "onset_b": {
+        "distance_m": 2509.207,
+        "time_s": 35.566,
+        "speed_km_h": 318.0,
+        "throttle_pct": 7.0,
+        "estimated": true
+      },
+      "delta_m": 1.243,
+      "within_alignment_uncertainty": true
+    },
+    {
+      "onset_a": {
+        "distance_m": 3554.828,
+        "time_s": 52.998,
+        "speed_km_h": 287.0,
+        "throttle_pct": 0.0,
+        "estimated": true
+      },
+      "onset_b": {
+        "distance_m": 3555.394,
+        "time_s": 53.125,
+        "speed_km_h": 293.0,
+        "throttle_pct": 0.0,
+        "estimated": true
+      },
+      "delta_m": 0.566,
+      "within_alignment_uncertainty": true
+    },
+    {
+      "onset_a": {
+        "distance_m": 4239.808,
+        "time_s": 63.239,
+        "speed_km_h": 242.0,
+        "throttle_pct": 0.0,
+        "estimated": true
+      },
+      "onset_b": {
+        "distance_m": 4224.485,
+        "time_s": 63.046,
+        "speed_km_h": 274.0,
+        "throttle_pct": 0.0,
+        "estimated": true
+      },
+      "delta_m": -15.323,
+      "within_alignment_uncertainty": false
+    },
+    {
+      "onset_a": {
+        "distance_m": 4970.367,
+        "time_s": 77.119,
+        "speed_km_h": 240.0,
+        "throttle_pct": 0.0,
+        "estimated": true
+      },
+      "onset_b": {
+        "distance_m": 4957.753,
+        "time_s": 77.046,
+        "speed_km_h": 271.0,
+        "throttle_pct": 0.0,
+        "estimated": true
+      },
+      "delta_m": -12.614,
+      "within_alignment_uncertainty": false
+    }
+  ],
+  "speed_delta": {
+    "mean_km_h": -0.344,
+    "min_km_h": -23.13,
+    "max_km_h": 14.037,
+    "max_abs_distance_m": 4266.342,
+    "coverage_ratio": 0.999948,
+    "point_count": 5031
+  },
+  "limitations": [
+    "Distance is provider-derived; cross-lap alignment is approximate.",
+    "Brake is an indicator, not brake pressure.",
+    "The comparison is descriptive; it does not establish a cause or a better driver.",
+    "Tyre state, fuel load, wind, traffic and driver intent are not in this fixture.",
+    "Sampling gaps longer than the interpolation limit were excluded."
+  ]
+}

@@ -28,7 +28,8 @@ Default: common distance grid with step 1.0 m over the overlapping distance rang
 - No extrapolation outside either lap's coverage.
 - Continuous channels (`speed`, `throttle`, `time`): linear interpolation only inside a valid interval.
 - Discrete channels (`gear`, `drs`, `brake`): nearest sample, never linear interpolation.
-- Maximum interpolation gap: **0.25 s** (prototype default). A longer gap marks the interval as missing and excludes it from derived statistics.
+- Maximum interpolation gap: **0.5 s** (prototype default). A longer gap marks the interval as missing and excludes it from derived statistics.
+  - Rationale from the cached fixture: median interval 0.136 s, p99 0.323 s, with one genuine ~1 s dropout per lap. A 0.25 s limit rejected 28% of grid points because each normal 0.3 s interval spans tens of metres; 0.5 s excludes only the genuine dropout. Intervals between 0.25 s and 0.5 s are interpolated and remain flagged as sampling uncertainty.
 - Coverage is reported as `overlap_distance_m / min(total_distance_a, total_distance_b)`.
 - Alignment uncertainty flag: differences smaller than **±10 m** in distance positions are treated as within alignment uncertainty, following the FastF1 overlap caveat. This is a prototype threshold and must be documented as such.
 

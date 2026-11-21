@@ -1,0 +1,11 @@
+[project]
+name = "f1-technical-regulation-expert-system"
+version = "1.1.0"
+description = "Academic prototype: RAG + deterministic backward chaining for selected F1 technical regulation provisions"
+requires-python = ">=3.11"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"

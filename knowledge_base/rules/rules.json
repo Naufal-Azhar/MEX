@@ -1,0 +1,768 @@
+{
+  "version": "1.0.0",
+  "regulation": "FIA Formula One Technical Regulations 2026 — Section C",
+  "regulation_issue": "21",
+  "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+  "rules": [
+    {
+      "rule_id": "FIA26-C2.3.1-HALF-WIDTH",
+      "name": "Maximum half-width from the plane Y=0",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C2.3.1",
+        "page": 10,
+        "quote": "Except for the tyres, the Wheel Rims, and parts attached to the Wheel Rims as defined in Article C10.7.6, no part of the car may lie more than 950mm from the plane Y=0 at Legality Setup."
+      },
+      "applies_if": [],
+      "conditions": [
+        {
+          "left": {
+            "fact": "max_half_width_excluding_tyres_and_rims"
+          },
+          "operator": "<=",
+          "right": {
+            "const": 950
+          },
+          "unit": "mm",
+          "description": "Maximum distance of any non-excluded car part from the plane Y=0 at Legality Setup."
+        }
+      ],
+      "conclusion": {
+        "goal": "half_width_compliance",
+        "kind": "boolean",
+        "value": true
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 10)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of quoted article text, operator, limit value, and unit against the supplied FIA PDF.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC03",
+          "TC08"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      },
+      "notes": "Tyres, wheel rims, and parts attached to wheel rims (C10.7.6) are excluded; the fact is defined as already excluding them."
+    },
+    {
+      "rule_id": "FIA26-C2.3.3-WHEELBASE",
+      "name": "Maximum wheelbase",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C2.3.3",
+        "page": 11,
+        "quote": "The distance between the planes XF = 0 and XR = 0 must be less than or equal to 3400mm at Legality Setup."
+      },
+      "applies_if": [],
+      "conditions": [
+        {
+          "left": {
+            "fact": "wheelbase"
+          },
+          "operator": "<=",
+          "right": {
+            "const": 3400
+          },
+          "unit": "mm",
+          "description": "Distance between plane XF=0 and plane XR=0 at Legality Setup."
+        }
+      ],
+      "conclusion": {
+        "goal": "wheelbase_compliance",
+        "kind": "boolean",
+        "value": true
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 11)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of quoted article text, operator, limit value, and unit against the supplied FIA PDF.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC01",
+          "TC06",
+          "TC11"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      },
+      "notes": "Planes XF/XR are defined in Article C2.2."
+    },
+    {
+      "rule_id": "FIA26-C2.3.5-COCKPIT-POSITION",
+      "name": "Cockpit position between XA=0 and XC=0",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C2.3.5",
+        "page": 11,
+        "quote": "The distance between XA = 0 and XC = 0 must be greater than or equal to 1830mm and less than or equal to 2030mm."
+      },
+      "applies_if": [],
+      "conditions": [
+        {
+          "left": {
+            "fact": "cockpit_position_distance"
+          },
+          "operator": ">=",
+          "right": {
+            "const": 1830
+          },
+          "unit": "mm",
+          "description": "Lower bound of the distance between plane XA=0 and plane XC=0."
+        },
+        {
+          "left": {
+            "fact": "cockpit_position_distance"
+          },
+          "operator": "<=",
+          "right": {
+            "const": 2030
+          },
+          "unit": "mm",
+          "description": "Upper bound of the distance between plane XA=0 and plane XC=0."
+        }
+      ],
+      "conclusion": {
+        "goal": "cockpit_position_compliance",
+        "kind": "boolean",
+        "value": true
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 11)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of quoted article text, both inequality directions, limit values, and unit against the supplied FIA PDF.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC02",
+          "TC07",
+          "TC12"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      },
+      "notes": "Planes XA=0 (forward limit of the Survival Cell) and XC=0 (rear of the Cockpit) are defined in Article C2.2."
+    },
+    {
+      "rule_id": "FIA26-C4.1-BASE-MASS-Q",
+      "name": "Base Minimum Mass during Qualifying / Sprint Qualifying",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C4.1",
+        "page": 59,
+        "quote": "During the Sprint Qualifying and Qualifying sessions, The Minimum Mass is 726kg plus the Nominal Tyre Mass."
+      },
+      "applies_if": [
+        {
+          "left": {
+            "fact": "session_type"
+          },
+          "operator": "in",
+          "right": {
+            "const": [
+              "SQ",
+              "Q"
+            ]
+          },
+          "description": "Base mass of 726 kg applies only in Sprint Qualifying and Qualifying."
+        }
+      ],
+      "conditions": [],
+      "conclusion": {
+        "goal": "base_minimum_mass",
+        "kind": "value",
+        "value": 726,
+        "unit": "kg"
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 59)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of quoted article text, session scope, and value against the supplied FIA PDF.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC04",
+          "TC09",
+          "TC13",
+          "TC14",
+          "TC16",
+          "TC17",
+          "TC18"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      }
+    },
+    {
+      "rule_id": "FIA26-C4.1-BASE-MASS-OTHER",
+      "name": "Base Minimum Mass during all other sessions",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C4.1",
+        "page": 59,
+        "quote": "In all other sessions, the Minimum Mass is 724kg plus the Nominal Tyre Mass."
+      },
+      "applies_if": [
+        {
+          "left": {
+            "fact": "session_type"
+          },
+          "operator": "not_in",
+          "right": {
+            "const": [
+              "SQ",
+              "Q"
+            ]
+          },
+          "description": "Base mass of 724 kg applies in all sessions other than Sprint Qualifying and Qualifying."
+        }
+      ],
+      "conditions": [],
+      "conclusion": {
+        "goal": "base_minimum_mass",
+        "kind": "value",
+        "value": 724,
+        "unit": "kg"
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 59)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of quoted article text, session scope, and value against the supplied FIA PDF.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC04",
+          "TC09",
+          "TC13",
+          "TC14",
+          "TC16",
+          "TC17",
+          "TC18"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      }
+    },
+    {
+      "rule_id": "FIA26-C4.6-HEAT-INCREASE-TTCS-DECLARED",
+      "name": "Heat Hazard Mass Increase — TTCS with Heat Hazard declared",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C4.6",
+        "page": 60,
+        "quote": "During a TTCS for which a Heat Hazard has been declared: a. The Heat Hazard Mass Increase is 5kg."
+      },
+      "applies_if": [
+        {
+          "left": {
+            "fact": "session_category"
+          },
+          "operator": "==",
+          "right": {
+            "const": "TTCS"
+          },
+          "description": "The 5 kg increase applies to a TTCS."
+        },
+        {
+          "left": {
+            "fact": "heat_hazard_declared"
+          },
+          "operator": "==",
+          "right": {
+            "const": true
+          },
+          "description": "A Heat Hazard must have been declared for the session."
+        },
+        {
+          "left": {
+            "fact": "competition_heat_hazard_declared"
+          },
+          "operator": "==",
+          "right": {
+            "const": true
+          },
+          "description": "A session Heat Hazard logically implies a Heat Hazard declared for the Competition; contradictory inputs must not produce a value."
+        }
+      ],
+      "conditions": [],
+      "conclusion": {
+        "goal": "heat_hazard_mass_increase",
+        "kind": "value",
+        "value": 5,
+        "unit": "kg"
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 60)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of quoted article text, session category, and value against the supplied FIA PDF.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC04",
+          "TC09",
+          "TC13",
+          "TC14",
+          "TC16",
+          "TC17",
+          "TC18"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      }
+    },
+    {
+      "rule_id": "FIA26-C4.6-HEAT-INCREASE-LTCS-COMPETITION",
+      "name": "Heat Hazard Mass Increase — LTCS during a Competition with a Heat Hazard declared",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C4.6",
+        "page": 60,
+        "quote": "During a Competition at which a Heat Hazard has been declared for any session; For any LTCS or TTCS for which a Heat Hazard has not been declared: c. A Heat Hazard Mass Increase of 2kg will be applied."
+      },
+      "applies_if": [
+        {
+          "left": {
+            "fact": "competition_heat_hazard_declared"
+          },
+          "operator": "==",
+          "right": {
+            "const": true
+          },
+          "description": "The Competition must have a declared Heat Hazard."
+        },
+        {
+          "left": {
+            "fact": "session_category"
+          },
+          "operator": "==",
+          "right": {
+            "const": "LTCS"
+          },
+          "description": "The 2 kg increase applies to an LTCS."
+        }
+      ],
+      "conditions": [],
+      "conclusion": {
+        "goal": "heat_hazard_mass_increase",
+        "kind": "value",
+        "value": 2,
+        "unit": "kg"
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 60)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of quoted article text, session category, and value against the supplied FIA PDF.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC04",
+          "TC09",
+          "TC13",
+          "TC14",
+          "TC16",
+          "TC17",
+          "TC18"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      }
+    },
+    {
+      "rule_id": "FIA26-C4.6-HEAT-INCREASE-TTCS-NOT-DECLARED",
+      "name": "Heat Hazard Mass Increase — TTCS without a session Heat Hazard, Competition Heat Hazard declared",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C4.6",
+        "page": 60,
+        "quote": "During a Competition at which a Heat Hazard has been declared for any session; For any LTCS or TTCS for which a Heat Hazard has not been declared: c. A Heat Hazard Mass Increase of 2kg will be applied."
+      },
+      "applies_if": [
+        {
+          "left": {
+            "fact": "competition_heat_hazard_declared"
+          },
+          "operator": "==",
+          "right": {
+            "const": true
+          },
+          "description": "The Competition must have a declared Heat Hazard."
+        },
+        {
+          "left": {
+            "fact": "session_category"
+          },
+          "operator": "==",
+          "right": {
+            "const": "TTCS"
+          },
+          "description": "The session is a TTCS."
+        },
+        {
+          "left": {
+            "fact": "heat_hazard_declared"
+          },
+          "operator": "==",
+          "right": {
+            "const": false
+          },
+          "description": "No Heat Hazard has been declared for this session."
+        }
+      ],
+      "conditions": [],
+      "conclusion": {
+        "goal": "heat_hazard_mass_increase",
+        "kind": "value",
+        "value": 2,
+        "unit": "kg"
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 60)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of quoted article text, session category, and value against the supplied FIA PDF.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC04",
+          "TC09",
+          "TC13",
+          "TC14",
+          "TC16",
+          "TC17",
+          "TC18"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      }
+    },
+    {
+      "rule_id": "FIA26-C4.6-HEAT-INCREASE-NONE",
+      "name": "Heat Hazard Mass Increase — no Heat Hazard declared",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C4.1",
+        "page": 59,
+        "quote": "When a Heat Hazard is declared, the Minimum Mass will be increased by the Heat Hazard Mass Increase."
+      },
+      "applies_if": [
+        {
+          "left": {
+            "fact": "competition_heat_hazard_declared"
+          },
+          "operator": "==",
+          "right": {
+            "const": false
+          },
+          "description": "No Heat Hazard has been declared for the Competition."
+        },
+        {
+          "left": {
+            "fact": "heat_hazard_declared"
+          },
+          "operator": "==",
+          "right": {
+            "const": false
+          },
+          "description": "No Heat Hazard has been declared for the session."
+        }
+      ],
+      "conditions": [],
+      "conclusion": {
+        "goal": "heat_hazard_mass_increase",
+        "kind": "value",
+        "value": 0,
+        "unit": "kg"
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (pages 59-60)",
+        "verified_on": "2026-11-17",
+        "method": "C4.1 states the increase applies when a Heat Hazard is declared; C4.6 defines the amounts. Zero is encoded explicitly only for the case where no Heat Hazard is declared at either level.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC04",
+          "TC09",
+          "TC13",
+          "TC14",
+          "TC16",
+          "TC17",
+          "TC18"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      },
+      "notes": "This rule encodes the absence of an increase, inferred from C4.1: the increase applies only when a Heat Hazard has been declared. The quote is the exact C4.1 sentence; no numeric amount is invented."
+    },
+    {
+      "rule_id": "FIA26-C4.1-MINIMUM-MASS-VALUE",
+      "name": "Minimum Mass = base session mass + Nominal Tyre Mass + Heat Hazard increase",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C4.1",
+        "page": 59,
+        "quote": "During the Sprint Qualifying and Qualifying sessions, The Minimum Mass is 726kg plus the Nominal Tyre Mass. In all other sessions, the Minimum Mass is 724kg plus the Nominal Tyre Mass."
+      },
+      "applies_if": [],
+      "conditions": [],
+      "conclusion": {
+        "goal": "minimum_mass",
+        "kind": "value",
+        "unit": "kg",
+        "expr": {
+          "op": "add",
+          "args": [
+            {
+              "goal_value": "base_minimum_mass"
+            },
+            {
+              "fact": "nominal_tyre_mass"
+            },
+            {
+              "goal_value": "heat_hazard_mass_increase"
+            }
+          ]
+        }
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (pages 59-60)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of the composition of Minimum Mass and its subgoals against C4.1 and C4.6.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC04",
+          "TC09",
+          "TC13",
+          "TC14",
+          "TC16",
+          "TC17",
+          "TC18"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      },
+      "notes": "Nominal Tyre Mass is not a fixed number in the regulations; it must be supplied as a fact (C4.7, Appendix C1). The Heat Hazard increase is quoted and validated separately by the C4.6 subgoal rules."
+    },
+    {
+      "rule_id": "FIA26-C4.2-MINIMUM-MASS-NO-HEAT",
+      "name": "Minimum Mass used for mass distribution excludes the Heat Hazard increase",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C4.2",
+        "page": 59,
+        "quote": "If, when required for checking, a Heat Hazard has been declared, the increase in mass will not be considered."
+      },
+      "applies_if": [],
+      "conditions": [],
+      "conclusion": {
+        "goal": "minimum_mass_excluding_heat_hazard",
+        "kind": "value",
+        "unit": "kg",
+        "expr": {
+          "op": "add",
+          "args": [
+            {
+              "goal_value": "base_minimum_mass"
+            },
+            {
+              "fact": "nominal_tyre_mass"
+            }
+          ]
+        }
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 59)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of C4.2 heat-hazard exclusion against C4.1 composition.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC05",
+          "TC10",
+          "TC15"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      },
+      "notes": "Deliberately separate from goal 'minimum_mass' so that the C4.2 exclusion is explicit in the trace."
+    },
+    {
+      "rule_id": "FIA26-C4.1-MINIMUM-MASS",
+      "name": "Car Mass must not be less than the Minimum Mass",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C4.1",
+        "page": 59,
+        "quote": "At all times during the Competition, Car Mass must not be less than the Minimum Mass."
+      },
+      "applies_if": [],
+      "conditions": [
+        {
+          "left": {
+            "fact": "car_mass"
+          },
+          "operator": ">=",
+          "right": {
+            "goal_value": "minimum_mass"
+          },
+          "unit": "kg",
+          "description": "Car Mass compared against the computed Minimum Mass."
+        }
+      ],
+      "conclusion": {
+        "goal": "minimum_mass_compliance",
+        "kind": "boolean",
+        "value": true
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 59)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of quoted article text, comparison direction, and subgoal composition against the supplied FIA PDF.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC04",
+          "TC09",
+          "TC13",
+          "TC14",
+          "TC16",
+          "TC17",
+          "TC18"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      }
+    },
+    {
+      "rule_id": "FIA26-C4.2-MASS-DISTRIBUTION",
+      "name": "Front and rear axle mass distribution during Qualifying / Sprint Qualifying",
+      "source": {
+        "document_id": "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19",
+        "document": "FIA 2026 Formula One Regulations — Section C [Technical]",
+        "issue": "21",
+        "article": "C4.2",
+        "page": 59,
+        "quote": "At all times during the Qualifying and Sprint Qualifying Sessions, with the car resting on a horizontal plane: i. the mass measured at the front axle must not be less than the Minimum Mass specified in Article C4.1 factored by 0.44. ii. the mass measured at the rear axle must not be less than the Minimum Mass specified in Article C4.1 factored by 0.54."
+      },
+      "applies_if": [
+        {
+          "left": {
+            "fact": "session_type"
+          },
+          "operator": "in",
+          "right": {
+            "const": [
+              "Q",
+              "SQ"
+            ]
+          },
+          "description": "The mass distribution requirement applies only during Qualifying and Sprint Qualifying."
+        }
+      ],
+      "conditions": [
+        {
+          "left": {
+            "fact": "front_axle_mass"
+          },
+          "operator": ">=",
+          "right": {
+            "expr": {
+              "op": "mul",
+              "args": [
+                {
+                  "goal_value": "minimum_mass_excluding_heat_hazard"
+                },
+                {
+                  "const": 0.44
+                }
+              ]
+            }
+          },
+          "unit": "kg",
+          "description": "Front axle mass must be at least 0.44 × Minimum Mass (excluding any Heat Hazard increase)."
+        },
+        {
+          "left": {
+            "fact": "rear_axle_mass"
+          },
+          "operator": ">=",
+          "right": {
+            "expr": {
+              "op": "mul",
+              "args": [
+                {
+                  "goal_value": "minimum_mass_excluding_heat_hazard"
+                },
+                {
+                  "const": 0.54
+                }
+              ]
+            }
+          },
+          "unit": "kg",
+          "description": "Rear axle mass must be at least 0.54 × Minimum Mass (excluding any Heat Hazard increase)."
+        }
+      ],
+      "conclusion": {
+        "goal": "mass_distribution_compliance",
+        "kind": "boolean",
+        "value": true
+      },
+      "status": "reviewed",
+      "validation": {
+        "verified_against": "knowledge_base/processed_documents/fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19.json (page 59)",
+        "verified_on": "2026-11-17",
+        "method": "Manual review of quoted article text, both factors, comparison direction, session scope, and heat-hazard exclusion against the supplied FIA PDF.",
+        "reviewer": "internal_agent_check",
+        "reviewed_at": "2026-11-17",
+        "human_approved": false,
+        "test_case_ids": [
+          "TC05",
+          "TC10",
+          "TC15"
+        ],
+        "notes": "Source text, operator and unit checked against the supplied FIA PDF. Human sign-off pending."
+      }
+    }
+  ],
+  "scope": "Selected reviewed provisions only; not a whole-car compliance certification.",
+  "subdomain": "Fundamental dimensions and mass (C2.3 and C4)"
+}

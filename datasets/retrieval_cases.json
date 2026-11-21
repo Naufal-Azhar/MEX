@@ -1,0 +1,56 @@
+{
+  "dataset_version": "1.0.0",
+  "description": "Retrieval evaluation queries. Expected articles are the FIA subarticle that contains the answer in Section C, Issue 21.",
+  "cases": [
+    {
+      "case_id": "RT01",
+      "query": "maximum wheelbase 3400 mm distance between planes XF and XR",
+      "expected_articles": ["C2.3.3"]
+    },
+    {
+      "case_id": "RT02",
+      "query": "minimum mass 726 kg qualifying 724 kg other sessions nominal tyre mass",
+      "expected_articles": ["C4.1"]
+    },
+    {
+      "case_id": "RT03",
+      "query": "front axle mass 0.44 rear axle mass 0.54 mass distribution",
+      "expected_articles": ["C4.2"]
+    },
+    {
+      "case_id": "RT04",
+      "query": "950 mm from plane Y=0 tyres wheel rims half width",
+      "expected_articles": ["C2.3.1"]
+    },
+    {
+      "case_id": "RT05",
+      "query": "cockpit position XA XC 1830 mm 2030 mm",
+      "expected_articles": ["C2.3.5"]
+    },
+    {
+      "case_id": "RT06",
+      "query": "heat hazard mass increase 5 kg TTCS",
+      "expected_articles": ["C4.6"]
+    },
+    {
+      "case_id": "RT07",
+      "query": "nominal tyre mass measurement 50 tyres per axle dry weather tyres",
+      "expected_articles": ["C4.7"]
+    },
+    {
+      "case_id": "RT08",
+      "query": "driver ballast density greater than 7500 kg/m3",
+      "expected_articles": ["C4.3.2"]
+    },
+    {
+      "case_id": "RT09",
+      "query": "rear bulkhead position distance XC XPU 360 mm",
+      "expected_articles": ["C2.3.6"]
+    },
+    {
+      "case_id": "RT10",
+      "query": "front wheel position plane XF between XA 0 and 150",
+      "expected_articles": ["C2.3.4"]
+    }
+  ]
+}

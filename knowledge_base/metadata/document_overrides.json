@@ -1,0 +1,40 @@
+{
+  "description": "Metadata verified manually from each document's own first pages. Applied by scripts/extract_documents.py on top of PDF metadata so that the manifest never relies on unreliable embedded PDF fields.",
+  "overrides": {
+    "fia-2026-f1-regulations-section-c-technical-iss-21-2026-10-19": {
+      "title": "FIA 2026 Formula One Regulations — Section C [Technical]",
+      "publisher": "Fédération Internationale de l'Automobile (FIA)",
+      "year": "2026",
+      "issue": "21",
+      "document_date": "2026-10-19",
+      "verified_from": "Document cover page and version block (page 1 of PDF)"
+    },
+    "fia-2026-f1-regulations-section-a-general-provisions-iss-03-2026-06-25": {
+      "title": "FIA 2026 Formula One Regulations — Section A [General Provisions]",
+      "publisher": "Fédération Internationale de l'Automobile (FIA)",
+      "year": "2026",
+      "issue": "03",
+      "document_date": "2026-06-25",
+      "verified_from": "Document cover page and version block (page 1 of PDF)"
+    },
+    "2024-konvens-main-6": {
+      "title": "Evaluating and Fine-Tuning Retrieval-Augmented Language Models to Generate Text With Accurate Citations",
+      "publisher": "Association for Computational Linguistics — Proceedings of KONVENS 2024",
+      "authors": "Vinzent Penzkofer, Timo Baumann",
+      "year": "2024",
+      "document_date": "2024-09-10",
+      "venue": "Proceedings of the 20th Conference on Natural Language Processing (KONVENS 2024), pages 57-64",
+      "verified_from": "Page 1 header and author block"
+    },
+    "backward-chaining-inference-as-a-database-stored-procedure-the-experiments-on-real-world-knowledge-bases": {
+      "title": "Backward chaining inference as a database stored procedure – the experiments on real-world knowledge bases",
+      "publisher": "Journal of Information and Telecommunication (Taylor & Francis)",
+      "authors": "Tomasz Xieński, Roman Simiński",
+      "year": "2018",
+      "document_date": "2018-06-18",
+      "venue": "Journal of Information and Telecommunication, 2(4), 449-464",
+      "doi": "10.1080/24751839.2018.1479931",
+      "verified_from": "Page 1 citation block"
+    }
+  }
+}

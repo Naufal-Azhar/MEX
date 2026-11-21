@@ -1,0 +1,29 @@
+{
+  "description": "Reference configuration matching the environment variables read by app/config.py. Environment variables in .env are authoritative; this file documents defaults and is not loaded automatically.",
+  "llm": {
+    "provider": "none",
+    "api_base_url": "https://api.openai.com/v1",
+    "api_model": "gpt-4o-mini",
+    "ollama_base_url": "http://localhost:11434",
+    "ollama_model": "llama3.1"
+  },
+  "retrieval": {
+    "embedding_backend": "auto",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "vector_store": "qdrant",
+    "qdrant_url": "",
+    "chunk_size": 1200,
+    "top_k": 5
+  },
+  "api": {
+    "host": "127.0.0.1",
+    "port": 8000,
+    "log_level": "INFO"
+  },
+  "inference": {
+    "max_depth": 25,
+    "allow_reviewed_rules": true,
+    "unknown_is_never_false": true,
+    "violation_dominates": true
+  }
+}

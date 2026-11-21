@@ -1,0 +1,16 @@
+{
+  "description": "Example fact set for a fictional, illustrative car. Values are test inputs, not real team data. Nominal Tyre Mass must be supplied by the user because the regulations do not fix it numerically.",
+  "facts": [
+    { "name": "max_half_width_excluding_tyres_and_rims", "value": 900, "unit": "mm", "note": "Measured at Legality Setup, excluding tyres, wheel rims, and rim attachments" },
+    { "name": "wheelbase", "value": 3400, "unit": "mm", "note": "Distance between plane XF=0 and XR=0" },
+    { "name": "cockpit_position_distance", "value": 1900, "unit": "mm", "note": "Distance between plane XA=0 and XC=0" },
+    { "name": "car_mass", "value": 800, "unit": "kg" },
+    { "name": "nominal_tyre_mass", "value": 70, "unit": "kg", "note": "Illustrative value; the real value is published by the tyre provider" },
+    { "name": "session_type", "value": "Q", "note": "Q = Qualifying, SQ = Sprint Qualifying, other sessions use another label" },
+    { "name": "session_category", "value": "TTCS", "note": "TTCS or LTCS" },
+    { "name": "heat_hazard_declared", "value": false },
+    { "name": "competition_heat_hazard_declared", "value": false },
+    { "name": "front_axle_mass", "value": 360, "unit": "kg" },
+    { "name": "rear_axle_mass", "value": 440, "unit": "kg" }
+  ]
+}

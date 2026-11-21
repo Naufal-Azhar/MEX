@@ -1,7 +1,7 @@
 # Taste — Command Code
 - Requires all dependencies and runtime artifacts (venv, pip/model caches, vector stores, logs) to stay isolated inside the project workspace — no global installs, nothing written outside the repo. Never edit, rewrite, or create files outside the workspace; if something is needed, fetch/install it into the workspace itself. Confidence: 0.9
 - Reuse what's already installed on the machine instead of re-downloading dependencies; only download when the dependency is genuinely missing, and then install it into the workspace. Confidence: 0.8
-- Prefers to run servers/tests/builds and git/GitHub setup (remote add, push) himself: give the step-by-step commands (with the shell variant spelled out, plus verification and fallback steps) instead of executing them for him. Confidence: 0.75
+- Wants to execute all git operations himself — commit, push, remote, branch, reset, etc. Never run state-changing git commands on his behalf; only print the exact commands (with the shell variant spelled out, plus verification and fallback steps) for him to run. Same applies to running servers/tests/builds. Confidence: 0.9
 - Wants startup/run instructions kept as short as possible — a single combined one-liner per service, with no redundant env vars or setup steps. Confidence: 0.7
 - Runs commands in Windows PowerShell 5.1 — run/startup commands must be valid there (`;` / `Set-Location`, not `&&`); give the PowerShell-correct form by default. Confidence: 0.6
 - When he asks a question, answer it directly and concisely; don't create code, files, or launchers unless he asks for them ("jawab saja jangan buat code dlu"). For decisions like "can we skip X?", give a short pro/con plus a clear recommendation instead of an essay. Confidence: 0.75

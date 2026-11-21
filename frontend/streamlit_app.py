@@ -21,6 +21,7 @@ from app.learning.ask_service import AskService  # noqa: E402
 from app.learning.service import TelemetryLearningService  # noqa: E402
 from app.llm.fact_extractor import get_extractor  # noqa: E402
 from app.race_data.alignment import align_laps  # noqa: E402
+from app.race_data.loader import load_session_registry  # noqa: E402
 from app.rag.retriever import Retriever  # noqa: E402
 from app.schemas.fact_specs import FACT_SPECS  # noqa: E402
 from app.schemas.facts import FactInput  # noqa: E402
@@ -66,6 +67,16 @@ def get_retriever() -> Retriever:
 @st.cache_resource
 def get_learning_service() -> TelemetryLearningService:
     return TelemetryLearningService.default()
+
+
+@st.cache_resource
+def get_learning_service_for(session_id: str) -> TelemetryLearningService:
+    return TelemetryLearningService.for_session(session_id)
+
+
+@st.cache_resource
+def get_session_registry() -> dict:
+    return load_session_registry()
 
 
 @st.cache_resource
@@ -535,7 +546,7 @@ def _lap_label(lap: dict) -> str:
     )
 
 
-def render_race_analysis(learning: TelemetryLearningService, mode: str, api_url: str) -> None:
+def render_race_analysis(mode: str, api_url: str) -> None:
     st.markdown('<div class="workbench-eyebrow">MEX-AI / RACE ANALYSIS</div>', unsafe_allow_html=True)
     st.markdown('<h1 class="workbench-title">Race Analysis<span style="color:#7f8792">.</span></h1>', unsafe_allow_html=True)
     st.markdown(
@@ -543,7 +554,46 @@ def render_race_analysis(learning: TelemetryLearningService, mode: str, api_url:
         'dan data yang tidak tersedia tidak diubah menjadi kesimpulan.</p><div class="workbench-rule"></div>',
         unsafe_allow_html=True,
     )
-    st.warning("Fixture publik 2025 Abu Dhabi Qualifying. Hasil bersifat deskriptif, bukan penilaian pembalap.")
+
+    try:
+        if mode == "FastAPI":
+            races = api_get(api_url, "/v1/races")
+            sessions = {
+                item["session_id"]: item.get("label")
+                or f"{item.get('season')} {item.get('event')} — {item.get('session_type')}"
+                for item in races
+            }
+        else:
+            registry = get_session_registry()
+            sessions = {
+                item["session_id"]: item.get("label")
+                or f"{item.get('season', '')} {item.get('event', '')}".strip()
+                for item in registry.get("sessions", [])
+            }
+        if not sessions:
+            raise RuntimeError("Tidak ada sesi telemetry yang terdaftar.")
+        session_id = st.selectbox(
+            "Sesi telemetry",
+            list(sessions),
+            index=0,
+            format_func=lambda item: sessions[item],
+        )
+        if mode == "FastAPI":
+            laps = api_get(api_url, f"/v1/races/{session_id}/laps")
+        else:
+            laps = get_learning_service_for(session_id).telemetry.available_laps()
+        selected_learning = get_learning_service_for(session_id)
+    except Exception as exc:  # noqa: BLE001
+        st.error(f"Gagal memuat daftar lap: {exc}")
+        return
+
+    st.warning(
+        f"Fixture publik {sessions[session_id]}. Hasil bersifat deskriptif, bukan penilaian pembalap."
+    )
+    st.caption(
+        "Sumber: TracingInsights (Apache-2.0), tanpa login. "
+        "Data referensi Zenodo/RaceData dipakai untuk provenance, bukan verdict."
+    )
     with st.expander("Cara membaca hasil"):
         st.markdown(
             "- **Fakta terukur**: angka dari telemetry, dengan satuan dan status.\n"
@@ -553,24 +603,25 @@ def render_race_analysis(learning: TelemetryLearningService, mode: str, api_url:
             "- **Gap** pada grafik adalah interval yang tidak diinterpolasi."
         )
 
-    try:
-        if mode == "FastAPI":
-            races = api_get(api_url, "/v1/races")
-            session_id = races[0]["session_id"]
-            laps = api_get(api_url, f"/v1/races/{session_id}/laps")
-        else:
-            laps = learning.telemetry.available_laps()
-    except Exception as exc:  # noqa: BLE001
-        st.error(f"Gagal memuat daftar lap: {exc}")
-        return
-
     labels = {lap["lap_id"]: _lap_label(lap) for lap in laps}
     options = list(labels)
     col_a, col_b = st.columns(2)
     with col_a:
-        lap_a = st.selectbox("Lap A", options, index=0, format_func=lambda item: labels[item])
+        lap_a = st.selectbox(
+            "Lap A",
+            options,
+            index=0,
+            format_func=lambda item: labels[item],
+            key=f"lap_a_{session_id}",
+        )
     with col_b:
-        lap_b = st.selectbox("Lap B", options, index=1 if len(options) > 1 else 0, format_func=lambda item: labels[item])
+        lap_b = st.selectbox(
+            "Lap B",
+            options,
+            index=1 if len(options) > 1 else 0,
+            format_func=lambda item: labels[item],
+            key=f"lap_b_{session_id}",
+        )
 
     use_segment = st.checkbox("Batasi ke segmen jarak")
     segment_start = segment_end = None
@@ -581,12 +632,19 @@ def render_race_analysis(learning: TelemetryLearningService, mode: str, api_url:
     question = st.text_input("Pertanyaan (opsional)", placeholder="Apa perbedaan fase pengereman?")
 
     if st.button("Analisis lap", type="primary", disabled=lap_a == lap_b):
-        payload = {"lap_a_id": lap_a, "lap_b_id": lap_b, "question": question or None}
+        payload = {
+            "session_id": session_id,
+            "lap_a_id": lap_a,
+            "lap_b_id": lap_b,
+            "question": question or None,
+        }
         if use_segment:
             payload["segment_start_m"] = float(segment_start)
             payload["segment_end_m"] = float(segment_end)
         try:
-            st.session_state["telemetry_report"] = _run_telemetry_analysis(mode, api_url, learning, payload)
+            st.session_state["telemetry_report"] = _run_telemetry_analysis(
+                mode, api_url, selected_learning, payload
+            )
         except Exception as exc:  # noqa: BLE001
             st.session_state.pop("telemetry_report", None)
             st.error(f"Analisis gagal: {exc}")
@@ -594,7 +652,7 @@ def render_race_analysis(learning: TelemetryLearningService, mode: str, api_url:
     report = st.session_state.get("telemetry_report")
     if report:
         st.divider()
-        render_telemetry_report(report, learning)
+        render_telemetry_report(report, selected_learning)
 
 
 def render_answer(answer: dict) -> None:
@@ -762,10 +820,10 @@ def main() -> None:
                 st.toast("Fakta dan hasil pemeriksaan dikosongkan.")
         else:
             st.divider()
-            st.caption("Data: fixture publik 2025 Abu Dhabi Qualifying (VER lap 14, NOR lap 16).")
+            st.caption("Data: 2 sesi publik TracingInsights — Abu Dhabi 2025 Q3 dan British 2025 Q3.")
 
     if module == "Race Analysis":
-        render_race_analysis(get_learning_service(), mode, api_url)
+        render_race_analysis(mode, api_url)
         return
     if module == "Engineering Tutor":
         render_engineering_tutor(get_ask_service(), get_learning_service(), mode, api_url)

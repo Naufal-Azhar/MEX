@@ -44,6 +44,20 @@ Two consequences matter for telemetry learning:
 
 Reference: OpenStax, *College Physics 2e*, chapters on work, energy and energy conservation; Newton's laws and friction.
 
+## 2.1 Brake onset
+
+**Brake onset** is the first sample of a sustained brake-on interval after a debounce rule. It is a timing marker, not a brake-pressure measurement.
+
+For this project, onset is reported with:
+
+- distance from the start of the lap, in metres;
+- elapsed time from the start of the lap, in seconds;
+- the speed and throttle value at that sample.
+
+A debounce of at least two samples is used so that a single noisy sample is not treated as a braking event. The delta between two laps is **B minus A**; a positive delta means B applied the brake later at the compared point. The marker does not describe brake pressure, brake temperature, pedal force, or the driver's intention.
+
+Reference: original MEX-AI telemetry notes; no external text reproduced.
+
 ## 3. Throttle
 
 The throttle channel is pedal input percentage. It is not engine power, torque, or energy deployment. At 100% throttle the power delivered still depends on engine mapping, gear, speed, ERS state and traction limits. Therefore:

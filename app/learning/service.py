@@ -123,6 +123,12 @@ class TelemetryLearningService:
         kb = KnowledgeBase.from_file(TELEMETRY_RULES_PATH, include_draft=True)
         return cls(telemetry, kb)
 
+    @classmethod
+    def for_session(cls, session_id: str) -> "TelemetryLearningService":
+        telemetry = TelemetryAnalysisService.from_session(session_id)
+        kb = KnowledgeBase.from_file(TELEMETRY_RULES_PATH, include_draft=True)
+        return cls(telemetry, kb)
+
     def analyze(
         self,
         lap_a_id: str,

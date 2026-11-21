@@ -5,7 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from app.race_data.alignment import DEFAULT_MAX_GAP_S, DEFAULT_STEP_M, align_laps
-from app.race_data.loader import LapTelemetry, load_manifest_laps
+from app.race_data.loader import LapTelemetry, load_manifest, load_manifest_laps
+from app.race_data.loader import session_manifest_path
 from app.race_data.validation import ensure_valid_lap
 from app.schemas.telemetry import FeatureStatus, FeatureValue, LapPairAnalysis
 from app.telemetry.features import (
@@ -25,10 +26,12 @@ class TelemetryAnalysisService:
         laps: dict[str, LapTelemetry],
         step_m: float = DEFAULT_STEP_M,
         max_gap_s: float = DEFAULT_MAX_GAP_S,
+        session_id: str | None = None,
     ) -> None:
         self.laps = laps
         self.step_m = step_m
         self.max_gap_s = max_gap_s
+        self.session_id = session_id
 
     @classmethod
     def from_manifest(
@@ -37,7 +40,22 @@ class TelemetryAnalysisService:
         step_m: float = DEFAULT_STEP_M,
         max_gap_s: float = DEFAULT_MAX_GAP_S,
     ) -> "TelemetryAnalysisService":
-        return cls(load_manifest_laps(manifest_path), step_m=step_m, max_gap_s=max_gap_s)
+        manifest = load_manifest(manifest_path)
+        return cls(
+            load_manifest_laps(manifest_path),
+            step_m=step_m,
+            max_gap_s=max_gap_s,
+            session_id=manifest.get("session_id"),
+        )
+
+    @classmethod
+    def from_session(
+        cls,
+        session_id: str,
+        step_m: float = DEFAULT_STEP_M,
+        max_gap_s: float = DEFAULT_MAX_GAP_S,
+    ) -> "TelemetryAnalysisService":
+        return cls.from_manifest(session_manifest_path(session_id), step_m=step_m, max_gap_s=max_gap_s)
 
     def available_laps(self) -> list[dict]:
         return [
@@ -46,6 +64,7 @@ class TelemetryAnalysisService:
                 "driver": lap.identity.driver,
                 "lap_number": lap.identity.lap_number,
                 "session": lap.identity.session,
+                "session_id": self.session_id,
                 "lap_time_s": lap.identity.lap_time_s,
                 "compound": lap.identity.compound,
                 "deleted": lap.identity.deleted,

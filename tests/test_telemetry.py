@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from app.race_data.alignment import align_laps
-from app.race_data.loader import LapTelemetry, normalize_brake
+from app.race_data.loader import LapTelemetry, normalize_brake, load_session_registry
 from app.race_data.validation import validate_lap
 from app.schemas.telemetry import LapIdentity, LapProvenance
 from app.telemetry.features import (
@@ -23,6 +23,7 @@ from app.telemetry.plots import save_comparison_plot
 from app.telemetry.service import TelemetryAnalysisService
 
 MANIFEST = "datasets/telemetry/manifest.json"
+BRITISH_MANIFEST = "datasets/telemetry/manifest_2025_british_gp.json"
 
 
 def make_lap(
@@ -217,3 +218,24 @@ def test_comparison_plot_written(service: TelemetryAnalysisService, tmp_path) ->
     destination = save_comparison_plot(aligned, tmp_path / "comparison.png", "test")
     assert destination.exists()
     assert destination.stat().st_size > 1000
+
+
+def test_session_registry_has_two_sessions() -> None:
+    registry = load_session_registry()
+    assert registry["default_session_id"] == "2025-abu-dhabi-qualifying"
+    assert [entry["session_id"] for entry in registry["sessions"]] == [
+        "2025-abu-dhabi-qualifying",
+        "2025-british-gp-qualifying",
+    ]
+
+
+def test_british_session_loads_and_validates() -> None:
+    british = TelemetryAnalysisService.from_manifest(BRITISH_MANIFEST)
+    assert british.session_id == "2025-british-gp-qualifying"
+    assert set(british.laps) == {"VER-GBR-Q-17", "NOR-GBR-Q-19"}
+    assert len(british.laps["VER-GBR-Q-17"]) == 639
+    assert len(british.laps["NOR-GBR-Q-19"]) == 626
+    for lap in british.laps.values():
+        assert validate_lap(lap).ok
+    assert max_speed(british.laps["VER-GBR-Q-17"]).value == pytest.approx(324.0)
+    assert max_speed(british.laps["NOR-GBR-Q-19"]).value == pytest.approx(319.0)

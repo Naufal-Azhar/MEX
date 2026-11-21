@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import threading
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -13,6 +14,8 @@ from app.expert_system.knowledge_base import default_facts_path
 from app.expert_system.service import ComplianceService
 from app.learning.ask_service import AskService
 from app.learning.service import TelemetryLearningService
+from app.race_data.loader import load_session_registry
+from app.telemetry.service import TelemetryAnalysisService
 from app.llm.base import LLMError
 from app.llm.fact_extractor import DeterministicFactExtractor, get_extractor
 from app.schemas.analysis import TelemetryAnalysisReport, TelemetryAnalyzeRequest
@@ -34,6 +37,7 @@ _service: ComplianceService | None = None
 _retriever: Any = None
 _retriever_lock = threading.Lock()
 _learning_service: TelemetryLearningService | None = None
+_learning_services: dict[str, TelemetryLearningService] = {}
 _ask_service: AskService | None = None
 
 
@@ -51,6 +55,14 @@ def learning_service() -> TelemetryLearningService:
     return _learning_service
 
 
+def learning_service_for_session(session_id: str) -> TelemetryLearningService:
+    service_for_session = _learning_services.get(session_id)
+    if service_for_session is None:
+        service_for_session = TelemetryLearningService.for_session(session_id)
+        _learning_services[session_id] = service_for_session
+    return service_for_session
+
+
 def ask_service() -> AskService:
     global _ask_service
     if _ask_service is None:
@@ -63,6 +75,21 @@ def _telemetry_manifest() -> dict[str, Any]:
     if not path.exists():
         raise HTTPException(status_code=503, detail="Telemetry fixture manifest not found.")
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _session_registry() -> dict[str, Any]:
+    path = DATASETS_DIR / "telemetry" / "sessions.json"
+    if not path.exists():
+        raise HTTPException(status_code=503, detail="Telemetry session registry not found.")
+    return load_session_registry(path)
+
+
+def _session_entry(session_id: str) -> dict[str, Any]:
+    registry = _session_registry()
+    for entry in registry["sessions"]:
+        if entry["session_id"] == session_id:
+            return entry
+    raise HTTPException(status_code=404, detail=f"Unknown session '{session_id}'.")
 
 
 def retriever():
@@ -162,27 +189,29 @@ def rules() -> list[dict[str, Any]]:
 
 @router.get("/v1/races")
 def races() -> list[dict[str, Any]]:
-    manifest = _telemetry_manifest()
-    session = manifest["session"]
-    return [
-        {
-            "session_id": manifest["session_id"],
-            "season": session["season"],
-            "event": session["event"],
-            "session_type": session["session_type"],
-            "provider": manifest["provider"],
-            "license": manifest["license"],
-            "lap_count": len(manifest["laps"]),
-        }
-    ]
+    output: list[dict[str, Any]] = []
+    for entry in _session_registry()["sessions"]:
+        manifest = json.loads(Path(entry["manifest_path"]).read_text(encoding="utf-8"))
+        session = manifest["session"]
+        output.append(
+            {
+                "session_id": manifest["session_id"],
+                "season": session["season"],
+                "event": session["event"],
+                "session_type": session["session_type"],
+                "label": entry.get("label"),
+                "provider": manifest["provider"],
+                "license": manifest["license"],
+                "lap_count": len(manifest["laps"]),
+            }
+        )
+    return output
 
 
 @router.get("/v1/races/{session_id}/laps")
 def race_laps(session_id: str) -> list[dict[str, Any]]:
-    manifest = _telemetry_manifest()
-    if session_id != manifest["session_id"]:
-        raise HTTPException(status_code=404, detail=f"Unknown session '{session_id}'.")
-    return learning_service().telemetry.available_laps()
+    entry = _session_entry(session_id)
+    return TelemetryAnalysisService.from_manifest(entry["manifest_path"]).available_laps()
 
 
 @router.post("/v1/telemetry/analyze", response_model=TelemetryAnalysisReport)
@@ -191,7 +220,12 @@ def telemetry_analyze(request: TelemetryAnalyzeRequest) -> TelemetryAnalysisRepo
     if request.segment_start_m is not None and request.segment_end_m is not None:
         segment = (request.segment_start_m, request.segment_end_m)
     try:
-        return learning_service().analyze(
+        selected = (
+            learning_service_for_session(request.session_id)
+            if request.session_id
+            else learning_service()
+        )
+        return selected.analyze(
             request.lap_a_id,
             request.lap_b_id,
             segment=segment,

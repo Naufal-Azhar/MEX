@@ -79,6 +79,7 @@ class TelemetryAnalysisReport(BaseModel):
 class TelemetryAnalyzeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    session_id: str | None = Field(default=None, max_length=100)
     lap_a_id: str = Field(min_length=1, max_length=100)
     lap_b_id: str = Field(min_length=1, max_length=100)
     segment_start_m: float | None = None

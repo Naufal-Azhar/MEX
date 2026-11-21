@@ -34,6 +34,8 @@ class LapTelemetry:
 
 
 REQUIRED_CHANNELS = ("time", "speed", "throttle", "brake", "distance")
+TELEMETRY_DIR = Path(__file__).resolve().parents[2] / "datasets" / "telemetry"
+SESSIONS_PATH = TELEMETRY_DIR / "sessions.json"
 
 
 def _as_float_array(values: Any, name: str) -> np.ndarray:
@@ -99,6 +101,27 @@ def load_lap(
 
 def load_manifest(path: Path | str) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def load_session_registry(path: Path | str = SESSIONS_PATH) -> dict[str, Any]:
+    registry_path = Path(path)
+    payload = json.loads(registry_path.read_text(encoding="utf-8"))
+    base = registry_path.resolve().parent
+    for entry in payload.get("sessions", []):
+        entry["manifest_path"] = base / entry["manifest"]
+    return payload
+
+
+def session_manifest_path(session_id: str, path: Path | str = SESSIONS_PATH) -> Path:
+    registry = load_session_registry(path)
+    for entry in registry.get("sessions", []):
+        if entry["session_id"] == session_id:
+            manifest = Path(entry["manifest_path"])
+            if not manifest.exists():
+                raise FileNotFoundError(f"manifest for session '{session_id}' not found: {manifest}")
+            return manifest
+    known = ", ".join(entry["session_id"] for entry in registry.get("sessions", []))
+    raise KeyError(f"unknown session_id '{session_id}'; available: {known}")
 
 
 def load_manifest_laps(manifest_path: Path | str) -> dict[str, LapTelemetry]:

@@ -135,6 +135,8 @@ def test_api_races_and_laps(client: TestClient) -> None:
     payload = races.json()
     assert payload[0]["session_id"] == "2025-abu-dhabi-qualifying"
     assert payload[0]["lap_count"] == 7
+    assert payload[1]["session_id"] == "2025-british-gp-qualifying"
+    assert payload[1]["lap_count"] == 2
 
     laps = client.get("/v1/races/2025-abu-dhabi-qualifying/laps")
     assert laps.status_code == 200
@@ -148,8 +150,31 @@ def test_api_races_and_laps(client: TestClient) -> None:
         "TSU-Q-16",
     }
 
+    british_laps = client.get("/v1/races/2025-british-gp-qualifying/laps")
+    assert british_laps.status_code == 200
+    assert {item["lap_id"] for item in british_laps.json()} == {
+        "VER-GBR-Q-17",
+        "NOR-GBR-Q-19",
+    }
+
     missing = client.get("/v1/races/unknown/laps")
     assert missing.status_code == 404
+
+
+def test_api_telemetry_analyze_second_session(client: TestClient) -> None:
+    response = client.post(
+        "/v1/telemetry/analyze",
+        json={
+            "session_id": "2025-british-gp-qualifying",
+            "lap_a_id": "VER-GBR-Q-17",
+            "lap_b_id": "NOR-GBR-Q-19",
+        },
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["data_gate"]["passed"] is True
+    assert len(payload["findings"]) == 8
+    assert payload["lap_a"]["session"] == "2025 British Grand Prix Qualifying"
 
 
 def test_api_telemetry_analyze(client: TestClient) -> None:

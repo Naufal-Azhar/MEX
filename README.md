@@ -24,6 +24,8 @@ Source: `FIA 2026 Formula One Regulations — Section C [Technical]`, **Issue 21
 Telemetry fixture: 2025 Abu Dhabi Qualifying, VER lap 14 and NOR lap 16, from **TracingInsights** (Apache-2.0, public repository). Hashes and caveats: `datasets/telemetry/manifest.json`. Evaluation: `research/learning_evaluation.md`; acceptance status: `research/mvp_acceptance.md`.
 
 > **Generation status:** no LLM provider is configured. `/v1/ask` returns structured deterministic answers from measured facts and retrieved quotes, with citation validation. This is **not** generative RAG yet.
+>
+> When a provider is enabled, observed facts and rule findings are still rendered server-side; the LLM cannot alter numbers or verdicts. Theory items must carry a valid `[E#]` citation, and retrieved evidence is treated as untrusted data.
 
 
 

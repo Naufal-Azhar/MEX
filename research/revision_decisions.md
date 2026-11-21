@@ -190,6 +190,25 @@ Tidak dilakukan (jujur):
 - Evaluasi pendidikan tidak dijalankan; tidak ada klaim peningkatan belajar.
 - Docker/Compose belum diverifikasi.
 
+## 2.7 Pasca-audit: hardening integritas LLM dan retrieval tabel (21 November 2026)
+
+Perubahan:
+
+- `app/rag/grounded_answer.py`: `observed_facts` dan `rule_based_findings` selalu berasal dari server, bukan output LLM. LLM tidak bisa mengubah angka atau mengarang temuan aturan.
+- Setiap item `theory` wajib menyertakan penanda sitasi `[E#]` yang valid; jika tidak, jawaban LLM ditolak dan fallback deterministik dipakai.
+- Evidence dibungkus `<evidence>...</evidence>` dan system prompt menyatakan evidence adalah data tidak tepercaya; instruksi di dalamnya tidak boleh diikuti.
+- `app/rag/corpus.py`: chunk tabel Markdown per baris dengan header diulang, ditandai `subarticle="table_row"`.
+- `app/learning/retrieval.py`: policy skor deterministik — baris tabel diredam untuk pertanyaan how/why/should, dikuatkan untuk pertanyaan definisi/unit channel.
+
+Hasil yang benar-benar dieksekusi:
+
+- `pytest` penuh → **117 passed**, exit 0.
+- Test baru: fakta `999 km/h` dari fake provider diabaikan; temuan aturan palsu diabaikan; teori tanpa sitasi ditolak; prompt mengisolasi evidence; baris tabel brake mempertahankan header.
+- Pilot retrieval 6 query → **6/6 rank-1** (sebelumnya 5/6). Query brake kini mengambil baris tabel `2. Channels`.
+- Tidak ada provider LLM nyata yang diuji; status RAG generatif tetap **BLOCKED**.
+
+
+
 
 
 

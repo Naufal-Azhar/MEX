@@ -66,8 +66,17 @@ Corpus: `data_dictionary.md` and `engineering_fundamentals.md`.
 |---|---|
 | Paragraph chunks | 2 / 6 |
 | Section-aware (`##`) chunks | 5 / 6 |
+| Section-aware + table-row chunks + intent score policy | **6 / 6** |
 
-The remaining miss is the brake-unit query, because the channel definition lives in a Markdown table. Table-aware chunking remains a Phase 5/7 task. No claim of retrieval quality on a larger corpus is made.
+The brake-unit query now retrieves the `2. Channels` table row instead of the `2. Braking` prose section. Table rows are marked `table_row`; they are damped for how/why/should questions and boosted when the query asks for a channel definition. This is a deterministic prototype policy on a two-document corpus, not a general retrieval benchmark. No claim of retrieval quality on a larger corpus is made.
+
+## 4.1 LLM integrity hardening (tested with a fake provider)
+
+- `observed_facts` and `rule_based_findings` are now rendered from the server-side analysis; the LLM cannot change numbers or invent rule findings.
+- Every theory item must carry a valid `[E#]` citation from the retrieved evidence, otherwise the answer is rejected and the deterministic fallback is returned.
+- Evidence is wrapped in `<evidence>` delimiters and explicitly labelled untrusted data in the system prompt.
+- Added tests: fabricated `999 km/h` facts are ignored, fake rule findings are ignored, uncited theory is rejected, and the prompt isolates evidence.
+- These tests use a fake provider. A real LLM provider is still **not configured or tested**.
 
 ## 5. Not run
 

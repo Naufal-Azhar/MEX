@@ -1,0 +1,63 @@
+{
+  "manifest_version": 1,
+  "created_at_utc": "2026-11-21",
+  "sources": [
+    {
+      "source_id": "tracinginsights-2025-abu-dhabi-qualifying",
+      "title": "2025 Public F1 telemetry data — Abu Dhabi Grand Prix, Qualifying, VER lap 14 and NOR lap 16",
+      "publisher": "TracingInsights",
+      "document_type": "telemetry_dataset",
+      "domain": "race_telemetry",
+      "url": "https://github.com/TracingInsights-Archive/2025",
+      "license": "Apache-2.0",
+      "rights_status": "permitted_for_research_and_academic_use",
+      "access_date": "2026-11-21",
+      "location": "datasets/telemetry/raw/tracinginsights/2025-abu-dhabi-qualifying",
+      "manifest": "datasets/telemetry/manifest.json",
+      "notes": "Third-party redistribution collected via FastF1; provenance beyond the repository is not independently verifiable."
+    },
+    {
+      "source_id": "mex-telemetry-data-dictionary",
+      "title": "Telemetry Data Dictionary — TracingInsights Fixture",
+      "publisher": "MEX-AI project (self-authored)",
+      "document_type": "data_dictionary",
+      "domain": "race_telemetry",
+      "url": null,
+      "license": "project_internal",
+      "rights_status": "original_text",
+      "access_date": "2026-11-21",
+      "location": "knowledge_base/source_documents/telemetry/data_dictionary.md",
+      "notes": "Written for this project from verified observations and public FastF1 documentation."
+    },
+    {
+      "source_id": "mex-engineering-fundamentals-notes",
+      "title": "Engineering Fundamentals Notes — Telemetry Interpretation",
+      "publisher": "MEX-AI project (self-authored)",
+      "document_type": "engineering_notes",
+      "domain": "engineering_fundamentals",
+      "url": null,
+      "license": "project_internal",
+      "rights_status": "original_text",
+      "access_date": "2026-11-21",
+      "location": "knowledge_base/source_documents/telemetry/engineering_fundamentals.md",
+      "references": [
+        "OpenStax College Physics 2e (CC BY-NC-SA 4.0)",
+        "NASA Glenn Beginner's Guide to Aeronautics (U.S. Government work)"
+      ],
+      "notes": "Original prose; no copied textbook text."
+    },
+    {
+      "source_id": "fastf1-documentation",
+      "title": "FastF1 documentation — timing and telemetry data, authentication",
+      "publisher": "FastF1 project",
+      "document_type": "technical_documentation",
+      "domain": "race_telemetry",
+      "url": "https://docs.fastf1.dev/",
+      "license": "MIT",
+      "rights_status": "permitted_with_attribution",
+      "access_date": "2026-11-21",
+      "location": null,
+      "notes": "Used as a reference for channel semantics and the ±10 m cross-lap alignment caveat; not bulk-copied into the corpus."
+    }
+  ]
+}

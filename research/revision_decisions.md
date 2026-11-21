@@ -55,6 +55,34 @@ Konsekuensi dependency yang dicatat jujur:
 - `matplotlib==3.11.2` ikut terpasang dan akan dipakai untuk plot Phase 3.
 - FastF1 tidak dipakai oleh jalur fixture saat ini; ia dipertahankan sebagai adapter opsional jika kredensial F1TV tersedia. Ini dicatat di `requirements.txt`.
 
+## 2.2 Phase 2 — korpus, feature spec, prior art (21 November 2026)
+
+Dibuat:
+
+| File | Isi |
+|---|---|
+| `knowledge_base/source_documents/telemetry/data_dictionary.md` | Definisi channel, satuan, encoding brake 0/1, kualitas sampel, caveat provenance |
+| `knowledge_base/source_documents/telemetry/engineering_fundamentals.md` | Catatan fisika/teknik original: kinematika, pengereman, throttle, grip/load transfer, drag, batas interpretasi |
+| `knowledge_base/metadata/telemetry_sources.json` | Manifest hak/akses sumber |
+| `research/engineering_sources.md` | Daftar sumber yang diverifikasi, sumber yang tidak diperoleh, aturan penggunaan |
+| `research/telemetry_feature_spec.md` | Spesifikasi formal fitur, threshold, sign convention, gap policy, uncertainty, rencana test |
+| `research/source_rule_mapping.md` | Pemetaan TEL-R01..R08 ke bukti dan batasan |
+| `research/novelty_validation.md` | Matriks prior art dengan tanggal pencarian dan status verifikasi |
+
+Temuan prior art yang membatasi klaim:
+
+- Farooq et al. (Scientific Reports, 2025, DOI 10.1038/s41598-025-89266-9) sudah memakai **forward + backward chaining pada data telemetry** untuk diagnostik/prognostik IoT. Jadi "BC + telemetry" bukan hal baru.
+- Thomas et al. (Frontiers in AI, 2026, DOI 10.3389/frai.2026.1922508) sudah membuat **hybrid RAG + rule-based reasoning** untuk dokumen teknis dengan penalaran simbolik deterministik. Jadi "RAG + rule reasoning" bukan hal baru.
+- Produk telemetry viewer dan AI race engineer untuk sim racing sudah ada. Tidak ditemukan produk yang menggabungkan seluruh alur; ini gap kandidat, bukan novelty terbukti.
+
+Pilot retrieval yang benar-benar dijalankan pada 2 dokumen baru (13 chunk):
+
+- Chunking per paragraf: 6 query uji, hanya 2 yang menempatkan section yang benar di ranking pertama. Tabel Markdown rusak menjadi chunk tidak koheren.
+- Chunking berbasis heading `##`: 5 dari 6 query menempatkan section yang benar di ranking pertama. Query tentang unit/encoding `brake` masih mengambil section "Braking" lebih dulu karena definisi brake berada di tabel.
+- **Kesimpulan:** ingestion Markdown untuk RAG harus section-aware, dan tabel perlu perlakuan khusus. Ini menjadi pekerjaan Phase 5. Belum ada klaim kualitas retrieval pada korpus baru.
+
+
+
 
 
 ## 3. Perubahan Phase 0

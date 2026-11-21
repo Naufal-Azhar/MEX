@@ -24,6 +24,39 @@ Artefak baseline diarsipkan di `datasets/evaluation/baseline_2026-11-21/` (`eval
 
 Runtime lokal terverifikasi: Python **3.14.10** (venv). Docker CLI tersedia (29.8.2) tetapi **daemon tidak berjalan**, sehingga image `python:3.12-slim` belum dapat dibangun/diuji. Keputusan versi Python final ditunda sampai dependency provider data diuji (Phase 1); ini bukan penyamaan versi yang diklaim sudah terbukti.
 
+## 2.1 Phase 1 — keputusan provider data (21 November 2026)
+
+Hasil pemeriksaan aktual:
+
+| Kandidat | Hasil verifikasi | Keputusan |
+|---|---|---|
+| OpenF1 | Dokumentasi publik menyatakan data historis 2023+ gratis tanpa autentikasi (3 req/s, 30 req/min). Namun `api.openf1.org` **tidak dapat dihubungi** dari jaringan ini, baik port 80 maupun 443 (connection timeout), dan fetch proxy juga timeout. | **Tidak dipakai** |
+| FastF1 + F1 livetiming | FastF1 3.9.2 (MIT, mendukung Python 3.14) berhasil resolve sesi dan daftar driver, tetapi seluruh stream `livetiming.formula1.com` mengembalikan **401**. Rilis FastF1 mencatat Formula 1 mewajibkan autentikasi akun sejak **Oktober 2026**; mirror resmi FastF1 mengembalikan 404. | **Ditunda** sampai kredensial F1TV tersedia |
+| TracingInsights (GitHub) | Repositori publik data telemetry F1, lisensi **Apache-2.0**, README menyatakan bebas dipakai untuk penelitian/akademik tanpa API key. Tersedia telemetry per lap (speed, throttle, brake, gear, RPM, DRS, distance, acceleration). | **DIPILIH untuk MVP** |
+
+Fixture nyata yang diunduh ke workspace:
+
+- Sesi: **2025 Abu Dhabi Grand Prix — Qualifying**.
+- Lap: **VER lap 14** (Q3, SOFT, 82.295 s) dan **NOR lap 16** (Q3, SOFT, 82.408 s).
+- Lokasi: `datasets/telemetry/raw/tracinginsights/2025-abu-dhabi-qualifying/`.
+- Manifest + hash: `datasets/telemetry/manifest.json`.
+
+Pemeriksaan kualitas yang benar-benar dijalankan:
+
+- 617 sampel (VER) dan 623 sampel (NOR); median interval sampel 0,136 s; gap maksimum 1,076 s.
+- Waktu dan jarak monoton naik; tidak ada nilai hilang pada speed/throttle/brake.
+- **`brake` pada dataset ini adalah 0/1, bukan 0/100**; ambang onset harus `> 0.5`.
+- Terdeteksi 6 brake onset per lap; contoh perbedaan: T1 VER 312,05 m vs NOR 303,09 m; T5 VER 4.239,81 m vs NOR 4.224,49 m. Ini observasi, bukan klaim kausal.
+- `speed_delta` (NOR − VER) pada grid 1 m: rata-rata −0,36 km/h, minimum −23,49, maksimum +14,22.
+
+Konsekuensi dependency yang dicatat jujur:
+
+- `fastf1==3.9.2` terpasang dan memaksa downgrade **pandas 3.1.1 → 2.3.3**. Regression 66 test tetap lulus setelah perubahan ini.
+- `matplotlib==3.11.2` ikut terpasang dan akan dipakai untuk plot Phase 3.
+- FastF1 tidak dipakai oleh jalur fixture saat ini; ia dipertahankan sebagai adapter opsional jika kredensial F1TV tersedia. Ini dicatat di `requirements.txt`.
+
+
+
 ## 3. Perubahan Phase 0
 
 | File | Perubahan | Alasan | Verifikasi |

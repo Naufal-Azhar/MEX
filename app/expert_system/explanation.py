@@ -58,7 +58,7 @@ def _source_text(report: CheckReport) -> str:
     if not report.source:
         return ""
     return (
-        f"Article {report.source.article} "
+        f"Pasal {report.source.article} "
         f"(halaman {report.source.page}) dari {report.source.document}, Issue {report.source.issue}"
     )
 
@@ -134,18 +134,18 @@ def build_explanation(report: CheckReport) -> str:
                 continue
             seen.add(missing.fact)
             unit = f" (satuan: {missing.expected_unit})" if missing.expected_unit else ""
-            article = f", Article {missing.source_article}" if missing.source_article else ""
+            article = f", Pasal {missing.source_article}" if missing.source_article else ""
             lines.append(f"- {missing.fact}{unit}: {missing.reason}{article}")
-        parts.append("Fakta yang masih diperlukan:\n" + "\n".join(lines))
+        parts.append("Data yang masih diperlukan:\n" + "\n".join(lines))
 
     if report.citations:
         lines = []
         for citation in report.citations:
             status = "terverifikasi" if citation.verified else "TIDAK terverifikasi"
             lines.append(
-                f"- Article {citation.article} (hlm. {citation.page}), {status}: \"{citation.quote}\""
+                f"- Pasal {citation.article} (hlm. {citation.page}), {status}: \"{citation.quote}\""
             )
-        parts.append("Sitasi sumber:\n" + "\n".join(lines))
+        parts.append("Kutipan pasal:\n" + "\n".join(lines))
 
     if report.rule_conflict:
         parts.append(

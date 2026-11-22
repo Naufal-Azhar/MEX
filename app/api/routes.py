@@ -3,18 +3,23 @@
 from __future__ import annotations
 
 import json
+import re
 import threading
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 
-from app.config import DATASETS_DIR, get_logger, load_settings
+from app.config import DATASETS_DIR, STORAGE_DIR, get_logger, load_settings
 from app.expert_system.knowledge_base import default_facts_path
 from app.expert_system.service import ComplianceService
 from app.learning.ask_service import AskService
 from app.learning.service import TelemetryLearningService
+from app.race_data.alignment import align_laps
 from app.race_data.loader import load_session_registry
+from app.telemetry.plots import save_comparison_plot
 from app.telemetry.service import TelemetryAnalysisService
 from app.llm.base import LLMError
 from app.llm.fact_extractor import DeterministicFactExtractor, get_extractor
@@ -214,6 +219,86 @@ def race_laps(session_id: str) -> list[dict[str, Any]]:
     return TelemetryAnalysisService.from_manifest(entry["manifest_path"]).available_laps()
 
 
+def _safe_token(value: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9_-]+", "-", value).strip("-")
+    return cleaned or "x"
+
+
+def _slice_alignment(aligned, start_m: float, end_m: float):
+    mask = (aligned.distance_m >= start_m) & (aligned.distance_m <= end_m)
+    if not mask.any():
+        raise HTTPException(status_code=422, detail="Rentang jarak tidak memuat sampel telemetri.")
+    return replace(
+        aligned,
+        distance_m=aligned.distance_m[mask],
+        valid=aligned.valid[mask],
+        speed_a_km_h=aligned.speed_a_km_h[mask],
+        speed_b_km_h=aligned.speed_b_km_h[mask],
+        throttle_a_pct=aligned.throttle_a_pct[mask],
+        throttle_b_pct=aligned.throttle_b_pct[mask],
+        brake_a=aligned.brake_a[mask],
+        brake_b=aligned.brake_b[mask],
+        time_a_s=aligned.time_a_s[mask],
+        time_b_s=aligned.time_b_s[mask],
+    )
+
+
+@router.get("/v1/telemetry/plot")
+def telemetry_plot(
+    lap_a_id: str,
+    lap_b_id: str,
+    session_id: str | None = None,
+    segment_start_m: float | None = None,
+    segment_end_m: float | None = None,
+) -> FileResponse:
+    if (segment_start_m is None) != (segment_end_m is None):
+        raise HTTPException(
+            status_code=422,
+            detail="segment_start_m dan segment_end_m harus dikirim berpasangan.",
+        )
+    if (
+        segment_start_m is not None
+        and segment_end_m is not None
+        and segment_end_m <= segment_start_m
+    ):
+        raise HTTPException(status_code=422, detail="Batas akhir harus lebih besar dari batas awal.")
+
+    selected = learning_service_for_session(session_id) if session_id else learning_service()
+    laps = selected.telemetry.laps
+    for lap_id in (lap_a_id, lap_b_id):
+        if lap_id not in laps:
+            raise HTTPException(status_code=404, detail=f"Lap '{lap_id}' tidak dikenal.")
+
+    aligned = align_laps(laps[lap_a_id], laps[lap_b_id])
+    if segment_start_m is not None and segment_end_m is not None:
+        aligned = _slice_alignment(aligned, segment_start_m, segment_end_m)
+
+    start_token = _safe_token(f"{segment_start_m:g}") if segment_start_m is not None else "full"
+    end_token = _safe_token(f"{segment_end_m:g}") if segment_end_m is not None else "full"
+    name = "-".join(
+        _safe_token(part)
+        for part in (session_id or "default", lap_a_id, lap_b_id, start_token, end_token)
+    )
+    path = STORAGE_DIR / "plots" / f"{name}.png"
+
+    try:
+        if not path.exists():
+            save_comparison_plot(
+                aligned,
+                path,
+                f"{lap_a_id} vs {lap_b_id}",
+                lap_a_id,
+                lap_b_id,
+            )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001 - never expose a stack trace
+        logger.exception("telemetry plot failed")
+        raise HTTPException(status_code=500, detail="Gambar perbandingan gagal dibuat.") from exc
+
+    return FileResponse(path, media_type="image/png", filename=f"{name}.png")
+
+
 @router.post("/v1/telemetry/analyze", response_model=TelemetryAnalysisReport)
 def telemetry_analyze(request: TelemetryAnalyzeRequest) -> TelemetryAnalysisReport:
     segment = None
@@ -333,6 +418,7 @@ def extract_facts(request: ExtractRequest) -> dict[str, Any]:
 
 
 @router.get("/sample-facts")
+@router.get("/v1/sample-facts")
 def sample_facts() -> dict[str, Any]:
     path = default_facts_path()
     if not path.exists():

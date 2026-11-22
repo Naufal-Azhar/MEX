@@ -116,13 +116,14 @@ def max_speed(
             value=None,
             unit="km/h",
             status=FeatureStatus.INSUFFICIENT_DATA,
-            detail="no samples inside the requested segment",
+            detail=f"{lap.identity.lap_id}: tidak ada sampel pada rentang ini",
         )
     return FeatureValue(
         name="max_speed",
         value=round(float(np.max(lap.speed_km_h[mask])), 3),
         unit="km/h",
         status=FeatureStatus.OBSERVED,
+        detail=lap.identity.lap_id,
     )
 
 

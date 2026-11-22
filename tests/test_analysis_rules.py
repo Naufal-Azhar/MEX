@@ -86,13 +86,13 @@ def test_data_gate_rejects_missing_channel(learning: TelemetryLearningService) -
     broken.quality["VER-Q-14"].missing_channels = ["speed"]
     gate = evaluate_data_gate(broken)
     assert not gate.passed
-    assert any("missing channels" in item for item in gate.missing)
+    assert any("kanal data tidak tersedia" in item for item in gate.missing)
 
 
 def test_deleted_lap_withholds_observations(learning: TelemetryLearningService) -> None:
     report = learning.analyze("VER-Q-14", "TSU-Q-16")
     assert not report.data_gate.passed
-    assert any("deleted" in item for item in report.data_gate.missing)
+    assert any("dibatalkan" in item for item in report.data_gate.missing)
     assert all(finding.status is not AnalysisStatus.OBSERVED for finding in report.findings)
 
 

@@ -106,6 +106,29 @@ def _finding_status(goal: str, result) -> AnalysisStatus:
     return AnalysisStatus.INSUFFICIENT_DATA
 
 
+TELEMETRY_GOAL_LABELS = {
+    "speed_comparison_available": "Perbandingan kecepatan",
+    "speed_profile_difference_observed": "Perbedaan profil kecepatan",
+    "relative_brake_onset_difference_observed": "Perbedaan titik pengereman",
+    "braking_dynamics_learning_topic_relevant": "Dinamika pengereman",
+    "insufficient_evidence_for_understeer_diagnosis": "Diagnosis understeer",
+    "insufficient_evidence_for_drag_cause": "Penyebab hambatan udara",
+    "flag_comparison_context_limitation": "Keterbatasan konteks perbandingan",
+    "withhold_supported_engineering_interpretation": "Penjelasan teknik yang didukung data",
+}
+
+TELEMETRY_GOAL_REASONS = {
+    "insufficient_evidence_for_understeer_diagnosis": "data kemudi dan respons mobil tidak tersedia",
+    "insufficient_evidence_for_drag_cause": "data aerodinamika dan tenaga tidak tersedia",
+    "flag_comparison_context_limitation": "data ban atau kondisi lintasan tidak tersedia",
+    "withhold_supported_engineering_interpretation": "kutipan pendukung belum terverifikasi",
+}
+
+
+def _goal_label(goal: str) -> str:
+    return TELEMETRY_GOAL_LABELS.get(goal, goal.replace("_", " "))
+
+
 class TelemetryLearningService:
     def __init__(
         self,
@@ -173,7 +196,7 @@ class TelemetryLearningService:
             for finding in findings:
                 if finding.status is AnalysisStatus.OBSERVED:
                     finding.status = AnalysisStatus.INSUFFICIENT_DATA
-                    finding.notes.append("Withheld: data gate did not pass.")
+                    finding.notes.append("Ditahan: kelayakan data belum terpenuhi.")
 
         withheld = any(
             finding.goal == "withhold_supported_engineering_interpretation"
@@ -189,23 +212,29 @@ class TelemetryLearningService:
         missing_data = list(data_gate.missing) + list(knowledge_gate.missing)
         for finding in findings:
             if finding.status is AnalysisStatus.INSUFFICIENT_DATA and finding.goal in OBSERVATIONAL_GOALS:
-                missing_data.append(f"{finding.goal}: facts insufficient")
+                missing_data.append(f"{_goal_label(finding.goal)}: data belum cukup")
         for finding in findings:
             if finding.status is AnalysisStatus.INSUFFICIENT_DATA and finding.goal not in OBSERVATIONAL_GOALS:
-                missing_data.append(f"{finding.goal}: {finding.description}")
+                reason = TELEMETRY_GOAL_REASONS.get(
+                    finding.goal, "data pendukung belum lengkap"
+                )
+                missing_data.append(f"{_goal_label(finding.goal)}: {reason}")
 
         limitations = list(pair.limitations)
+        level_label = "pemula" if level == "beginner" else "teknis"
         limitations.extend(
             [
-                "Telemetry rules are draft-only; they are not reviewed or active.",
-                "The knowledge gate verifies quote presence, not semantic entailment.",
-                f"Explanation level requested: {level}; level changes wording, not facts or status.",
+                "Aturan pada modul ini masih draf; belum ditinjau maupun diaktifkan.",
+                "Pemeriksaan kutipan hanya mencocokkan teks, bukan makna.",
+                f"Kedalaman penjelasan: {level_label}; hanya mengubah penyusunan kata, bukan hasil.",
             ]
         )
         if not data_gate.passed:
-            limitations.append("The data gate did not pass; conclusions are withheld.")
+            limitations.append("Kelayakan data belum terpenuhi; kesimpulan ditahan.")
         if not knowledge_gate.passed:
-            limitations.append("The knowledge gate did not pass; untraceable findings are reported as insufficient.")
+            limitations.append(
+                "Kesesuaian rujukan belum terpenuhi; temuan tanpa rujukan dilaporkan sebagai data belum cukup."
+            )
 
         return TelemetryAnalysisReport(
             analysis_id=pair.analysis_id,
@@ -218,6 +247,8 @@ class TelemetryLearningService:
             findings=findings,
             trace=traces,
             evidence=evidence,
+            speed_delta=pair.speed_delta,
+            brake_onset_comparisons=pair.brake_onset_comparisons,
             missing_data=missing_data,
             limitations=limitations,
             data_gate=data_gate,

@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
 from app.config import configure_local_caches, get_logger, load_settings
@@ -31,7 +33,9 @@ app = FastAPI(
 def _cors_origins() -> list[str]:
     raw = os.getenv(
         "CORS_ORIGINS",
-        "http://localhost:8501,http://127.0.0.1:8501,http://localhost:3000,http://127.0.0.1:3000",
+        "http://localhost:5173,http://127.0.0.1:5173,"
+        "http://localhost:8501,http://127.0.0.1:8501,"
+        "http://localhost:3000,http://127.0.0.1:3000",
     )
     return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
@@ -159,8 +163,8 @@ async def unexpected_error_handler(request: Request, exc: Exception) -> JSONResp
     )
 
 
-@app.get("/")
-def root() -> dict[str, str]:
+@app.get("/api-info")
+def api_info() -> dict[str, str]:
     settings = load_settings()
     return {
         "name": "F1 Technical Regulation Expert System",
@@ -171,6 +175,23 @@ def root() -> dict[str, str]:
         "docs": "/docs",
         "notice": "Academic prototype; only reviewed provisions are checked. Not FIA certification.",
     }
+
+
+WEB_DIST = Path(__file__).resolve().parents[1] / "web" / "dist"
+if (WEB_DIST / "index.html").exists():
+    app.mount("/", StaticFiles(directory=WEB_DIST, html=True), name="web")
+else:
+
+    @app.get("/")
+    def web_not_built() -> JSONResponse:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "detail": "Antarmuka belum dibangun. Jalankan: cd web; npm install; npm run build",
+                "docs": "/docs",
+                "service_info": "/api-info",
+            },
+        )
 
 
 def run() -> None:

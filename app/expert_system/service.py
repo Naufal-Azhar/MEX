@@ -34,7 +34,7 @@ from app.schemas.rules import Condition, Operand, RuleSource, RuleStatus
 LIMITATIONS = [
     "Sistem hanya memeriksa ketentuan yang telah dimodelkan (C2.3.1, C2.3.3, C2.3.5, C4.1, C4.2).",
     "Sistem tidak memverifikasi prosedur pengukuran, kondisi Legality Setup, atau kondisi fisik mobil.",
-    "Nilai Nominal Tyre Mass tidak ditetapkan dalam regulasi; nilainya harus diberikan sebagai fakta.",
+    "Nilai Nominal Tyre Mass tidak ditetapkan dalam regulasi; nilainya harus diberikan sebagai data masukan.",
     "Hasil bukan pengganti pemeriksaan FIA technical delegate dan tidak mencakup seluruh Section C.",
 ]
 

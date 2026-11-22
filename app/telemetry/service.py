@@ -121,7 +121,7 @@ class TelemetryAnalysisService:
                     name="speed_delta_mean",
                     value=speed_delta.mean_km_h,
                     unit="km/h",
-                    detail="B minus A on the common distance grid",
+                    detail="B dikurangi A pada jarak yang sama",
                 )
             )
             facts.append(
@@ -145,7 +145,7 @@ class TelemetryAnalysisService:
                     value=None,
                     unit="km/h",
                     status=FeatureStatus.INSUFFICIENT_DATA,
-                    detail="no valid overlapping samples",
+                    detail="tidak ada sampel tumpang tindih yang sah",
                 )
             )
 
@@ -164,26 +164,30 @@ class TelemetryAnalysisService:
             )
         )
         for index, comparison in enumerate(comparisons, start=1):
-            note = "within alignment uncertainty" if comparison.within_alignment_uncertainty else "outside alignment uncertainty"
+            note = (
+                "masih dalam ketelitian penyelarasan"
+                if comparison.within_alignment_uncertainty
+                else "di luar ketelitian penyelarasan"
+            )
             facts.append(
                 FeatureValue(
                     name=f"brake_onset_delta_{index}",
                     value=comparison.delta_m,
                     unit="m",
-                    detail=f"{lap_b_id} minus {lap_a_id}; positive means B brakes later; {note}",
+                    detail=f"{lap_b_id} dikurangi {lap_a_id}; positif berarti B mengerem lebih lambat; {note}",
                 )
             )
 
         limitations = [
-            "Distance is provider-derived; cross-lap alignment is approximate.",
-            "Brake is an indicator, not brake pressure.",
-            "The comparison is descriptive; it does not establish a cause or a better driver.",
-            "Tyre state, fuel load, wind, traffic and driver intent are not in this fixture.",
+            "Jarak berasal dari penyedia data; penyelarasan antar lap bersifat perkiraan.",
+            "Data rem berupa indikator, bukan tekanan rem.",
+            "Perbandingan bersifat deskriptif; tidak menetapkan sebab maupun pembalap yang lebih baik.",
+            "Kondisi ban, beban bahan bakar, angin, lalu lintas, dan niat pembalap tidak tersedia pada data ini.",
         ]
         if speed_delta is None or speed_delta.coverage_ratio < 0.8:
-            limitations.append("Overlap coverage is below 0.8; treat the comparison as partial.")
+            limitations.append("Tumpang tindih data di bawah 0,8; perbandingan bersifat sebagian.")
         if quality_a.gaps or quality_b.gaps:
-            limitations.append("Sampling gaps longer than the interpolation limit were excluded.")
+            limitations.append("Celah sampel yang lebih panjang dari batas interpolasi tidak diikutkan.")
 
         return LapPairAnalysis(
             analysis_id=f"{lap_a_id}__{lap_b_id}__step{self.step_m:g}",

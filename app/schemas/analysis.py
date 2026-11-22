@@ -10,7 +10,14 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.schemas.results import TraceNode
 from app.schemas.rules import RuleSource
-from app.schemas.telemetry import DataQuality, FeatureValue, LapIdentity, LapProvenance
+from app.schemas.telemetry import (
+    BrakeOnsetComparison,
+    DataQuality,
+    FeatureValue,
+    LapIdentity,
+    LapProvenance,
+    SpeedDeltaSummary,
+)
 
 
 class AnalysisStatus(str, Enum):
@@ -67,6 +74,8 @@ class TelemetryAnalysisReport(BaseModel):
     findings: list[AnalysisFinding] = Field(default_factory=list)
     trace: list[TraceNode] = Field(default_factory=list)
     evidence: list[EvidenceReference] = Field(default_factory=list)
+    speed_delta: SpeedDeltaSummary | None = None
+    brake_onset_comparisons: list[BrakeOnsetComparison] = Field(default_factory=list)
     missing_data: list[str] = Field(default_factory=list)
     limitations: list[str] = Field(default_factory=list)
     data_gate: GateResult

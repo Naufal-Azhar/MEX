@@ -17,9 +17,9 @@ Source: `FIA 2026 Formula One Regulations — Section C [Technical]`, **Issue 21
 
 | Module | Status | Surface |
 |---|---|---|
-| **Race Analysis** | Implemented on one cached public fixture | `GET /v1/races`, `GET /v1/races/{id}/laps`, `POST /v1/telemetry/analyze`; Streamlit module |
-| **Engineering Tutor** | Implemented with deterministic fallback | `POST /v1/ask`; Streamlit module |
-| **Regulation Lab** | Preserved baseline | Existing `/v1/check`, `/v1/search`, Streamlit tabs |
+| **Race Analysis** | Implemented on one cached public fixture | `GET /v1/races`, `GET /v1/races/{id}/laps`, `POST /v1/telemetry/analyze`, `GET /v1/telemetry/plot` |
+| **Engineering Tutor** | Implemented with deterministic fallback | `POST /v1/ask` |
+| **Regulation Lab** | Preserved baseline | Existing `/v1/check`, `/v1/search` |
 
 Telemetry fixtures: 2025 Abu Dhabi Qualifying (**7 cached laps**) and 2025 British GP Qualifying (**VER lap 17, NOR lap 19**) from **TracingInsights** (Apache-2.0, public repository). Hashes and caveats: `datasets/telemetry/manifest.json` and `manifest_2025_british_gp.json`. Evaluation: `research/learning_evaluation.md`; retrieval: `research/engineering_retrieval_report.md`; acceptance: `research/mvp_acceptance.md`.
 
@@ -111,11 +111,36 @@ Set-Location "C:\Users\HAR\Documents\SEMESTER 5\SENIN\AI\Project\AI-Pakar"; .ven
 
 ### 4. Run the UI
 
+The interface is a React + Vite + TypeScript app in `web/`. It talks to the API over HTTP, so the API must be running.
+
+One-time setup:
+
 ```powershell
-Set-Location "C:\Users\HAR\Documents\SEMESTER 5\SENIN\AI\Project\AI-Pakar"; .venv\Scripts\python.exe -m streamlit run frontend/streamlit_app.py
+Set-Location "C:\Users\HAR\Documents\SEMESTER 5\SENIN\AI\Project\AI-Pakar\web"; npm install --include=dev
 ```
 
-Open `http://localhost:8501`. BM25 avoids the old Qdrant file-lock issue; Qdrant is optional.
+Build once, then let FastAPI serve it (single process — use this for presentations):
+
+```powershell
+Set-Location "C:\Users\HAR\Documents\SEMESTER 5\SENIN\AI\Project\AI-Pakar\web"; npm run build; Set-Location ..
+.venv\Scripts\python.exe -m uvicorn app.main:app --port 8000
+```
+
+Open `http://127.0.0.1:8000`.
+
+For development with hot reload (two terminals):
+
+```powershell
+# terminal 1 — API
+.venv\Scripts\python.exe -m uvicorn app.main:app --port 8000 --reload
+
+# terminal 2 — UI with proxy to :8000
+Set-Location web; npm run dev
+```
+
+Open `http://localhost:5173`. BM25 avoids the old Qdrant file-lock issue; Qdrant is optional.
+
+`npm install` may skip dev dependencies when `NODE_ENV=production` is set in the shell; `--include=dev` avoids that.
 
 ## API
 
@@ -123,8 +148,11 @@ Canonical endpoints:
 
 | Method | Path | Purpose |
 |---|---|---|
+| GET | `/` | Built React interface (503 with a build hint when `web/dist` is missing) |
+| GET | `/api-info` | Service metadata, regulation scope, status contract |
 | GET | `/health` | Status, rule lifecycle counts, demo mode |
 | GET | `/v1/goals` | Supported goals, sources, required facts |
+| GET | `/v1/sample-facts` | Example fact set used by the "Isi contoh data" action |
 | POST | `/v1/check` | Check one goal |
 | POST | `/v1/check/all` | Check all compliance goals |
 | POST | `/v1/search` | Retrieve evidence (regulation only by default) |
@@ -133,6 +161,7 @@ Canonical endpoints:
 | GET | `/v1/races` | Telemetry session catalog from the cached fixture |
 | GET | `/v1/races/{session_id}/laps` | Available laps and metadata |
 | POST | `/v1/telemetry/analyze` | Deterministic two-lap features, draft rules, evidence gates |
+| GET | `/v1/telemetry/plot` | Server-rendered PNG of speed/throttle/brake against distance |
 | POST | `/v1/ask` | Routed theory/telemetry answer with citations and limitations |
 
 Legacy aliases remain for compatibility: `/goals`, `/check`, `/check/all`, `/retrieve`, `/extract-facts`.
@@ -263,8 +292,10 @@ app/
 knowledge_base/                 source PDFs, processed text, manifest, rules, facts, telemetry notes
 datasets/                       development/held-out cases, expected results, retrieval cases, telemetry fixtures
 research/                       document analysis, rule selection, validation log, architecture, evaluation, revision decisions
-frontend/streamlit_app.py       Race Analysis / Engineering Tutor / Regulation Lab
-tests/                          151 tests
+web/                            React + Vite + TypeScript interface
+  src/modules/                  Regulation Lab / Engineering Tutor / Race Analysis
+  src/styles/                   tokens, layout, components (shared visual system)
+tests/                          159 tests
 scripts/                        extract, index, evaluate, validate, migrate, split
 storage/                        model cache, optional Qdrant, BM25/TF-IDF indexes, plots, logs (gitignored)
 ```

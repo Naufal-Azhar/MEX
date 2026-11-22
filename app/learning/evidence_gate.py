@@ -17,33 +17,33 @@ def evaluate_data_gate(pair: LapPairAnalysis) -> GateResult:
 
     for lap_id, quality in pair.quality.items():
         if not quality.time_monotonic:
-            missing.append(f"{lap_id}: time is not monotonic")
+            missing.append(f"{lap_id}: urutan waktu tidak naik")
         if not quality.distance_monotonic:
-            missing.append(f"{lap_id}: distance is not monotonic")
+            missing.append(f"{lap_id}: urutan jarak tidak naik")
         if quality.missing_channels:
-            missing.append(f"{lap_id}: missing channels {', '.join(quality.missing_channels)}")
+            missing.append(f"{lap_id}: kanal data tidak tersedia: {', '.join(quality.missing_channels)}")
         if quality.sample_count < 2:
-            missing.append(f"{lap_id}: fewer than two samples")
+            missing.append(f"{lap_id}: sampel kurang dari dua")
         if quality.gaps:
-            notes.append(f"{lap_id}: {len(quality.gaps)} sampling gap(s) excluded or flagged")
+            notes.append(f"{lap_id}: {len(quality.gaps)} celah sampel tidak diikutkan")
 
     coverage = pair.speed_delta.coverage_ratio if pair.speed_delta is not None else 0.0
     if coverage < MIN_COVERAGE:
-        missing.append(f"overlap coverage {coverage:.3f} is below {MIN_COVERAGE}")
+        missing.append(f"Cakupan tumpang tindih {coverage:.3f} di bawah {MIN_COVERAGE}")
     else:
-        notes.append(f"overlap coverage {coverage:.3f}")
+        notes.append(f"Cakupan tumpang tindih {coverage:.3f}")
 
     for lap in (pair.lap_a, pair.lap_b):
         if lap.deleted:
-            missing.append(f"{lap.lap_id}: lap was deleted by the stewards")
+            missing.append(f"{lap.lap_id}: lap dibatalkan pengawas")
         if lap.accurate is False:
-            notes.append(f"{lap.lap_id}: provider marked the lap as not accurate")
+            notes.append(f"{lap.lap_id}: penyedia menandai lap kurang akurat")
 
     for lap_id, provenance in pair.provenance.items():
         if not provenance.provider or not provenance.telemetry_sha256:
-            missing.append(f"{lap_id}: provenance is incomplete")
+            missing.append(f"{lap_id}: keterangan sumber tidak lengkap")
 
-    notes.append("distance is provider-derived; alignment uncertainty applies")
+    notes.append("jarak berasal dari penyedia data; penyelarasan bersifat perkiraan")
     return GateResult(passed=not missing, notes=notes, missing=missing)
 
 
@@ -78,10 +78,10 @@ def evaluate_knowledge_gate(
             )
         )
         if not found:
-            missing.append(f"{rule.rule_id}: source quote not found in the corpus")
+            missing.append(f"{rule.rule_id}: kutipan sumber tidak ditemukan pada dokumen")
 
     notes = [
-        "quote verification checks string presence only; it does not prove semantic entailment",
-        "semantic support has not been manually audited",
+        "pemeriksaan kutipan hanya mencocokkan teks, bukan makna",
+        "kesesuaian makna kutipan belum diaudit manual",
     ]
     return GateResult(passed=not missing, notes=notes, missing=missing), evidence

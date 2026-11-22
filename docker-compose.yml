@@ -28,24 +28,5 @@ services:
       - ./datasets:/app/datasets
     restart: unless-stopped
 
-  ui:
-    build: .
-    command: streamlit run frontend/streamlit_app.py --server.port 8501 --server.address 0.0.0.0
-    ports:
-      - "8501:8501"
-    environment:
-      PYTHONPATH: /app
-      QDRANT_URL: http://qdrant:6333
-      UI_BACKEND: api
-      API_URL: http://api:8000
-      LLM_PROVIDER: none
-    volumes:
-      - ./storage:/app/storage
-      - ./knowledge_base:/app/knowledge_base
-      - ./datasets:/app/datasets
-    depends_on:
-      - api
-    restart: unless-stopped
-
 volumes:
   qdrant_data:

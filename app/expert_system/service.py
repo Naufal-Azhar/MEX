@@ -33,14 +33,14 @@ from app.schemas.rules import Condition, Operand, RuleSource, RuleStatus
 
 LIMITATIONS = [
     "Sistem hanya memeriksa ketentuan yang telah dimodelkan (C2.3.1, C2.3.3, C2.3.5, C4.1, C4.2).",
-    "Sistem tidak memverifikasi prosedur pengukuran, kondisi Legality Setup, atau kondisi fisik mobil.",
-    "Nilai Nominal Tyre Mass tidak ditetapkan dalam regulasi; nilainya harus diberikan sebagai data masukan.",
-    "Hasil bukan pengganti pemeriksaan FIA technical delegate dan tidak mencakup seluruh Section C.",
+    "Sistem tidak memverifikasi prosedur pengukuran, kondisi pengaturan legalitas, atau kondisi fisik mobil.",
+    "Nilai massa nominal ban tidak ditetapkan dalam regulasi; nilainya harus diberikan sebagai data masukan.",
+    "Hasil bukan pengganti pemeriksaan pengawas teknis FIA dan tidak mencakup seluruh Section C.",
 ]
 
 DEMO_WARNING = (
-    "Aturan yang dipakai berstatus 'reviewed' dan belum disetujui manusia. "
-    "Hasil ini bersifat demo dan tidak boleh dianggap sebagai validasi FIA."
+    "Aturan yang dipakai sudah diperiksa sistem tetapi belum disetujui manusia. "
+    "Hasil ini bersifat sementara dan tidak boleh dianggap sebagai validasi FIA."
 )
 
 

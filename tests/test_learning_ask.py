@@ -159,7 +159,7 @@ def test_llm_cannot_override_server_facts(
     assert answer.observed_facts
     assert all("999" not in item for item in answer.observed_facts)
     assert all("FAKE-RULE" not in item for item in answer.rule_based_findings)
-    assert any("max_speed" in item for item in answer.observed_facts)
+    assert any("Kecepatan maksimum" in item for item in answer.observed_facts)
 
 
 def test_llm_theory_without_claim_citation_is_rejected(corpus: LearningCorpusIndex) -> None:

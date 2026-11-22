@@ -189,9 +189,9 @@ class DeterministicFactExtractor:
             )
 
         if not result.facts:
-            result.notes.append("No known fact could be extracted deterministically.")
+            result.notes.append("Tidak ada data yang bisa dikenali dari teks itu.")
         result.notes.append(
-            "Deterministic extraction is heuristic; verify the extracted facts before running a compliance check."
+            "Pembacaan teks bersifat perkiraan; periksa kembali data sebelum menjalankan pemeriksaan."
         )
         return result
 

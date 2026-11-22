@@ -45,26 +45,76 @@ def validate_citation_ids(citation_ids: list[str], citations: list[CitationRef])
     return accepted, rejected
 
 
+FEATURE_LABELS = {
+    "max_speed": "Kecepatan maksimum",
+    "speed_delta_mean": "Selisih kecepatan rata-rata",
+    "speed_delta_min": "Selisih kecepatan terkecil",
+    "speed_delta_max": "Selisih kecepatan terbesar",
+    "brake_onset_count": "Jumlah titik pengereman",
+    "segment_elapsed_time": "Waktu tempuh segmen",
+}
+
+FINDING_LABELS = {
+    "speed_comparison_available": "Perbandingan kecepatan",
+    "speed_profile_difference_observed": "Perbedaan profil kecepatan",
+    "relative_brake_onset_difference_observed": "Perbedaan titik pengereman",
+    "braking_dynamics_learning_topic_relevant": "Dinamika pengereman",
+    "insufficient_evidence_for_understeer_diagnosis": "Diagnosis understeer",
+    "insufficient_evidence_for_drag_cause": "Penyebab hambatan udara",
+    "flag_comparison_context_limitation": "Keterbatasan konteks perbandingan",
+    "withhold_supported_engineering_interpretation": "Penjelasan teknik yang didukung data",
+}
+
+FINDING_STATUS_LABELS = {
+    "OBSERVED": "teramati",
+    "SUPPORTED_INTERPRETATION": "didukung data",
+    "INSUFFICIENT_DATA": "data belum cukup",
+    "NOT_APPLICABLE": "tidak berlaku",
+    "UNSUPPORTED": "di luar cakupan",
+    "ERROR": "kesalahan",
+}
+
+
+def _feature_label(name: str) -> str:
+    if name in FEATURE_LABELS:
+        return FEATURE_LABELS[name]
+    match = re.fullmatch(r"brake_onset_delta_(\d+)", name)
+    if match:
+        return f"Selisih titik pengereman {match.group(1)}"
+    return name.replace("_", " ")
+
+
 def _format_fact(fact) -> str:
+    label = _feature_label(fact.name)
     if fact.value is None:
-        return f"{fact.name}: tidak tersedia ({fact.status.value})"
+        return f"{label}: tidak tersedia"
     unit = f" {fact.unit}" if fact.unit else ""
-    detail = f" [{fact.detail}]" if fact.detail else ""
-    return f"{fact.name} = {fact.value}{unit}{detail}"
+    detail = f" · {fact.detail}" if fact.detail else ""
+    return f"{label}: {fact.value}{unit}{detail}"
 
 
 def _server_facts(analysis: TelemetryAnalysisReport | None) -> list[str]:
     return [_format_fact(fact) for fact in analysis.observed_facts] if analysis is not None else []
 
 
-def _server_findings(analysis: TelemetryAnalysisReport | None) -> list[str]:
+def _format_finding(finding) -> str:
+    label = FINDING_LABELS.get(finding.goal, finding.goal.replace("_", " "))
+    status = FINDING_STATUS_LABELS.get(finding.status.value, finding.status.value)
+    return f"{label}: {status}"
+
+
+def _server_finding_lines(analysis: TelemetryAnalysisReport | None) -> list[str]:
     if analysis is None:
         return []
     return [
-        f"{finding.rule_id} ({finding.goal}): {finding.status.value}"
+        _format_finding(finding)
         for finding in analysis.findings
         if finding.status is not AnalysisStatus.NOT_APPLICABLE
     ]
+
+
+def _server_findings(analysis: TelemetryAnalysisReport | None) -> list[str]:
+    return _server_finding_lines(analysis)
 
 
 def _claims_without_citation(items: list[str], accepted_ids: list[str]) -> list[str]:
@@ -93,11 +143,7 @@ def deterministic_content(
 
     if analysis is not None:
         observed = [_format_fact(fact) for fact in analysis.observed_facts]
-        findings = [
-            f"{finding.rule_id} ({finding.goal}): {finding.status.value}"
-            for finding in analysis.findings
-            if finding.status is not AnalysisStatus.NOT_APPLICABLE
-        ]
+        findings = _server_finding_lines(analysis)
         explanations = [
             "Perbedaan titik pengereman dapat dipengaruhi kecepatan masuk, kondisi ban, racing line, angin, lalu lintas, atau niat pembalap.",
             "Data publik ini tidak memuat beban bahan bakar, suhu ban, atau tekanan rem, sehingga sebab spesifik tidak dapat disimpulkan.",
@@ -114,8 +160,8 @@ def deterministic_content(
 
     if not limitations:
         limitations = [
-            "Jawaban ini disusun deterministik dari fakta terukur dan kutipan; tidak ada generasi LLM.",
-            "Kutipan diverifikasi sebagai keberadaan string, bukan entailment semantik.",
+            "Jawaban disusun langsung dari angka terukur dan kutipan pasal.",
+            "Kutipan diperiksa sebagai kecocokan teks, bukan kesesuaian makna.",
         ]
     if not theory and question_type is QuestionType.THEORY:
         limitations.append("Tidak ada bukti teori yang cukup untuk pertanyaan ini.")
@@ -126,14 +172,14 @@ def deterministic_content(
 def suggested_questions(question_type: QuestionType) -> list[str]:
     if question_type is QuestionType.TELEMETRY_CASE:
         return [
-            "Apa arti brake onset dalam data telemetri?",
+            "Apa arti titik pengereman dalam data lap?",
             "Mengapa perbedaan titik rem tidak otomatis berarti pembalap lebih baik?",
             "Data apa yang masih diperlukan untuk menjelaskan perbedaan ini?",
         ]
     return [
-        "Bagaimana cara membaca grafik speed, throttle, dan brake?",
-        "Mengapa grip dan load transfer penting saat pengereman?",
-        "Kapan sistem harus menahan kesimpulan karena bukti kurang?",
+        "Bagaimana cara membaca grafik kecepatan, gas, dan rem?",
+        "Mengapa cengkeraman dan perpindahan beban penting saat pengereman?",
+        "Kapan sistem harus menahan kesimpulan karena data kurang?",
     ]
 
 

@@ -18,3 +18,15 @@ storage/
 Thumbs.db
 .vscode/
 .idea/
+
+# Private working data, notes and local project context
+datasets/
+folder_dokumen/
+research/
+pemetaan.md
+pemetaan_public.md
+project_context.md
+PROMPT.md
+rangkuman_proyek.md
+pyproject.toml
+

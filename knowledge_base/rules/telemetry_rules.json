@@ -152,8 +152,8 @@
         "document_id": "mex-telemetry-notes",
         "document": "Telemetry Data Dictionary and Engineering Fundamentals Notes",
         "issue": "v1-2026-11-21",
-        "article": "engineering_sources section 2",
-        "quote": "Not obtained; no licensed copy available in the workspace"
+        "article": "7. Evidence policy",
+        "quote": "If a licensed source is not obtained, the claim is recorded as a blocker rather than filled with an invented citation."
       },
       "applies_if": [
         {"left": {"fact": "scientific_evidence_missing_or_unverified"}, "operator": "==", "right": {"const": true}}

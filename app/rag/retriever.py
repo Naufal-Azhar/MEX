@@ -83,7 +83,9 @@ class Retriever:
             store = QdrantVectorStore(
                 VECTOR_DB_DIR / "qdrant", DENSE_COLLECTION, int(meta["dimension"]), meta, url=qdrant_url
             )
-            return cls(store, embedder, notes=embedder.notes)
+            if store.is_ready():
+                return cls(store, embedder, notes=embedder.notes)
+            store.close()
 
         chunks = chunks_from_processed_dir(processed_dir, max_chars=settings.chunk_size)
         vectors = embedder.embed_documents([chunk.text for chunk in chunks])

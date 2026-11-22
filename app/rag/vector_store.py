@@ -163,6 +163,17 @@ class QdrantVectorStore:
             path.mkdir(parents=True, exist_ok=True)
             self.client = QdrantClient(path=str(path))
 
+    def is_ready(self) -> bool:
+        if not self.client.collection_exists(self.collection):
+            return False
+        try:
+            info = self.client.get_collection(self.collection)
+            points_count = int(info.points_count or 0)
+        except Exception:  # noqa: BLE001 - treat an unreadable collection as not ready
+            return False
+        expected = self.metadata.get("chunk_count")
+        return points_count > 0 and (expected is None or points_count >= int(expected))
+
     def replace(self, chunks: list[Chunk], vectors: np.ndarray) -> None:
         from qdrant_client.models import Distance, PointStruct, VectorParams
 

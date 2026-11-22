@@ -103,3 +103,8 @@ Not supported without additional evidence:
 - The tyre was degraded in a specific way.
 - The car would be faster or slower in another session.
 - Any causal explanation of an understeer/oversteer diagnosis.
+
+## 7. Evidence policy
+
+If a licensed source is not obtained, the claim is recorded as a blocker rather than filled with an invented citation. A string match in the corpus does not prove semantic entailment; supported interpretation remains withheld until the source is checked.
+

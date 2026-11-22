@@ -14,7 +14,13 @@ from app.rag.embeddings import (
     TfidfEmbeddingBackend,
     get_embedding_backend,
 )
-from app.rag.vector_store import NumpyVectorStore, QdrantVectorStore, SearchHit, TfidfVectorStore
+from app.rag.vector_store import (
+    BM25TfidfFallbackStore,
+    NumpyVectorStore,
+    QdrantVectorStore,
+    SearchHit,
+    TfidfVectorStore,
+)
 from app.schemas.results import RetrievalHit
 
 TFIDF_INDEX_PATH = VECTOR_DB_DIR / "tfidf_index.joblib"
@@ -42,6 +48,9 @@ class Retriever:
             tfidf = TfidfEmbeddingBackend()
             store = TfidfVectorStore.build(chunks, tfidf)
             return cls(store, tfidf, notes=tfidf.notes)
+        if backend in ("bm25", "lexical-bm25"):
+            store = BM25TfidfFallbackStore(chunks)
+            return cls(store, None, notes=store.notes)
         embedder = get_embedding_backend(backend, model_name)
         vectors = embedder.embed_documents([chunk.text for chunk in chunks])
         if backend == "numpy":
@@ -59,6 +68,9 @@ class Retriever:
         settings = load_settings()
         backend_pref = settings.embedding_backend
         qdrant_url = settings.qdrant_url or None
+        if backend_pref in ("bm25", "lexical-bm25"):
+            chunks = chunks_from_processed_dir(processed_dir, max_chars=settings.chunk_size)
+            return cls.from_chunks(chunks, backend="bm25")
         embedder = get_embedding_backend(backend_pref, settings.embedding_model)
         is_tfidf = isinstance(embedder, TfidfEmbeddingBackend)
 
@@ -125,7 +137,7 @@ class Retriever:
         else:
             selected_types = set(document_types)
 
-        if isinstance(self.store, TfidfVectorStore):
+        if getattr(self.store, "lexical", False):
             raw_hits: list[SearchHit] = self.store.search(
                 query,
                 top_k=top_k,

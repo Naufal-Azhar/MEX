@@ -21,9 +21,9 @@ Source: `FIA 2026 Formula One Regulations — Section C [Technical]`, **Issue 21
 | **Engineering Tutor** | Implemented with deterministic fallback | `POST /v1/ask`; Streamlit module |
 | **Regulation Lab** | Preserved baseline | Existing `/v1/check`, `/v1/search`, Streamlit tabs |
 
-Telemetry fixture: 2025 Abu Dhabi Qualifying, **7 cached laps** (clean fast, medium, deleted, invalid-distance) from **TracingInsights** (Apache-2.0, public repository). Hashes and caveats: `datasets/telemetry/manifest.json`. Evaluation: `research/learning_evaluation.md`; retrieval: `research/learning_retrieval_report.md`; acceptance: `research/mvp_acceptance.md`.
+Telemetry fixtures: 2025 Abu Dhabi Qualifying (**7 cached laps**) and 2025 British GP Qualifying (**VER lap 17, NOR lap 19**) from **TracingInsights** (Apache-2.0, public repository). Hashes and caveats: `datasets/telemetry/manifest.json` and `manifest_2025_british_gp.json`. Evaluation: `research/learning_evaluation.md`; retrieval: `research/engineering_retrieval_report.md`; acceptance: `research/mvp_acceptance.md`.
 
-Screenshots of the running app: `research/screenshots/race_analysis.png`, `race_analysis_results.png`, `engineering_tutor.png`, `regulation_lab.png`.
+Screenshots of the running app: `research/screenshots/race_analysis_sessions.png`, `race_analysis_british_results.png`, `engineering_tutor_generated.png`, `regulation_lab.png`.
 
 > **Generation status:** Google AI Studio is configured locally via `.env` with `gemini-3.1-flash-lite`. `/v1/ask` now returns `generated` answers for theory and telemetry questions, while keeping facts and rule findings server-side and validating `[E#]` citations. The full A/B/C comparison and semantic citation audit are not run.
 >
@@ -96,9 +96,9 @@ Outputs `knowledge_base/document_manifest.json` (including **SHA-256** and file 
 .venv\Scripts\python.exe scripts\build_index.py
 ```
 
-- `EMBEDDING_BACKEND=auto` uses Sentence Transformers if the model is cached, otherwise TF-IDF.
-- Force neural retrieval: `set EMBEDDING_BACKEND=sentence_transformers`.
-- Sparse fallback: `set EMBEDDING_BACKEND=tfidf`.
+- `EMBEDDING_BACKEND=bm25` (default) uses BM25 with TF-IDF fallback.
+- Force TF-IDF only: `set EMBEDDING_BACKEND=tfidf`.
+- Optional dense retrieval: `set EMBEDDING_BACKEND=sentence_transformers` and use Qdrant; `auto` uses Sentence Transformers only if the model is cached.
 
 ### 3. Run the API
 
@@ -115,7 +115,7 @@ Set-Location "C:\Users\HAR\Documents\SEMESTER 5\SENIN\AI\Project\AI-Pakar"; .ven
 Set-Location "C:\Users\HAR\Documents\SEMESTER 5\SENIN\AI\Project\AI-Pakar"; .venv\Scripts\python.exe -m streamlit run frontend/streamlit_app.py
 ```
 
-Open `http://localhost:8501`. If the API is running, choose backend **FastAPI** in the sidebar to avoid two processes opening the local Qdrant files.
+Open `http://localhost:8501`. BM25 avoids the old Qdrant file-lock issue; Qdrant is optional.
 
 ## API
 
@@ -182,10 +182,11 @@ Error envelopes:
 
 - Chunks carry `document_id`, `article`/`subarticle`, `page`, `page_end`, `document_type`.
 - Table-of-contents pages and repeated headers/footers are excluded.
-- Sentence Transformers `all-MiniLM-L6-v2` + Qdrant local mode are the primary stack; TF-IDF is the offline fallback.
+- **BM25 is the primary lexical retriever**, with **TF-IDF fallback** when BM25 returns no positive hit.
+- Qdrant + Sentence Transformers `all-MiniLM-L6-v2` remain available as an optional dense backend (`EMBEDDING_BACKEND=sentence_transformers`, `docker compose --profile qdrant up -d`).
 - **Journal/methodology chunks are excluded from compliance search by default.** `/v1/search` only includes them when `include_methodology=true`.
 - Each rule citation is checked against the stored page text; unverified evidence adds `SOURCE_MISSING`.
-- The first `/v1/search` call can take longer while the embedding model and Qdrant index load.
+- BM25 builds in memory over 1,184 chunks; no model download is needed.
 
 Known limitation: the TF-IDF vocabulary is dominated by Section C, so some methodology terms fall outside `max_features=4096`.
 
@@ -199,22 +200,24 @@ Known limitation: the TF-IDF vocabulary is dominated by Section C, so some metho
 
 Current state:
 
-- **140 tests pass** (66 legacy + 74 new).
+- **151 tests pass**.
 - Decision suite: **18/18** internal outcomes, all external statuses correct, F1 (VIOLATED) = 1.0.
 - Citation verification rate: **1.0**; trace consistency: **1.0**; explanation completeness: **1.0**.
-- Retrieval (MiniLM + Qdrant, k=5): hit rate **0.9**, MRR **0.9**, precision@5 **0.18** (one C4.2/C10.1 confusion).
+- Engineering retrieval with BM25: **8/8 Hit@1**, Hit@3 **1.0**, MRR **1.0**.
+- Legacy regulation retrieval (MiniLM + Qdrant, k=5): hit rate **0.9**, MRR **0.9**, precision@5 **0.18** (one C4.2/C10.1 confusion).
 - Decision latency mean **7.43 ms**, p95 **120.62 ms** (includes first-case lazy source loading); failure rate **0.0**.
 - Retrieval latency mean **91.57 ms**, p95 **351.86 ms** on the local machine (not a production benchmark).
 - Dataset split: **12 development** + **6 held-out** cases (`datasets/development_cases.json`, `heldout_cases.json`).
 
-MEX-AI telemetry slice (2025 Abu Dhabi Q3, VER lap 14 vs NOR lap 16):
+MEX-AI telemetry slices:
 
-- 617 / 623 samples; coverage 0.99995; 6 matched brake onsets.
-- Brake-onset deltas: −8.96, +2.55, +1.24, +0.57, −15.32, −12.61 m; the last two exceed the ±10 m alignment-uncertainty flag.
-- Speed delta (NOR − VER): mean −0.344 km/h, min −23.13, max +14.037.
+- 2025 Abu Dhabi Q3: 617 / 623 samples; coverage 0.99995; 6 matched brake onsets.
+- 2025 British GP Q3: 639 / 626 samples; VER 84.892 s vs NOR 85.010 s; Q3 times cross-checked against RaceData.
+- Brake-onset deltas (Abu Dhabi): −8.96, +2.55, +1.24, +0.57, −15.32, −12.61 m; the last two exceed the ±10 m alignment-uncertainty flag.
+- Speed delta (NOR − VER, Abu Dhabi): mean −0.344 km/h, min −23.13, max +14.037.
 - Data gate PASS; knowledge gate PASS on quote presence only; `engineering_interpretation_status = INSUFFICIENT_DATA`.
 - All 8 telemetry rules remain `draft`. No human review was performed.
-- A/B/C LLM comparison, generative RAG, and educational evaluation are **not run** (no provider/participants).
+- A/B/C LLM comparison and full semantic citation audit are **not run**.
 
 These results are on small, synthetic or public fixtures. They are not evidence of real-world accuracy.
 
@@ -247,7 +250,7 @@ The LLM may only propose facts and phrasing; it cannot create/activate rules or 
 app/
   api/routes.py                 /v1 API + legacy aliases + telemetry/ask endpoints
   document_processing/          PDF loader, extractor (SHA-256), chunker
-  rag/                          embeddings, Qdrant/TF-IDF stores, retriever, Markdown corpus, grounded answers
+  rag/                          BM25/TF-IDF/Qdrant stores, retriever, Markdown corpus, grounded answers
   llm/                          provider adapters + validated fact extraction
   expert_system/                KB, rule engine, backward chaining, explanation, service
   race_data/                    telemetry fixture loader, validation, alignment
@@ -261,18 +264,18 @@ knowledge_base/                 source PDFs, processed text, manifest, rules, fa
 datasets/                       development/held-out cases, expected results, retrieval cases, telemetry fixtures
 research/                       document analysis, rule selection, validation log, architecture, evaluation, revision decisions
 frontend/streamlit_app.py       Race Analysis / Engineering Tutor / Regulation Lab
-tests/                          112 tests
+tests/                          151 tests
 scripts/                        extract, index, evaluate, validate, migrate, split
-storage/                        model cache, Qdrant, TF-IDF index, plots, logs (gitignored)
+storage/                        model cache, optional Qdrant, BM25/TF-IDF indexes, plots, logs (gitignored)
 ```
 
 ## Security and isolation
 
-- `.venv`, model cache, Qdrant, and logs stay inside the workspace.
-- Secrets only via `.env`; `.env` is gitignored.
+- `.venv`, model cache, optional Qdrant, and logs stay inside the workspace.
+- Secrets only via `.env`; `.env` is gitignored and excluded from Docker build context.
 - No arbitrary code execution from rules or LLM output.
 - Input paths and fact names are validated; no upload feature.
-- Qdrant local mode takes a file lock; use one process or `QDRANT_URL` for a server.
+- BM25 needs no external service. Qdrant is optional (`docker compose --profile qdrant up -d`) and uses a file lock in local mode.
 
 ## Limitations
 
@@ -281,19 +284,19 @@ storage/                        model cache, Qdrant, TF-IDF index, plots, logs (
 - Nominal Tyre Mass must be supplied externally.
 - Tables/figures are not structured data; amendment colours are lost.
 - Rules are demo-reviewed, not human-approved.
-- A/B/C LLM comparison and LLM extraction testing are not done.
-- No latency/performance benchmark; Docker/CI not verified.
-- One retrieval confusion remains (C4.2 vs C10.1).
-- Telemetry slice covers one session and one lap pair; results are descriptive only.
+- A/B/C LLM comparison is not done; internet-source validation replaces human review.
+- Docker build/run and CI-equivalent tests were verified locally; no GitHub remote run exists.
+- One legacy retrieval confusion remains (C4.2 vs C10.1).
+- Telemetry covers two sessions and three lap pairs; results are descriptive only.
 - The 8 telemetry rules are `draft`; no human review was performed.
 - Distance is provider-derived, so cross-lap alignment is approximate; brake is an indicator, not pressure.
 - The knowledge gate checks quote presence, not semantic entailment.
-- No real LLM generation was run; `/v1/ask` falls back to deterministic answers.
-- No UI screenshot artifact was produced; the Streamlit modules were executed headlessly with `AppTest`.
+- LLM smoke/accuracy cases are generated, but full semantic citation audit remains pending.
+- Screenshots are in `research/screenshots/`; they were captured from the running app.
 
 ## Troubleshooting
 
 - Console mojibake: `set PYTHONIOENCODING=utf-8`.
 - `No module named app`: run from the project root (pytest config adds the path automatically).
-- Qdrant lock error: stop the other process or set `QDRANT_URL`.
-- Model download unavailable: `set EMBEDDING_BACKEND=tfidf`.
+- Qdrant lock error: use BM25 (default) or stop the other process.
+- Model download unavailable: BM25/TF-IDF need no model; use `set EMBEDDING_BACKEND=tfidf` if needed.

@@ -48,7 +48,7 @@ class Settings:
     llm_api_model: str = "gpt-4o-mini"
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "llama3.1"
-    embedding_backend: str = "auto"
+    embedding_backend: str = "bm25"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     vector_store: str = "qdrant"
     qdrant_url: str = ""
@@ -80,7 +80,7 @@ def load_settings() -> Settings:
         llm_api_model=os.getenv("LLM_API_MODEL", "gpt-4o-mini"),
         ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/"),
         ollama_model=os.getenv("OLLAMA_MODEL", "llama3.1"),
-        embedding_backend=os.getenv("EMBEDDING_BACKEND", "auto").strip().lower(),
+        embedding_backend=os.getenv("EMBEDDING_BACKEND", "bm25").strip().lower(),
         embedding_model=os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"),
         vector_store=os.getenv("VECTOR_STORE", "qdrant").strip().lower(),
         qdrant_url=os.getenv("QDRANT_URL", "").strip().rstrip("/"),

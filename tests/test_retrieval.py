@@ -4,7 +4,7 @@ import pytest
 from app.config import PROCESSED_DIR
 from app.document_processing.chunker import Chunk, chunks_from_processed_dir
 from app.rag.retriever import Retriever
-from app.rag.vector_store import NumpyVectorStore, QdrantVectorStore, TfidfVectorStore
+from app.rag.vector_store import BM25TfidfFallbackStore, BM25VectorStore, NumpyVectorStore, QdrantVectorStore, SearchHit, TfidfVectorStore
 
 TARGET_ARTICLES = {"C2.3.1", "C2.3.3", "C2.3.5", "C4.1", "C4.2"}
 
@@ -37,6 +37,36 @@ def test_tfidf_index_checksum_detects_tampering(retriever, tmp_path):
     path.write_bytes(path.read_bytes() + b"tampered")
     with pytest.raises(ValueError):
         TfidfVectorStore.load(path)
+
+
+def test_bm25_retriever_finds_wheelbase_clause(chunks):
+    bm25 = Retriever.from_chunks(chunks, backend="bm25")
+    hits = bm25.search("maximum wheelbase 3400 mm", top_k=3)
+    assert hits
+    assert hits[0].article == "C2.3.3"
+    assert hits[0].page == 11
+    assert bm25.describe()["kind"] == "bm25_tfidf"
+
+
+def test_bm25_and_tfidf_fallback_store_describe(chunks):
+    store = BM25TfidfFallbackStore(chunks)
+    description = store.describe()
+    assert description["kind"] == "bm25_tfidf"
+    assert description["primary"]["kind"] == "bm25"
+    assert description["fallback"]["kind"] == "tfidf"
+    assert BM25VectorStore(chunks).describe()["count"] == len(chunks)
+
+
+def test_bm25_falls_back_to_tfidf_when_primary_is_empty(chunks, monkeypatch):
+    store = BM25TfidfFallbackStore(chunks)
+    monkeypatch.setattr(store.primary, "search", lambda *args, **kwargs: [])
+    monkeypatch.setattr(
+        store.fallback,
+        "search",
+        lambda *args, **kwargs: [SearchHit(chunk=chunks[0], score=1.0)],
+    )
+    hits = store.search("no primary hit", top_k=1)
+    assert hits[0].chunk.chunk_id == chunks[0].chunk_id
 
 
 def test_retrieval_returns_metadata_and_positive_scores(retriever):

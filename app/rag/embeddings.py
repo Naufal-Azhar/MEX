@@ -151,6 +151,10 @@ def _sentence_transformer_cached(model_name: str) -> bool:
 
 def get_embedding_backend(preferred: str = "auto", model_name: str = "sentence-transformers/all-MiniLM-L6-v2") -> EmbeddingBackend:
     preferred = (preferred or "auto").lower()
+    if preferred in ("bm25", "lexical-bm25"):
+        backend = TfidfEmbeddingBackend()
+        backend.notes.append("BM25 uses the lexical store directly; the embedding backend is a fallback only.")
+        return backend
     if preferred in ("tfidf", "lexical"):
         return TfidfEmbeddingBackend()
     if preferred in ("sentence_transformers", "sentence-transformers", "st", "dense"):

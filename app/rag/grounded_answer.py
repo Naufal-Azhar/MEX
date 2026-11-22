@@ -145,6 +145,7 @@ def build_deterministic_answer(
     analysis: TelemetryAnalysisReport | None,
     generation_status: GenerationStatus = GenerationStatus.UNAVAILABLE,
     provenance: dict[str, Any] | None = None,
+    retrieval_backend: str = "unknown",
 ) -> GroundedAnswer:
     observed, findings, explanations, theory, missing, limitations = deterministic_content(
         question, question_type, hits, analysis
@@ -168,7 +169,7 @@ def build_deterministic_answer(
             "provider": "none",
             "model": None,
             "prompt_version": PROMPT_VERSION,
-            "retrieval_backend": "tfidf",
+            "retrieval_backend": retrieval_backend,
             "retrieved_ids": [citation.ref_id for citation in citations],
             "note": "LLM provider is not configured; answer is deterministic.",
         },
@@ -208,6 +209,7 @@ def build_llm_answer(
     question_type: QuestionType,
     hits: list[RetrievalHit],
     analysis: TelemetryAnalysisReport | None,
+    retrieval_backend: str = "unknown",
 ) -> GroundedAnswer:
     citations = citations_from_hits(hits)
     try:
@@ -313,7 +315,7 @@ def build_llm_answer(
             "provider": getattr(provider, "name", "unknown"),
             "model": getattr(provider, "model", ""),
             "prompt_version": PROMPT_VERSION,
-            "retrieval_backend": "tfidf",
+            "retrieval_backend": retrieval_backend,
             "retrieved_ids": accepted,
             "facts_source": "server",
             "claim_citation_check": "passed",

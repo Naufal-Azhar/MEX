@@ -89,6 +89,15 @@ def test_corpus_retrieves_throttle_section(corpus: LearningCorpusIndex) -> None:
     assert any("Throttle" in (hit.article or "") for hit in hits)
 
 
+def test_learning_corpus_bm25_backend() -> None:
+    index = LearningCorpusIndex.from_paths(backend="bm25")
+    hits = index.search("what does brake onset mean", top_k=2)
+    assert index.store.describe()["kind"] == "bm25_tfidf"
+    assert index.backend_name == "bm25_tfidf"
+    assert hits
+    assert any("2.1 Brake onset" in (hit.article or "") for hit in hits)
+
+
 def test_question_classification() -> None:
     assert classify_question("what does brake onset mean", False) is QuestionType.THEORY
     assert classify_question("compare the braking of these laps", True) is QuestionType.TELEMETRY_CASE

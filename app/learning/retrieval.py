@@ -8,7 +8,7 @@ from pathlib import Path
 from app.document_processing.chunker import Chunk
 from app.rag.corpus import chunk_markdown
 from app.rag.embeddings import TfidfEmbeddingBackend
-from app.rag.vector_store import TfidfVectorStore
+from app.rag.vector_store import BM25TfidfFallbackStore, TfidfVectorStore
 from app.schemas.results import RetrievalHit
 
 DEFAULT_LEARNING_CORPUS = [
@@ -113,12 +113,18 @@ def _engineering_corpus(root: Path) -> list[tuple[str, str, str]]:
 
 
 class LearningCorpusIndex:
-    def __init__(self, chunks: list[Chunk]) -> None:
+    def __init__(self, chunks: list[Chunk], backend: str | None = None) -> None:
         if not chunks:
             raise ValueError("learning corpus is empty")
+        from app.config import load_settings
+
         self.chunks = chunks
         self.backend = TfidfEmbeddingBackend()
-        self.store = TfidfVectorStore.build(chunks, self.backend)
+        mode = (backend or load_settings().embedding_backend).lower()
+        if mode in ("bm25", "lexical-bm25"):
+            self.store = BM25TfidfFallbackStore(chunks)
+        else:
+            self.store = TfidfVectorStore.build(chunks, self.backend)
 
     @classmethod
     def from_paths(
@@ -126,6 +132,7 @@ class LearningCorpusIndex:
         corpus: list[tuple[str, str, str]] | None = None,
         root: Path | str = ".",
         include_engineering: bool = False,
+        backend: str | None = None,
     ) -> "LearningCorpusIndex":
         base = Path(root)
         entries = list(corpus or DEFAULT_LEARNING_CORPUS)
@@ -134,7 +141,11 @@ class LearningCorpusIndex:
         chunks: list[Chunk] = []
         for document_id, document_type, relative in entries:
             chunks.extend(chunk_markdown(base / relative, document_id, document_type))
-        return cls(chunks)
+        return cls(chunks, backend=backend)
+
+    @property
+    def backend_name(self) -> str:
+        return str(self.store.describe().get("kind", "unknown"))
 
     def search(
         self,

@@ -119,6 +119,7 @@ class AskService:
                 [],
                 None,
                 generation_status=GenerationStatus.UNAVAILABLE,
+                retrieval_backend=self.corpus.backend_name,
                 provenance={
                     "provider": "none",
                     "note": "Regulation questions are served by the legacy compliance/RAG surface; /v1/ask does not mix regulation verdicts with telemetry answers.",
@@ -149,6 +150,7 @@ class AskService:
                 question_type,
                 hits,
                 analysis,
+                retrieval_backend=self.corpus.backend_name,
             )
         return build_deterministic_answer(
             request.question,
@@ -157,4 +159,5 @@ class AskService:
             hits,
             analysis,
             generation_status=GenerationStatus.UNAVAILABLE,
+            retrieval_backend=self.corpus.backend_name,
         )

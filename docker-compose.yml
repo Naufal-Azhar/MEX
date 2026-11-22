@@ -1,6 +1,7 @@
 services:
   qdrant:
     image: qdrant/qdrant:v1.20.2
+    profiles: ["qdrant"]
     ports:
       - "6333:6333"
     volumes:
@@ -15,7 +16,7 @@ services:
     environment:
       PYTHONPATH: /app
       QDRANT_URL: http://qdrant:6333
-      EMBEDDING_BACKEND: auto
+      EMBEDDING_BACKEND: ${EMBEDDING_BACKEND:-bm25}
       LLM_PROVIDER: ${LLM_PROVIDER:-none}
       LLM_API_BASE_URL: ${LLM_API_BASE_URL:-}
       LLM_API_KEY: ${LLM_API_KEY:-}
@@ -25,8 +26,6 @@ services:
       - ./storage:/app/storage
       - ./knowledge_base:/app/knowledge_base
       - ./datasets:/app/datasets
-    depends_on:
-      - qdrant
     restart: unless-stopped
 
   ui:

@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+import math
+import re
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -23,6 +26,7 @@ class TfidfVectorStore:
     """Sparse TF-IDF index persisted inside the workspace with joblib."""
 
     kind = "tfidf"
+    lexical = True
 
     def __init__(
         self,
@@ -98,6 +102,136 @@ class TfidfVectorStore:
 
     def describe(self) -> dict[str, Any]:
         return {**self.metadata, "kind": self.kind, "count": len(self.chunks)}
+
+
+_BM25_TOKEN_RE = re.compile(
+    r"[a-z]+\d+(?:[.\-]\d+)*|\d+(?:[.\-]\d+)*|[a-z]+(?:[-'][a-z]+)*",
+    re.IGNORECASE,
+)
+
+
+def _bm25_tokens(text: str) -> list[str]:
+    return _BM25_TOKEN_RE.findall(text.lower().replace("_", " "))
+
+
+class BM25VectorStore:
+    """Lexical BM25 index, kept in memory because the corpus is small."""
+
+    kind = "bm25"
+    lexical = True
+
+    def __init__(self, chunks: list[Chunk], k1: float = 1.5, b: float = 0.75) -> None:
+        if not chunks:
+            raise ValueError("BM25 requires at least one chunk")
+        self.chunks = chunks
+        self.k1 = k1
+        self.b = b
+        self.tokenized = [_bm25_tokens(chunk.text) for chunk in chunks]
+        self.doc_len = np.asarray([max(len(tokens), 1) for tokens in self.tokenized], dtype=float)
+        self.avgdl = float(self.doc_len.mean()) or 1.0
+        self.term_freqs = [Counter(tokens) for tokens in self.tokenized]
+        document_frequency: Counter[str] = Counter()
+        for tokens in self.tokenized:
+            document_frequency.update(set(tokens))
+        total = len(self.chunks)
+        self.idf = {
+            term: math.log(1.0 + (total - freq + 0.5) / (freq + 0.5))
+            for term, freq in document_frequency.items()
+        }
+
+    def search(
+        self,
+        query: str,
+        top_k: int = 5,
+        article: str | None = None,
+        document_id: str | None = None,
+        document_types: set[str] | None = None,
+    ) -> list[SearchHit]:
+        query_tokens = _bm25_tokens(query)
+        if not query_tokens:
+            return []
+        indices = [
+            i
+            for i, chunk in enumerate(self.chunks)
+            if (article is None or chunk.article == article)
+            and (document_id is None or chunk.document_id == document_id)
+            and (document_types is None or chunk.document_type in document_types)
+        ]
+        scored: list[tuple[float, int]] = []
+        for index in indices:
+            frequencies = self.term_freqs[index]
+            doc_len = float(self.doc_len[index])
+            score = 0.0
+            for term in query_tokens:
+                frequency = frequencies.get(term, 0)
+                if not frequency:
+                    continue
+                denominator = frequency + self.k1 * (1.0 - self.b + self.b * doc_len / self.avgdl)
+                score += self.idf.get(term, 0.0) * frequency * (self.k1 + 1.0) / denominator
+            if score > 0:
+                scored.append((score, index))
+        scored.sort(key=lambda item: item[0], reverse=True)
+        return [
+            SearchHit(chunk=self.chunks[index], score=float(score))
+            for score, index in scored[:top_k]
+        ]
+
+    def describe(self) -> dict[str, Any]:
+        return {"kind": self.kind, "count": len(self.chunks), "k1": self.k1, "b": self.b}
+
+
+class BM25TfidfFallbackStore:
+    """BM25 primary store with a TF-IDF fallback when BM25 returns no hit."""
+
+    kind = "bm25_tfidf"
+    lexical = True
+
+    def __init__(self, chunks: list[Chunk]) -> None:
+        self.chunks = chunks
+        self.primary = BM25VectorStore(chunks)
+        self.fallback_backend = TfidfEmbeddingBackend()
+        self.fallback = TfidfVectorStore.build(chunks, self.fallback_backend)
+        self.notes = [
+            "BM25 primary: lexical retrieval with term saturation and length normalization.",
+            "TF-IDF fallback: used only when BM25 returns no positive hit.",
+        ]
+
+    def search(
+        self,
+        query: str,
+        top_k: int = 5,
+        article: str | None = None,
+        document_id: str | None = None,
+        document_types: set[str] | None = None,
+    ) -> list[SearchHit]:
+        try:
+            hits = self.primary.search(
+                query,
+                top_k=top_k,
+                article=article,
+                document_id=document_id,
+                document_types=document_types,
+            )
+        except Exception:  # noqa: BLE001 - fallback must not take the API down
+            hits = []
+        if hits:
+            return hits
+        return self.fallback.search(
+            query,
+            top_k=top_k,
+            article=article,
+            document_id=document_id,
+            document_types=document_types,
+        )
+
+    def describe(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind,
+            "count": len(self.chunks),
+            "primary": self.primary.describe(),
+            "fallback": self.fallback.describe(),
+            "notes": list(self.notes),
+        }
 
 
 class NumpyVectorStore:

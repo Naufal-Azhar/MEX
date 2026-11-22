@@ -28,8 +28,11 @@ from app.schemas.facts import FactInput  # noqa: E402
 from app.schemas.learning import AskRequest  # noqa: E402
 from app.telemetry.plots import save_comparison_plot  # noqa: E402
 
-st.set_page_config(page_title="F1 / Technical Workbench", page_icon="◼", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Pitwall Lab — F1 Technical Workbench", page_icon="◼", layout="wide", initial_sidebar_state="auto")
 st.markdown(f"<style>{(Path(__file__).parent / 'theme.css').read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
+if not st.session_state.get("pw_booted"):
+    st.session_state["pw_booted"] = True
+    st.markdown('<div class="pw-boot" aria-hidden="true"></div>', unsafe_allow_html=True)
 
 STATUS_LABEL = {
     "SATISFIED": "MEMENUHI KETENTUAN",
@@ -47,6 +50,24 @@ STATUS_STYLE = {
     "UNSUPPORTED": st.warning,
     "ERROR": st.error,
 }
+
+
+def render_hero(eyebrow: str, title: str, lede: str) -> None:
+    st.markdown(
+        f'<div class="hero"><div class="hero-eyebrow">{escape(eyebrow)}</div>'
+        f'<h1 class="hero-title">{escape(title)}<span class="hero-dot">.</span></h1>'
+        f'<p class="hero-lede">{escape(lede)}</p></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_brand() -> None:
+    st.markdown(
+        '<div class="brand"><div class="brand-mark">PW</div>'
+        '<div class="brand-text"><span class="brand-title">Pitwall Lab</span>'
+        '<span class="brand-sub">F1 Technical Workbench</span></div></div>',
+        unsafe_allow_html=True,
+    )
 
 
 @st.cache_resource
@@ -141,8 +162,6 @@ def facts_to_payload(facts: dict) -> list[dict]:
 
 def render_report(report: dict) -> None:
     status_badge(report["status"])
-    if report.get("validation_warning"):
-        st.warning(report["validation_warning"])
     st.markdown(report["explanation"])
     if report.get("source"):
         source = report["source"]
@@ -341,24 +360,31 @@ def fact_input_widgets(goal: str, requirements: list[dict], defaults: dict) -> d
         column = columns[index % 2]
         key = f"fact_{goal}_{name}"
         current = defaults.get(name, "")
+        seeded = key in st.session_state
         with column:
             if spec.get("kind") == "number":
                 unit = spec.get("unit") or ""
-                text = st.text_input(f"{name} ({unit})", value="" if current == "" else str(current), key=key)
-                values[name] = text
+                options = {"key": key}
+                if not seeded:
+                    options["value"] = "" if current == "" else str(current)
+                values[name] = st.text_input(f"{name} ({unit})", **options)
             elif spec.get("kind") == "boolean":
                 options = ["(tidak diisi)", "Ya", "Tidak"]
-                if isinstance(current, bool):
-                    options_index = 1 if current else 2
-                else:
-                    options_index = 0
-                choice = st.selectbox(name, options, index=options_index, key=key)
+                widget_options = {"key": key}
+                if not seeded:
+                    if isinstance(current, bool):
+                        widget_options["index"] = 1 if current else 2
+                    else:
+                        widget_options["index"] = 0
+                choice = st.selectbox(name, options, **widget_options)
                 values[name] = {"Ya": True, "Tidak": False}.get(choice, "")
             else:
                 allowed = spec.get("allowed", [])
                 options = ["(tidak diisi)"] + allowed
-                index = options.index(current) if current in options else 0
-                values[name] = st.selectbox(name, options, index=index, key=key)
+                widget_options = {"key": key}
+                if not seeded:
+                    widget_options["index"] = options.index(current) if current in options else 0
+                values[name] = st.selectbox(name, options, **widget_options)
                 if values[name] == "(tidak diisi)":
                     values[name] = ""
     return values
@@ -547,12 +573,11 @@ def _lap_label(lap: dict) -> str:
 
 
 def render_race_analysis(mode: str, api_url: str) -> None:
-    st.markdown('<div class="workbench-eyebrow">MEX-AI / RACE ANALYSIS</div>', unsafe_allow_html=True)
-    st.markdown('<h1 class="workbench-title">Race Analysis<span style="color:#7f8792">.</span></h1>', unsafe_allow_html=True)
-    st.markdown(
-        '<p class="workbench-lede">Bandingkan dua lap dari sesi yang sama. Fakta terukur dipisahkan dari interpretasi, '
-        'dan data yang tidak tersedia tidak diubah menjadi kesimpulan.</p><div class="workbench-rule"></div>',
-        unsafe_allow_html=True,
+    render_hero(
+        "MEX-AI / RACE ANALYSIS",
+        "Race Analysis",
+        "Bandingkan dua lap dari sesi yang sama. Fakta terukur dipisahkan dari interpretasi, dan data "
+        "yang tidak tersedia tidak diubah menjadi kesimpulan.",
     )
 
     try:
@@ -736,12 +761,11 @@ def render_answer(answer: dict) -> None:
 
 
 def render_engineering_tutor(ask_service: AskService, learning: TelemetryLearningService, mode: str, api_url: str) -> None:
-    st.markdown('<div class="workbench-eyebrow">MEX-AI / ENGINEERING TUTOR</div>', unsafe_allow_html=True)
-    st.markdown('<h1 class="workbench-title">Engineering Tutor<span style="color:#7f8792">.</span></h1>', unsafe_allow_html=True)
-    st.markdown(
-        '<p class="workbench-lede">Tanya konsep teknik atau kaitkan pertanyaan dengan dua lap. '
-        'Jawaban memisahkan fakta, interpretasi, sitasi, dan keterbatasan.</p><div class="workbench-rule"></div>',
-        unsafe_allow_html=True,
+    render_hero(
+        "MEX-AI / ENGINEERING TUTOR",
+        "Engineering Tutor",
+        "Tanya konsep teknik atau kaitkan pertanyaan dengan dua lap. Jawaban memisahkan fakta, "
+        "interpretasi, sitasi, dan keterbatasan.",
     )
 
     level = st.radio("Level penjelasan", ["beginner", "engineering"], horizontal=True)
@@ -784,8 +808,8 @@ def main() -> None:
     default_api_url = os.getenv("API_URL", "http://127.0.0.1:8000")
 
     with st.sidebar:
-        st.markdown('<div class="workbench-eyebrow">MEX-AI / WORKSPACE</div>', unsafe_allow_html=True)
-        st.header("Kontrol sistem")
+        render_brand()
+        st.markdown('<div class="side-label">Modul</div>', unsafe_allow_html=True)
         module_options = ["Race Analysis", "Engineering Tutor", "Regulation Lab"]
         requested_module = st.query_params.get("module", "Regulation Lab")
         if requested_module not in module_options:
@@ -794,19 +818,29 @@ def main() -> None:
             "Modul",
             module_options,
             index=module_options.index(requested_module),
+            label_visibility="collapsed",
         )
-        st.caption(f"{kb.regulation} · Issue {kb.regulation_issue}")
-        mode = st.radio("Backend", ["In-process", "FastAPI"], index=1 if default_api_mode else 0)
-        api_url = st.text_input("API URL", value=default_api_url, disabled=mode == "In-process")
+        st.markdown('<div class="side-label">Backend</div>', unsafe_allow_html=True)
+        mode = st.segmented_control(
+            "Backend",
+            ["In-process", "FastAPI"],
+            default="FastAPI" if default_api_mode else "In-process",
+            label_visibility="collapsed",
+        ) or "In-process"
+        api_url = default_api_url
+        if mode == "FastAPI":
+            api_url = st.text_input("API URL", value=default_api_url)
         if module == "Regulation Lab":
-            st.divider()
-            st.metric("Aturan ditinjau", len(kb.reviewed_rules()))
-            st.metric("Aturan aktif", len(kb.active_rules()))
-            st.metric(
-                "Goal pemeriksaan",
-                len([g for g in kb.goals() if any(r.conclusion.kind == "boolean" for r in kb.rules_for_goal(g))]),
+            st.markdown('<div class="side-label">Cakupan aturan</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="side-stats">'
+                f'<div class="side-stat"><b>{len(kb.reviewed_rules())}</b><span>reviewed</span></div>'
+                f'<div class="side-stat"><b>{len(kb.active_rules())}</b><span>active</span></div>'
+                f'<div class="side-stat"><b>{len([g for g in kb.goals() if any(r.conclusion.kind == "boolean" for r in kb.rules_for_goal(g))])}</b><span>goal</span></div>'
+                '</div>',
+                unsafe_allow_html=True,
             )
-            st.caption("Ekstraksi teks: parser deterministik")
+            st.markdown('<div class="side-label">Aksi cepat</div>', unsafe_allow_html=True)
             if st.button("Muat contoh fakta", use_container_width=True):
                 st.session_state["facts"] = load_sample_facts()
                 update_fact_widgets(st.session_state["facts"])
@@ -819,8 +853,14 @@ def main() -> None:
                 st.session_state.pop("last_report", None)
                 st.toast("Fakta dan hasil pemeriksaan dikosongkan.")
         else:
-            st.divider()
-            st.caption("Data: 2 sesi publik TracingInsights — Abu Dhabi 2025 Q3 dan British 2025 Q3.")
+            st.markdown('<div class="side-label">Sumber data</div>', unsafe_allow_html=True)
+            st.caption("Dua sesi publik TracingInsights — Abu Dhabi 2025 Q3 dan British 2025 Q3.")
+
+        st.markdown(
+            f'<div class="side-foot"><span>{escape(str(kb.regulation))}</span>'
+            f'<span>Issue {escape(str(kb.regulation_issue))} · BM25 retrieval</span></div>',
+            unsafe_allow_html=True,
+        )
 
     if module == "Race Analysis":
         render_race_analysis(mode, api_url)
@@ -829,29 +869,19 @@ def main() -> None:
         render_engineering_tutor(get_ask_service(), get_learning_service(), mode, api_url)
         return
 
-    st.markdown('<div class="workbench-eyebrow">F1 / REGULATION LAB / 2026</div>', unsafe_allow_html=True)
-    st.markdown('<h1 class="workbench-title">Regulation Lab<span style="color:#7f8792">.</span></h1>', unsafe_allow_html=True)
-    st.markdown(
-        '<p class="workbench-lede">Periksa ketentuan teknis Formula 1 dengan fakta terstruktur, '
-        'jejak inferensi, dan bukti yang dapat ditelusuri ke regulasi.</p><div class="workbench-rule"></div>',
-        unsafe_allow_html=True,
+    render_hero(
+        "F1 / REGULATION LAB / 2026",
+        "Regulation Lab",
+        "Periksa ketentuan teknis Formula 1 dengan fakta terstruktur, jejak inferensi, dan bukti "
+        "yang dapat ditelusuri ke regulasi.",
     )
-    if kb.demo_mode:
-        st.warning(
-            "Mode demo: aturan berstatus `reviewed`, belum disetujui manusia. "
-            "Hasil tidak boleh dianggap sebagai validasi FIA."
-        )
 
     goals = [g for g in kb.goals() if any(rule.conclusion.kind == "boolean" for rule in kb.rules_for_goal(g))]
     goal_meta = {g: kb.rules_for_goal(g)[0] for g in goals}
 
-    tab_check, tab_rag, tab_rules, tab_about = st.tabs(
-        ["01  Pemeriksaan", "02  Cari bukti", "03  Aturan & sumber", "04  Tentang"]
-    )
+    tab_check, tab_rag = st.tabs(["01  Pemeriksaan", "02  Cari bukti"])
 
     with tab_check:
-        st.markdown('<div class="section-kicker">01 / COMPLIANCE ENGINE</div>', unsafe_allow_html=True)
-        st.subheader("Pemeriksaan kepatuhan")
         st.caption("Pilih ketentuan, masukkan data kendaraan, lalu jalankan inferensi berbasis aturan.")
         left, right = st.columns([1, 1.55], gap="large")
         with left:
@@ -870,7 +900,7 @@ def main() -> None:
             requirements = service.requirements(selected_goal)
 
         with right:
-            st.subheader("01 / Ekstraksi dari teks")
+            st.subheader("Ekstraksi dari teks")
             text = st.text_area(
                 "Tuliskan spesifikasi (Bahasa Indonesia atau Inggris)",
                 placeholder="Contoh: wheelbase 3350 mm, massa mobil 805 kg, sesi qualifying, tanpa heat hazard",
@@ -907,7 +937,7 @@ def main() -> None:
             for note in st.session_state.get("extraction_notes", []):
                 st.caption(f"• {note}")
 
-            st.subheader("02 / Spesifikasi teknis")
+            st.subheader("Spesifikasi teknis")
             defaults = st.session_state.get("facts", {})
             with st.form(key=f"check_form_{selected_goal}"):
                 values = fact_input_widgets(selected_goal, requirements, defaults)
@@ -946,16 +976,13 @@ def main() -> None:
             render_report(st.session_state["last_report"])
 
     with tab_rag:
-        st.markdown('<div class="section-kicker">02 / DOCUMENT RETRIEVAL</div>', unsafe_allow_html=True)
-        st.subheader("Ambil potongan regulasi yang relevan")
+        st.caption("RAG hanya mengambil bukti. Keputusan kepatuhan tetap dibuat oleh mesin inferensi.")
         query = st.text_input("Pertanyaan / kata kunci", value="maximum wheelbase 3400 mm")
-        col_a, col_b, col_c = st.columns([1, 1, 2])
+        col_a, col_b = st.columns([1, 1])
         with col_a:
             top_k = st.slider("Jumlah hasil", 1, 10, 5)
         with col_b:
             article_filter = st.text_input("Filter artikel (opsional)", value="")
-        with col_c:
-            st.caption("RAG hanya mengambil bukti. Keputusan kepatuhan tetap dibuat oleh mesin inferensi.")
         include_methodology = st.checkbox(
             "Sertakan jurnal metodologi (bukan sumber regulasi)",
             value=False,
@@ -1002,50 +1029,6 @@ def main() -> None:
                         f"chunk: {hit['chunk_id']} · dokumen: {hit['document_id']} "
                         f"· tipe: {hit.get('document_type')}"
                     )
-
-    with tab_rules:
-        st.markdown('<div class="section-kicker">03 / RULE LIBRARY</div>', unsafe_allow_html=True)
-        st.subheader("Aturan yang dapat dijalankan")
-        st.caption(
-            "Status `reviewed` berarti sumber sudah diperiksa otomatis, tetapi belum ada sign-off manusia. "
-            "Aturan baru berstatus `active` setelah reviewer mengisi approval."
-        )
-        for rule in kb.runnable_rules():
-            with st.expander(f"{rule.rule_id} — {rule.name} ({rule.status.value})"):
-                st.markdown(
-                    f"**Artikel:** {rule.source.article} (hlm. {rule.source.page}) · "
-                    f"**Issue:** {rule.source.issue} · **Status:** {rule.status.value}"
-                )
-                st.info(rule.source.quote)
-                st.markdown("**Kondisi:**")
-                for condition in rule.conditions:
-                    st.code(condition.render(), language="text")
-                if rule.applies_if:
-                    st.markdown("**Berlaku jika:**")
-                    for condition in rule.applies_if:
-                        st.code(condition.render(), language="text")
-                if rule.validation:
-                    st.json(rule.validation.model_dump())
-
-    with tab_about:
-        st.markdown('<div class="section-kicker">04 / SYSTEM NOTES</div>', unsafe_allow_html=True)
-        st.subheader("Cakupan dan keterbatasan")
-        st.markdown(
-            "- Sistem memeriksa 5 ketentuan: C2.3.1, C2.3.3, C2.3.5, C4.1, dan C4.2 dari Section C Issue 21.\n"
-            "- Status eksternal: SATISFIED, VIOLATED, INSUFFICIENT_DATA, NOT_APPLICABLE, UNSUPPORTED, ERROR.\n"
-            "- Internal proof memakai TRUE/FALSE/UNKNOWN; UNKNOWN tidak pernah dianggap FALSE.\n"
-            "- Semua aturan berstatus `reviewed` (demo-only) sampai ada sign-off manusia; belum ada aturan `active`.\n"
-            "- RAG hanya mengambil bukti dan referensi halaman, bukan keputusan kepatuhan.\n"
-            "- Jurnal metodologi dikecualikan dari pencarian kepatuhan secara default.\n"
-            "- Nilai Nominal Tyre Mass tidak ditetapkan regulasi; nilainya harus diberikan sebagai fakta.\n"
-            "- Hasil bukan pengganti pemeriksaan FIA technical delegate dan tidak mencakup seluruh Section C."
-        )
-        st.subheader("Alur")
-        st.code(
-            "Input fakta/teks -> (opsional) ekstraksi fakta -> Backward Chaining -> status + jejak + sitasi\n"
-            "Pertanyaan RAG -> chunk Section C (artikel, halaman) -> bukti",
-            language="text",
-        )
 
 
 if __name__ == "__main__":

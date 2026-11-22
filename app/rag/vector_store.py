@@ -108,10 +108,19 @@ _BM25_TOKEN_RE = re.compile(
     r"[a-z]+\d+(?:[.\-]\d+)*|\d+(?:[.\-]\d+)*|[a-z]+(?:[-'][a-z]+)*",
     re.IGNORECASE,
 )
+_BM25_STOPWORDS = frozenset(
+    "a an the is are was were be been being what how why in of to and or for with on at by "
+    "from as it this that these those does do can could should would will i we you they "
+    "there their than then if not no".split()
+)
 
 
 def _bm25_tokens(text: str) -> list[str]:
-    return _BM25_TOKEN_RE.findall(text.lower().replace("_", " "))
+    return [
+        token
+        for token in _BM25_TOKEN_RE.findall(text.lower().replace("_", " "))
+        if token not in _BM25_STOPWORDS
+    ]
 
 
 class BM25VectorStore:

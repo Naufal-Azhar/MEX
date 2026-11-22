@@ -23,9 +23,9 @@ Source: `FIA 2026 Formula One Regulations — Section C [Technical]`, **Issue 21
 
 Telemetry fixtures: 2025 Abu Dhabi Qualifying (**7 cached laps**) and 2025 British GP Qualifying (**VER lap 17, NOR lap 19**) from **TracingInsights** (Apache-2.0, public repository). Hashes and caveats: `datasets/telemetry/manifest.json` and `manifest_2025_british_gp.json`. Evaluation: `research/learning_evaluation.md`; retrieval: `research/engineering_retrieval_report.md`; acceptance: `research/mvp_acceptance.md`.
 
-Screenshots of the running app: `research/screenshots/race_analysis_sessions.png`, `race_analysis_british_results.png`, `engineering_tutor_generated.png`, `regulation_lab.png`.
+Screenshots of the running app: `research/screenshots/race_analysis_sessions.png`, `race_analysis_british_results.png`, `engineering_tutor_generated.png`, `regulation_lab.png`. The Engineering Tutor screenshot predates BM25 ranking; retake it before the final presentation.
 
-> **Generation status:** Google AI Studio is configured locally via `.env` with `gemini-3.1-flash-lite`. `/v1/ask` now returns `generated` answers for theory and telemetry questions, while keeping facts and rule findings server-side and validating `[E#]` citations. The full A/B/C comparison and semantic citation audit are not run.
+> **Generation status:** Google AI Studio is configured locally via `.env` with `gemini-3.1-flash-lite`. `/v1/ask` now returns `generated` answers for theory and telemetry questions, while keeping facts and rule findings server-side and validating `[E#]` citations. A B-vs-C comparison is available in `research/b_vs_c_comparison.md`; A-only and full semantic citation audit are not run.
 >
 > When a provider is enabled, observed facts and rule findings are still rendered server-side; the LLM cannot alter numbers or verdicts. Theory items must carry a valid `[E#]` citation, and retrieved evidence is treated as untrusted data.
 
@@ -217,7 +217,7 @@ MEX-AI telemetry slices:
 - Speed delta (NOR − VER, Abu Dhabi): mean −0.344 km/h, min −23.13, max +14.037.
 - Data gate PASS; knowledge gate PASS on quote presence only; `engineering_interpretation_status = INSUFFICIENT_DATA`.
 - All 8 telemetry rules remain `draft`. No human review was performed.
-- A/B/C LLM comparison and full semantic citation audit are **not run**.
+- A/B/C LLM comparison: A-only not run; B vs C is in `research/b_vs_c_comparison.md`.
 
 These results are on small, synthetic or public fixtures. They are not evidence of real-world accuracy.
 
@@ -284,7 +284,7 @@ storage/                        model cache, optional Qdrant, BM25/TF-IDF indexe
 - Nominal Tyre Mass must be supplied externally.
 - Tables/figures are not structured data; amendment colours are lost.
 - Rules are demo-reviewed, not human-approved.
-- A/B/C LLM comparison is not done; internet-source validation replaces human review.
+- A/B/C LLM comparison is partially done: B vs C completed on four cases; A-only not run.
 - Docker build/run and CI-equivalent tests were verified locally; no GitHub remote run exists.
 - One legacy retrieval confusion remains (C4.2 vs C10.1).
 - Telemetry covers two sessions and three lap pairs; results are descriptive only.
@@ -299,4 +299,5 @@ storage/                        model cache, optional Qdrant, BM25/TF-IDF indexe
 - Console mojibake: `set PYTHONIOENCODING=utf-8`.
 - `No module named app`: run from the project root (pytest config adds the path automatically).
 - Qdrant lock error: use BM25 (default) or stop the other process.
+- `/v1/retrieval/status` shows `tfidf`/`qdrant` unexpectedly: check `$env:EMBEDDING_BACKEND`; a shell value overrides `.env`. Unset it or set `bm25`.
 - Model download unavailable: BM25/TF-IDF need no model; use `set EMBEDDING_BACKEND=tfidf` if needed.
